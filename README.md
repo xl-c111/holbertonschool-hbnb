@@ -21,7 +21,8 @@ This document provides a technical overview for the HBnB Evolution project—an 
 
 ### 2.1 Diagram
 
-![High-Level Package Diagram](High-Level%20Package%20Diagram.png)
+![High-Level Package Diagram](part1/High-Level%20Package%20Diagram.png)
+
 
 ### 2.2 Explanation
 
@@ -44,7 +45,7 @@ This document provides a technical overview for the HBnB Evolution project—an 
 
 ### 3.1 Diagram
 
-![Detailed Class Diagram for Business Logic Layer](Detailed%20Class%20Diagram%20for%20Business%20Logic%20Layer.png)
+![Detailed Class Diagram for Business Logic Layer](part1/Detailed%20Class%20Diagram%20for%20Business%20Logic%20Layer.png)
 
 ### 3.2 Key Entities
 
@@ -75,7 +76,7 @@ This document provides a technical overview for the HBnB Evolution project—an 
 
 ### 4.1 Diagram
 
-![Sequence Diagrams for API Calls](Sequence%20Diagrams%20for%20API%20Calls.png)
+![Sequence Diagrams for API Calls](part1/Sequence%20Diagrams%20for%20API%20Calls.png)
 
 ### 4.2 Key Flows
 
