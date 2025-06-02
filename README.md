@@ -5,6 +5,11 @@
 - Xiaoling Cui
 - Wawa Niampoung
 
+## Diagram Link
+
+All diagrams used in this project can also be viewed online at Lucidchart:  
+[Lucidchart (All Diagrams)](https://lucid.app/lucidchart/084b4676-a3d5-40a5-9a3f-2be1f8e5d654/edit?invitationId=inv_7691e719-18d8-45a4-95c1-10180276ed57&referringApp=slack&page=0_0#)
+
 ## 1. Introduction
 
 This document provides a technical overview for the HBnB Evolution project—an extensible AirBnB-like platform.
