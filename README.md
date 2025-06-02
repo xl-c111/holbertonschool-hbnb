@@ -74,17 +74,49 @@ This document provides a technical overview for the HBnB Evolution project—an 
 
 ### 4.2 Key Flows
 
-- **User Registration:**  
-  User → API → BusinessLogic → Database → BusinessLogic → API → User
+#### User Registration
 
-- **Place Creation:**  
-  User → API → BusinessLogic → Database → BusinessLogic → API → User
+- **User → API:** Send registration request with user details  
+- **API → BusinessLogic:** Forward registration data for validation and user creation  
+- **BusinessLogic → Database:** Save new user information  
+- **Database → BusinessLogic:** Return success or failure confirmation  
+- **BusinessLogic → API:** Send registration result (success or error)  
+- **API → User:** Respond to user with registration outcome  
 
-- **Review Submission:**  
-  User → API → BusinessLogic → Database → BusinessLogic → API → User
+---
 
-- **Fetch Place List:**  
-  User → API → BusinessLogic → Database → BusinessLogic → API → User
+#### Place Creation
+
+- **User → API:** Submit request to create a new place with details (title, description, price, etc.)  
+- **API → BusinessLogic:** Validate request and create place object  
+- **BusinessLogic → Database:** Insert new place record  
+- **Database → BusinessLogic:** Return insert confirmation  
+- **BusinessLogic → API:** Pass creation result to API  
+- **API → User:** Notify user of place creation result  
+
+---
+
+#### Review Submission
+
+- **User → API:** Submit review for a place (rating, comment)  
+- **API → BusinessLogic:** Validate review (e.g., user permissions, content) and process submission  
+- **BusinessLogic → Database:** Store review data  
+- **Database → BusinessLogic:** Return confirmation of review addition  
+- **BusinessLogic → API:** Send review submission result  
+- **API → User:** Notify user of review submission status  
+
+---
+
+#### Fetch Place List
+
+- **User → API:** Request list of available places  
+- **API → BusinessLogic:** Ask business logic to retrieve and process places  
+- **BusinessLogic → Database:** Query database for places  
+- **Database → BusinessLogic:** Return list of places  
+- **BusinessLogic → API:** Send processed place list to API  
+- **API → User:** Respond with list of places  
+
+---
 
 Each API call flows through all layers, ensuring validation, processing, and persistence.
 
