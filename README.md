@@ -1,5 +1,10 @@
 # HBnB - UML Project
 
+## Team Members
+- Tas Gidkaos
+- Xiaoling Cui
+- Wawa Niampoung
+
 ## 1. Introduction
 
 This document provides a technical overview for the HBnB Evolution project—an extensible AirBnB-like platform.
