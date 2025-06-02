@@ -15,8 +15,7 @@ This document provides a technical overview for the HBnB Evolution project—an 
 ## 2. High-Level Architecture
 
 ### 2.1 Diagram
-
-![High-Level Package Diagram](./High-Level_Package_Diagram.png)
+![High-Level Package Diagram](High-Level%20Package%20Diagram.png)
 ### 2.2 Explanation
 
 - **Presentation Layer**:  
