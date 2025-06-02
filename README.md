@@ -1,145 +1,96 @@
-HBnB Evolution Project
-Technical Documentation
-1. Introduction
-This document provides a comprehensive technical overview for the HBnB Evolution project—a simplified, modular, and extensible version of an AirBnB-like platform. The primary purpose of this document is to serve as a blueprint for system implementation, guiding the development team through the key architectural layers, business logic design, and component interactions.
+# HBnB - UML Project
 
-Scope:
+## 1. Introduction
 
-Outlines overall system architecture.
+This document provides a technical overview for the HBnB Evolution project—an extensible AirBnB-like platform.
 
-Details the design and relationships of core entities.
+**Scope:**
+- Outlines overall system architecture.
+- Details the design and relationships of core entities.
+- Illustrates API interaction flows.
+- Clarifies major design decisions.
 
-Illustrates typical API interaction flows.
+---
 
-Clarifies the rationale behind major design decisions.
+## 2. High-Level Architecture
 
-2. High-Level Architecture
-2.1 Purpose of the Diagram
-The high-level package diagram provides a bird’s-eye view of the system’s architecture, illustrating the three-layer design (Presentation, Business Logic, Persistence) and how these layers interact via the Facade pattern.
+### 2.1 Diagram
 
-2.2 Diagram
-![High-Level Package Diagram](./High-Level_Package_Diagram.png)
+![High-Level Package Diagram](./Screenshot_2025-06-02_at_6.09.32_pm.png)
 
-2.3 Key Components & Explanation
-Presentation Layer
-Includes ServiceAPI, UserController, and PlaceController. This layer acts as the main entry point, handling requests from users and external systems.
+### 2.2 Explanation
 
-Business Logic Layer
-Contains core models (User, Place, Amenity, Review) and the HBnBFacade. All business rules, validations, and coordination between entities occur here. The HBnBFacade implements the facade pattern, acting as a single gateway for all business logic operations.
+- **Presentation Layer**:  
+  Handles requests from users or external systems (`ServiceAPI`, `UserController`, `PlaceController`).
 
-Persistence Layer
-Consists of repositories (UserRepo, PlaceRepo, AmenityRepo, ReviewRepo) responsible for storing and retrieving domain data, all interacting with the Database Connection.
+- **Business Logic Layer**:  
+  Core models and rules (`User`, `Place`, `Amenity`, `Review`).  
+  The `HBnBFacade` provides a single access point for business operations.
 
-2.4 Design Decisions
-Layered separation improves modularity and maintainability.
+- **Persistence Layer**:  
+  Manages data storage and retrieval (`UserRepo`, `PlaceRepo`, `AmenityRepo`, `ReviewRepo`, `Database Connection`).
 
-Facade pattern centralizes business logic access, hiding complexity and ensuring loose coupling between controllers and domain logic.
+- **Facade Pattern**:  
+  The `HBnBFacade` acts as the unified entry for business logic, simplifying interactions and enforcing separation of concerns.
 
-3. Business Logic Layer: Detailed Design
-3.1 Purpose of the Diagram
-The class diagram for the business logic layer details the attributes, methods, and relationships of key entities. It defines the application’s main business rules and entity interactions.
+---
 
-3.2 Diagram
+## 3. Business Logic Layer (Class Diagram)
 
-3.3 Key Entities & Relationships
-User
+### 3.1 Diagram
 
-Attributes: ID, firstName, lastName, email, password, isAdmin, createdAt, updatedAt
+![Class Diagram](./Screenshot_2025-06-02_at_6.09.13_pm.png)
 
-Methods: register(), updateProfile(), deleteAccount()
+### 3.2 Key Entities
 
-Each user can be a regular user or admin.
+- **User**:  
+  Attributes: id, firstName, lastName, email, password, isAdmin, timestamps  
+  Methods: register(), updateProfile(), deleteAccount()
 
-Place
+- **Place**:  
+  Attributes: id, title, description, price, location, amenities, timestamps  
+  Methods: createPlace(), updatePlace(), deletePlace(), listPlaces(), listByAmenity()
 
-Attributes: ID, title, description, price, latitude, longitude, userID, amenities, createdAt, updatedAt
+- **Amenity**:  
+  Attributes: id, name, description, timestamps  
+  Methods: addAmenity(), updateAmenity(), deleteAmenity()
 
-Methods: createPlace(), updatePlace(), deletePlace(), listPlaces(), listByAmenity()
+- **Review**:  
+  Attributes: id, place, rating, comment, timestamps  
+  Methods: create(), update(), delete(), listByPlace()
 
-Each place is owned by a user, can have multiple amenities, and can be reviewed.
+**Relationships:**  
+- User owns Place  
+- Place consists of Amenity  
+- Place has Review
 
-Amenity
+---
 
-Attributes: ID, name, description, createdAt, updatedAt
+## 4. API Interaction Flow (Sequence Diagrams)
 
-Methods: addAmenity(), updateAmenity(), deleteAmenity()
+### 4.1 Diagram
 
-Amenities are associated with places.
+![Sequence Diagram](./Screenshot_2025-06-02_at_6.09.32_pm.png)
 
-Review
+### 4.2 Key Flows
 
-Attributes: ID, place, rating, comment, createdAt, updatedAt
+- **User Registration:**  
+  User → API → BusinessLogic → Database → BusinessLogic → API → User
 
-Methods: create(), update(), delete(), listByPlace()
+- **Place Creation:**  
+  User → API → BusinessLogic → Database → BusinessLogic → API → User
 
-Each review is linked to a specific place.
+- **Review Submission:**  
+  User → API → BusinessLogic → Database → BusinessLogic → API → User
 
-3.4 Design Decisions
-Unique IDs and timestamps are included for all entities for audit and tracking.
+- **Fetch Place List:**  
+  User → API → BusinessLogic → Database → BusinessLogic → API → User
 
-Relationships:
+Each API call flows through all layers, ensuring validation, processing, and persistence.
 
-User “owns” Place (one-to-many)
+---
 
-Place “consists of” Amenity (many-to-many, shown as a composition/aggregation)
+## 5. Conclusion
 
-Place “has” Review (one-to-many)
+This document brings together the architecture, class design, and API flows of HBnB Evolution, serving as a blueprint for robust implementation and future reference.
 
-Business rules (e.g., only owners can update places, reviews must be associated with places and users) are enforced in this layer.
-
-4. API Interaction Flow
-4.1 Purpose of the Diagrams
-The sequence diagrams illustrate how major API calls traverse the system, showing the sequence of operations and flow of information between the layers.
-
-4.2 Diagram
-
-4.3 Key Flows & Explanations
-User Registration API Call
-User sends registration request to API.
-
-API forwards request to business logic for validation and user creation.
-
-Business logic saves user data to database.
-
-Database returns confirmation.
-
-Result flows back through business logic and API to the user.
-
-Place Creation API Call
-User sends request to create a place.
-
-API sends request to business logic for validation and creation.
-
-Business logic inserts new place data into database.
-
-Database confirms operation.
-
-API returns result to user.
-
-Review Submission API Call
-User submits a review.
-
-API forwards review to business logic for validation and processing.
-
-Business logic stores review in database.
-
-Database returns result.
-
-User receives confirmation via API.
-
-Fetching a List of Places API Call
-User requests list of places via API.
-
-API forwards request to business logic.
-
-Business logic retrieves data from database.
-
-Results flow back to user through API.
-
-4.4 Design Decisions
-Every API operation passes through all three layers, ensuring validation, consistency, and data integrity.
-
-The facade ensures controllers and APIs do not directly manipulate domain objects, enforcing strict separation of concerns.
-
-5. Conclusion
-This document compiles the core diagrams and explanatory notes that define the architecture, business logic, and system interactions of HBnB Evolution. These specifications serve as a reference throughout the development process, supporting clarity, maintainability, and successful implementation of the application.
