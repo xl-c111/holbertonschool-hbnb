@@ -16,8 +16,7 @@ This document provides a technical overview for the HBnB Evolution project—an 
 
 ### 2.1 Diagram
 
-![High-Level Package Diagram](./Screenshot_2025-06-02_at_6.09.32_pm.png)
-
+![High-Level Package Diagram](./High-Level_Package_Diagram.png)
 ### 2.2 Explanation
 
 - **Presentation Layer**:  
