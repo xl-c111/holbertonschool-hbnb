@@ -60,7 +60,7 @@ This document provides a technical overview for the HBnB Evolution project—an 
 
 - **Place**:  
   Attributes: id, title, description, price, latitude, longitude, UserID, amenities, timestamps, createdAt, updatedAt   
-  Methods: createPlace(), updatePlace(), deletePlace(), listPlaces(), listByAmenity()
+  Methods: createPlace(), updatePlace(), deletePlace(), listByPlaces(), listByAmenity()
 
 - **Amenity**:  
   Attributes: id, name, description, createdAt, updatedAt 
