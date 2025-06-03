@@ -5,6 +5,11 @@
 - Xiaoling Cui
 - Wawa Niampoung
 
+## Diagram Link
+
+All diagrams used in this project can also be viewed online at Lucidchart:  
+[Lucidchart (All Diagrams)](https://lucid.app/lucidchart/084b4676-a3d5-40a5-9a3f-2be1f8e5d654/edit?invitationId=inv_7691e719-18d8-45a4-95c1-10180276ed57&referringApp=slack&page=0_0#)
+
 ## 1. Introduction
 
 This document provides a technical overview for the HBnB Evolution project—an extensible AirBnB-like platform.
@@ -21,7 +26,8 @@ This document provides a technical overview for the HBnB Evolution project—an 
 
 ### 2.1 Diagram
 
-![High-Level Package Diagram](High-Level%20Package%20Diagram.png)
+![High-Level Package Diagram](part1/High-Level%20Package%20Diagram.png)
+
 
 ### 2.2 Explanation
 
@@ -44,24 +50,24 @@ This document provides a technical overview for the HBnB Evolution project—an 
 
 ### 3.1 Diagram
 
-![Detailed Class Diagram for Business Logic Layer](Detailed%20Class%20Diagram%20for%20Business%20Logic%20Layer.png)
+![Detailed Class Diagram for Business Logic Layer](part1/Detailed%20Class%20Diagram%20for%20Business%20Logic%20Layer.png)
 
 ### 3.2 Key Entities
 
 - **User**:  
-  Attributes: id, firstName, lastName, email, password, isAdmin, timestamps  
+  Attributes: id, firstName, lastName, email, password, isAdmin, createdAt, updatedAt  
   Methods: register(), updateProfile(), deleteAccount()
 
 - **Place**:  
-  Attributes: id, title, description, price, location, amenities, timestamps  
+  Attributes: id, title, description, price, latitude, longitude, UserID, amenities, timestamps, createdAt, updatedAt   
   Methods: createPlace(), updatePlace(), deletePlace(), listPlaces(), listByAmenity()
 
 - **Amenity**:  
-  Attributes: id, name, description, timestamps  
+  Attributes: id, name, description, createdAt, updatedAt 
   Methods: addAmenity(), updateAmenity(), deleteAmenity()
 
 - **Review**:  
-  Attributes: id, place, rating, comment, timestamps  
+  Attributes: id, place, rating, comment, createdAt, updatedAt 
   Methods: create(), update(), delete(), listByPlace()
 
 **Relationships:**  
@@ -75,7 +81,7 @@ This document provides a technical overview for the HBnB Evolution project—an 
 
 ### 4.1 Diagram
 
-![Sequence Diagrams for API Calls](Sequence%20Diagrams%20for%20API%20Calls.png)
+![Sequence Diagrams for API Calls](part1/Sequence%20Diagrams%20for%20API%20Calls.png)
 
 ### 4.2 Key Flows
 
