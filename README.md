@@ -71,9 +71,9 @@ This document provides a technical overview for the HBnB Evolution project—an 
   Methods: create(), update(), delete(), listByPlace()
 
 **Relationships:**  
-- User owns Place  
-- Place consists of Amenity  
-- Place has Review
+- Users own Places  
+- Places have Amenities and Reviews  
+- And each entity has unique IDs and timestamps for tracking changes
 
 ---
 
@@ -134,6 +134,10 @@ Each API call flows through all layers, ensuring validation, processing, and per
 ---
 
 ## 5. Conclusion
+
+- The high-level package diagram gives us a big-picture view of the system structure and communication.
+- The class diagram details the core business entities and their relationships.
+- The sequence diagrams illustrate how user actions are processed end-to-end.
 
 This document brings together the architecture, class design, and API flows of HBnB Evolution, serving as a blueprint for robust implementation and future reference.
 
