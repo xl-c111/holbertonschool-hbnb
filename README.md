@@ -55,19 +55,19 @@ This document provides a technical overview for the HBnB Evolution project—an 
 ### 3.2 Key Entities
 
 - **User**:  
-  Attributes: id, firstName, lastName, email, password, isAdmin, timestamps  
+  Attributes: id, firstName, lastName, email, password, isAdmin, createdAt, updatedAt  
   Methods: register(), updateProfile(), deleteAccount()
 
 - **Place**:  
-  Attributes: id, title, description, price, location, amenities, timestamps  
+  Attributes: id, title, description, price, latitude, longitude, UserID, amenities, timestamps, createdAt, updatedAt   
   Methods: createPlace(), updatePlace(), deletePlace(), listPlaces(), listByAmenity()
 
 - **Amenity**:  
-  Attributes: id, name, description, timestamps  
+  Attributes: id, name, description, createdAt, updatedAt 
   Methods: addAmenity(), updateAmenity(), deleteAmenity()
 
 - **Review**:  
-  Attributes: id, place, rating, comment, timestamps  
+  Attributes: id, place, rating, comment, createdAt, updatedAt 
   Methods: create(), update(), delete(), listByPlace()
 
 **Relationships:**  
