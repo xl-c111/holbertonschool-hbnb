@@ -1,8 +1,5 @@
 import uuid
 from datetime import datetime
-from app.models.user import User
-from app.models.review import Review
-from app.models.amenity import Amenity
 
 
 class Place:
@@ -21,7 +18,7 @@ class Place:
         self.reviews = []  # List to store related reviews
         self.amenities = []  # List to store related amenities
 
-    # getter and setter methods
+    # ---getter and setter methods----
 
     @property
     def title(self):
@@ -82,6 +79,7 @@ class Place:
 
     @owner.setter
     def owner(self, value):
+        from app.models.user import User
         # p = User("Tom") --> p = Place() --> p.owner = u
         # createa User obj u with name "Tom", create a place obj named p, set u as the owner of place p
         # triggers the owner setter to check if u is a User obj
@@ -97,6 +95,7 @@ class Place:
         self.updated_at = datetime.now()
 
     def add_review(self, review):
+        from app.models.review import Review
         """Add a review to the place."""
         # self.reviews refers to the reviews attribute of current obj(self), it stores all the reviews for this obj
         # .append(review) is a built-in list method, it adds the  given items at the end of the list
@@ -105,6 +104,7 @@ class Place:
         self.reviews.append(review)
 
     def update_by_owner_or_admin(self, user, **kwargs):
+        from app.models.user import User
         """Update the attributes of the object based on the provided dictionary"""
         if user != self.owner and not getattr(user, "is_admin", False):
             raise PermissionError(
@@ -118,6 +118,7 @@ class Place:
         return self
 
     def add_amenity(self, amenity, user):
+        from app.models.amenity import Amenity
         """Add an amenity to the place."""
         if not isinstance(amenity, Amenity):
             raise ValueError("Input must be a Amenity object.")
@@ -129,6 +130,7 @@ class Place:
         self.amenities.append(amenity)
 
     def remove_amenity(self, amenity, user):
+        from app.models.amenity import Amenity
         if not isinstance(amenity, Amenity):
             raise ValueError("Input must be a Amenity object.")
         if user != self.owner and not getattr(user, "is_admin", False):

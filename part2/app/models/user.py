@@ -2,9 +2,6 @@ import uuid
 from datetime import datetime
 import re
 import hashlib
-from app.models.place import Place
-from app.models.review import Review
-from app.models.amenity import Amenity
 
 
 class User:
@@ -130,6 +127,7 @@ class User:
             print("User not found.")
 
     def write_review(self, review):
+        from app.models.review import Review
         if self.is_admin:
             raise PermissionError(
                 "Owner/admin is not allowed to write reviews.")
@@ -138,6 +136,7 @@ class User:
         self.reviews.append(review)
 
     def add_place(self, place):
+        from app.models.place import Place
         # check the parameter place is an instance of Place class
         if not self.is_admin:
             raise PermissionError("Only owner/admin can add places.")
