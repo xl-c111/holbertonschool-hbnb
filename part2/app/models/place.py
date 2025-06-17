@@ -104,10 +104,11 @@ class Place:
             raise ValueError("Input must be a Review object.")
         self.reviews.append(review)
 
-    def update_by_owner(self, user, **kwargs):
+    def update_by_owner_or_admin(self, user, **kwargs):
         """Update the attributes of the object based on the provided dictionary"""
-        if user != self.owner:
-            raise PermissionError("Only the owner can update this place.")
+        if user != self.owner and not getattr(user, "is_admin", False):
+            raise PermissionError(
+                "Only the owner or admin can update this place.")
         allowed_fields = ["title", "description", "price",
                           "latitude", "longitude", "amenities"]
         for key, value in kwargs.items():
@@ -120,18 +121,19 @@ class Place:
         """Add an amenity to the place."""
         if not isinstance(amenity, Amenity):
             raise ValueError("Input must be a Amenity object.")
-        if user != self.owner:
-            raise PermissionError("Only the owner can add amenities.")
+        if user != self.owner and not getattr(user, "is_admin", False):
+            raise PermissionError("Only the owner or admin can add amenities.")
         # if amenity obj is already present in the self.amenities list, avoid duplicating
         if amenity in self.amenities:
-            return
+            return "Amenity already exists."
         self.amenities.append(amenity)
 
     def remove_amenity(self, amenity, user):
         if not isinstance(amenity, Amenity):
             raise ValueError("Input must be a Amenity object.")
-        if user != self.owner:
-            raise PermissionError("Only the owner can remove amenities.")
+        if user != self.owner and not getattr(user, "is_admin", False):
+            raise PermissionError(
+                "Only the owner or admin can remove amenities.")
         if amenity in self.amenities:
             self.amenities.remove(amenity)
 

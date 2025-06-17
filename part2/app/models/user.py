@@ -8,6 +8,7 @@ from app.models.amenity import Amenity
 
 
 class User:
+    # a list of User objects
     users_db = []
 
     def __init__(self, first_name, last_name, email, is_admin, password):
@@ -103,6 +104,7 @@ class User:
         self.updated_at = datetime.now()
 
     def register(self):
+        # loop through the User-Obj list to check if user's email matches new user's email
         for user in User.users_db:
             if user.email == self.email:
                 raise ValueError("Email already registered.")
@@ -128,14 +130,18 @@ class User:
             print("User not found.")
 
     def write_review(self, review):
+        if self.is_admin:
+            raise PermissionError(
+                "Owner/admin is not allowed to write reviews.")
+        if not isinstance(review, Review):
+            raise ValueError("Input must be a Review object.")
         self.reviews.append(review)
 
     def add_place(self, place):
         # check the parameter place is an instance of Place class
+        if not self.is_admin:
+            raise PermissionError("Only owner/admin can add places.")
         if not isinstance(place, Place):
             raise ValueError("Input must be a Place object.")
         place.owner = self
         self.places.append(place)
-
-    def add_amenity(self, amenity):
-        self.amenities.append(amenity)
