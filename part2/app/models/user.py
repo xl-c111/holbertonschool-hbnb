@@ -9,7 +9,7 @@ class User:
     users_db = []
 
     def __init__(self, first_name, last_name, email, is_admin):
-        if first_name is None or last_name is None or email is None or is_admin is None or password is None:
+        if first_name is None or last_name is None or email is None or is_admin is None:
             raise ValueError("Required attributes not specified!")
         self.id = str(uuid.uuid4())
         self.created_at = datetime.now()
