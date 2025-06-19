@@ -17,3 +17,10 @@ class HBnBFacade:
     def get_place(self, place_id):
         # Logic will be implemented in later tasks
         pass
+
+    # Placeholder method for creating a place
+    def create_place(self, place_data):
+        return self.place_repo.create(place_data)
+
+    def get_all_places(self):
+        return self.place_repo.get_all()
