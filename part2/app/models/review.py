@@ -16,7 +16,6 @@ class Review:
         self.rating = rating
         self.place = place
         self.user = user
-        self.deleted = False
 
     # ---getter and setter---
     @property
@@ -77,27 +76,30 @@ class Review:
         """Update the updated_at timestamp whenever the object is modified"""
         self.updated_at = datetime.now()
 
-    def can_edit_by(self, user):
+    def can_update_by(self, user):
         """Check if the current user is admin, only the author the review or admin can edit it"""
-        return self.user.id == user.id or getattr(user, "is_admin", False)
+        return self.user.id == user.id
 
     def can_delete_by(self, user):
         """Check if the current user is admin, only the author the review or admin can delete it"""
-        return self.user.id == user.id or getattr(user, "is_admin", False)
+        return getattr(user, "is_admin", False)
 
-    def edit(self, user, new_text=None,  new_rating=None):
-        if not self.can_edit_by(user):
-            raise PermissionError(
-                "You do not have permission to edit this review.")
+    def update(self, user, new_text=None,  new_rating=None):
+        if not self.can_update_by(user):
+            raise PermissionError("Only the author can update this review.")
+        # mean no update has been made yet
+        updated = False
         if new_text is not None:
             self.text = new_text
+            updated = True
         if new_rating is not None:
             self.rating = new_rating
-        self.save()
+            updated = True
+        if updated:
+            # self.save() only be called when update really happens, to avoid unnecessary timestamp updates
+            self.save()
 
     def delete(self, user):
         if not self.can_delete_by(user):
-            raise PermissionError(
-                "You do not have permission to delete this review.")
-        self.deleted = True
-        self.save()
+            raise PermissionError("Only admin can delete this review.")
+        return True
