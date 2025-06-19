@@ -1,14 +1,13 @@
 import uuid
 from datetime import datetime
 import re
-import hashlib
 
 
 class User:
     # a list of User objects
     users_db = []
 
-    def __init__(self, first_name, last_name, email, is_admin):
+    def __init__(self, first_name, last_name, email, is_admin=False):
         if first_name is None or last_name is None or email is None or is_admin is None:
             raise ValueError("Required attributes not specified!")
         self.id = str(uuid.uuid4())
@@ -95,15 +94,13 @@ class User:
         User.users_db.append(self)
         print(f"User {self.email} registered successfully.")
 
-    def update_profile(self, first_name=None, last_name=None, email=None, password=None):
-        if first_name is not None:
-            self.first_name = first_name
-        if last_name is not None:
-            self.last_name = last_name
-        if email is not None:
-            self.email = email
-        if password is not None:
-            self.password = password
+    def update(self, data):
+        if 'first_name' in data:
+            self.first_name = data['first_name']
+        if 'last_name' in data:
+            self.last_name = data['last_name']
+        if 'email' in data:
+            self.email = data['email']
         self.save()
 
     def delete_account(self):
