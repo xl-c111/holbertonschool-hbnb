@@ -1,7 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request
 from app.services import facade
-from app.persistence.repository import InMemoryRepository
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
@@ -21,10 +20,6 @@ place_model = api.model('Place', {
 
 @api.route('/')
 class PlaceList(Resource):
-    @api.marshal_list_with(place_model)
-    def get(self):
-        return facade.get_all_places()
-
     @api.expect(place_model)
     @api.marshal_with(place_model, code=201)
     @jwt_required()
@@ -33,7 +28,14 @@ class PlaceList(Resource):
         data = request.json
         data['owner_id'] = current_user['id']
         data['status'] = 'pending_approval'
-        return facade.create_place(data), 201
+        new_place = facade.create_place(data)
+        if new_place:
+            return new_place, 201
+        return {'message': 'Failed to create place'}, 400
+
+    @api.marshal_list_with(place_model)
+    def get(self):
+        return facade.get_all_places()
 
 @api.route('/<string:place_id>')
 class PlaceResource(Resource):
@@ -48,7 +50,10 @@ class PlaceResource(Resource):
         current_user = get_jwt_identity()
         place = facade.get_place(place_id)
 
-        if place['owner_id'] != current_user['id']:
+        if not place:
+            return {"error": "Place not found"}, 404
+
+        if place.owner.id != current_user['id']:
             return {"error": "Only the owner can update this place"}, 403
         data = request.json
         data['status'] = 'pending_approval'
@@ -59,7 +64,10 @@ class PlaceResource(Resource):
         current_user = get_jwt_identity()
         place = facade.get_place(place_id)
 
-        if place['owner_id'] != current_user['id']:
+        if not place:
+            return {"error": "Place not found"}, 404
+
+        if place.owner.id != current_user['id']:
             return {"error": "Only the owner can delete this place"}, 403
         # Mark for deletion, pending admin approval
         return facade.request_delete_place(place_id)

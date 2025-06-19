@@ -28,8 +28,16 @@ class AmenityList(Resource):
         """Create a new amenity"""
         current_user = get_jwt_identity()
         data = request.json
-        data['owner_id'] = current_user['id']
-        return facade.create_amenity(data, current_user['id']), 201
+        # Ownership is checked in the facade
+
+        try:
+            new_amenity = facade.create_amenity(data, current_user['id'])
+            return new_amenity, 201
+        except ValueError as e:
+            return {"error": str(e)}, 400
+        except PermissionError as e:
+            return {"error": str(e)}, 403
+
 
 @api.route('/<string:amenity_id>')
 class AmenityResource(Resource):
@@ -48,18 +56,28 @@ class AmenityResource(Resource):
         """Update an existing amenity"""
         current_user = get_jwt_identity()
         amenity = facade.get_amenity(amenity_id)
-        if amenity['owner_id'] != current_user['id']:
+        if not amenity:
+            return {"error": "Amenity not found"}, 404
+        # Check ownership
+        place = facade.get_place(amenity.place_id)
+        if not place or place.owner_id != current_user['id']:
             return {"error": "Only the owner can update this amenity"}, 403
         data = request.json
-        return facade.update_amenity(amenity_id, data)
+        updated_amenity = facade.update_amenity(amenity_id, data)
+        return updated_amenity
 
     @jwt_required()
     def delete(self, amenity_id):
         """Delete an amenity"""
         current_user = get_jwt_identity()
         amenity = facade.get_amenity(amenity_id)
-        if amenity['owner_id'] != current_user['id']:
-            return {"error": "Only the owner can delete this amenity"}, 403
-        return facade.delete_amenity(amenity_id)
+        if not amenity:
+            return {"error": "Amenity not found"}, 404
+        # Check ownership via place
+        place = facade.get_place(amenity.place_id)
+        if not place or place.owner_id != current_user['id']:
+            return {"error": "Only the owner of the place can delete this amenity"}, 403
+        facade.delete_amenity(amenity_id), 204
+        return {"message": "Amenity deleted successfully"}, 204
 
 

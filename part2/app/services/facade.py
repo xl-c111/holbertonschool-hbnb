@@ -22,6 +22,7 @@ class HBnBFacade:
     def place_exists(self, place_id):
         return self.place_repo.get(place_id) is not None
 
+
     #  _________________User____________________
 
     # Placeholder method for creating a place
