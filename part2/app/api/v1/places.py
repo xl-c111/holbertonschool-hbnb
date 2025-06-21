@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request
 from app.services import facade
-from flask_jwt_extended import jwt_required, get_jwt_identity
+
 
 
 api = Namespace('places', description='Place operations')
@@ -55,11 +55,7 @@ class PlaceList(Resource):
     @api.expect(place_model)
     @api.marshal_with(place_model, code=201)
     def post(self):
-        current_user = get_jwt_identity()
-        user_obj = facade.get_user(current_user['id'])
         data = request.json
-        data['owner'] = user_obj
-        data['status'] = 'pending_approval'
         new_place = facade.create_place(data)
         if new_place:
             return serialize_place(new_place), 201
@@ -83,28 +79,17 @@ class PlaceResource(Resource):
     @api.expect(place_model)
     @api.marshal_with(place_model)
     def put(self, place_id):
-        current_user = get_jwt_identity()
         place = facade.get_place(place_id)
-
         if not place:
             return {"error": "Place not found"}, 404
-
-        if str(place.owner.id) != current_user['id']:
-            # Ensure the current user is the owner of the place
-            return {"error": "Only the owner can update this place"}, 403
         data = request.json
         updated_place = facade.update_place(place_id, data)
         return serialize_place(updated_place)
 
 
     def delete(self, place_id):
-        current_user = get_jwt_identity()
         place = facade.get_place(place_id)
-
         if not place:
             return {"error": "Place not found"}, 404
-
-        if str(place.owner.id) != current_user['id']:
-            return {"error": "Only the owner can delete this place"}, 403
         facade.delete_place(place_id)
         return 'Place deleted successfully', 204
