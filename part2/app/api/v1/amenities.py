@@ -64,7 +64,7 @@ class AmenityResource(Resource):
         updated_amenity = facade.update_amenity(amenity_id, data)
         return updated_amenity
 
-    @jwt_required()
+
     def delete(self, amenity_id):
         """Delete an amenity"""
         current_user = get_jwt_identity()
