@@ -8,6 +8,12 @@ from app.api.v1.amenities import api as amenities_ns
 
 def create_app():
     app = Flask(__name__)
+
+    app.config['JWT_SECRET_KEY'] = 'your-secret-key'
+    app.config['JWT_TOKEN_LOCATION'] = ['headers']
+    app.config['JWT_HEADER_NAME'] = 'Authorization'
+    app.config['JWT_HEADER_TYPE'] = 'Bearer'
+
     api = Api(app, version='1.0', title='HBnB API',
               description='HBnB Application API')
 
