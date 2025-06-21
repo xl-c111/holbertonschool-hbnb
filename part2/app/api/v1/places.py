@@ -6,16 +6,37 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api = Namespace('places', description='Place operations')
 
+amenity_model = api.model('PlaceAmenity', {
+    'id': fields.String(description='Amenity ID'),
+    'name': fields.String(description='Name of the amenity')
+})
+
+user_model = api.model('PlaceUser', {
+    'id': fields.String(description='User ID'),
+    'first_name': fields.String(description='First name of the owner'),
+    'last_name': fields.String(description='Last name of the owner'),
+    'email': fields.String(description='Email of the owner')
+})
+
+review_model = api.model('PlaceReview', {
+    'id': fields.String(description='Review ID'),
+    'text': fields.String(description='Text of the review'),
+    'rating': fields.Integer(description='Rating of the place (1-5)'),
+    'user_id': fields.String(description='ID of the user')
+})
 
 place_model = api.model('Place', {
-    'id': fields.String(readonly=True, description='Unique identifier for the place'),
     'title': fields.String(required=True, description='Title of the place'),
-    'description': fields.String(required=True, description='Description of the place'),
-    'price': fields.Float(required=True , description='Price per night for the place'),
+    'description': fields.String(description='Description of the place'),
+    'price': fields.Float(required=True, description='Price per night'),
     'latitude': fields.Float(required=True, description='Latitude of the place'),
     'longitude': fields.Float(required=True, description='Longitude of the place'),
-    'amenities': fields.List(fields.String), #  to attach amenities
+    'owner_id': fields.String(required=True, description='ID of the owner'),
+    'owner': fields.Nested(user_model, description='Owner of the place'),
+    'amenities': fields.List(fields.Nested(amenity_model), description='List of amenities'),
+    'reviews': fields.List(fields.Nested(review_model), description='List of reviews')
 })
+
 
 def serialize_place(place):
     return {
@@ -27,6 +48,7 @@ def serialize_place(place):
         "longitude": place.longitude,
         "amenities": [str(a.id) for a in getattr(place, "amenities", [])]
     }
+
 
 @api.route('/')
 class PlaceList(Resource):
@@ -47,6 +69,7 @@ class PlaceList(Resource):
     @api.marshal_list_with(place_model)
     def get(self):
         return [serialize_place(place) for place in facade.get_all_places()]
+
 
 @api.route('/<string:place_id>')
 class PlaceResource(Resource):
