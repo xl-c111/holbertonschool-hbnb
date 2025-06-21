@@ -59,7 +59,7 @@ class HBnBFacade:
         data['owner'] = owner
         data.pop('owner_id')  # Remove owner_id so Place doesn't get it
         place = Place(**data)
-        self.place_repo.create(place.id, place)
+        self.place_repo.add(place.id, place)
         return place
 
     # Placeholder method for fetching all places
@@ -80,7 +80,6 @@ class HBnBFacade:
         for key in ['title', 'description', 'price', 'latitude', 'longitude']:
             if key in place_data:
                 setattr(place, key, place_data[key])
-        place.save()
         self.place_repo.update(place_id, place)
         return place
 
@@ -125,7 +124,7 @@ class HBnBFacade:
             number=amenity_data['number'],
             place_id=place_id
         )
-        self.amenity_repo.create(amenity.id, amenity)
+        self.amenity_repo.add(amenity.id, amenity)
         return amenity
 
     # Placeholder method for fetching an amenity by ID
@@ -141,7 +140,6 @@ class HBnBFacade:
         for key in ['name', 'description', 'number']:
             if key in amenity_data:
                 setattr(existing_amenity, key, amenity_data[key])
-        existing_amenity.save()
 
         self.amenity_repo.update(amenity_id, existing_amenity)
         return existing_amenity
