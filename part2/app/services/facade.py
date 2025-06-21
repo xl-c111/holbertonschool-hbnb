@@ -100,7 +100,7 @@ class HBnBFacade:
         return self.amenity_repo.get_all()
 
     # Placeholder methof for creating an amenity
-    def create_amenity(self, amenity_data, user_id):
+    def create_amenity(self, amenity_data):
         # check if place_id is provided
         place_id = amenity_data.get('place_id')
         if not place_id:
