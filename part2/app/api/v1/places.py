@@ -71,7 +71,7 @@ class PlaceList(Resource):
 class PlaceResource(Resource):
     @api.marshal_with(place_model)
     def get(self, place_id):
-        places = facade.get_all_places(place_id)
+        places = facade.get_places(place_id)
         if not places:
             return {"error": "Place not found"}, 404
         # Fetch the place by ID
