@@ -46,7 +46,8 @@ def serialize_place(place):
         "price": place.price,
         "latitude": place.latitude,
         "longitude": place.longitude,
-        "amenities": [str(a.id) for a in getattr(place, "amenities", [])]
+        "amenities": [str(a.id) for a in getattr(place, "amenities", [])],
+        "owner_id": str(place.owner.id) if place.owner else None
     }
 
 
