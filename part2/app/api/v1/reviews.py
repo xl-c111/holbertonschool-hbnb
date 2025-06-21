@@ -78,8 +78,6 @@ class ReviewResource(Resource):
                 'user_id': updated_review.user.id,
                 'place_id': updated_review.place.id,
             }, 200
-        except PermissionError as e:
-            return {'error': str(e)}, 403
         except ValueError as e:
             return {'error': str(e)}, 400
         except Exception as e:

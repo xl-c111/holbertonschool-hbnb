@@ -88,8 +88,6 @@ class Review:
         return getattr(user, "is_admin", False)
 
     def update(self, user, new_text=None,  new_rating=None):
-        if not self.can_update_by(user):
-            raise PermissionError("Only the author can update this review.")
         # mean no update has been made yet
         updated = False
         if new_text is not None:

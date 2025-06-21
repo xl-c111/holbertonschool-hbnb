@@ -15,6 +15,7 @@ class Place:
         self.latitude = latitude
         self.longitude = longitude
         self.owner = owner
+        self.owner_id = owner.id
         self.reviews = []  # List to store related reviews
         self.amenities = []  # List to store related amenities
 
