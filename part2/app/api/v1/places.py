@@ -26,6 +26,7 @@ review_model = api.model('PlaceReview', {
 })
 
 place_model = api.model('Place', {
+    'id': fields.String(readonly=True, description='Place ID'),
     'title': fields.String(required=True, description='Title of the place'),
     'description': fields.String(description='Description of the place'),
     'price': fields.Float(required=True, description='Price per night'),
