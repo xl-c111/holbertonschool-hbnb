@@ -84,7 +84,7 @@ class PlaceResource(Resource):
         if not place:
             return {"error": "Place not found"}, 404
         data = request.json
-        updated_place = facade.update_place(place_id, data)
+        updated_place = facade.update_by_owner_or_admin(place_id, data)
         return serialize_place(updated_place)
 
 
