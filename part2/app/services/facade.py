@@ -59,7 +59,7 @@ class HBnBFacade:
         data['owner'] = owner
         data.pop('owner_id')  # Remove owner_id so Place doesn't get it
         place = Place(**data)
-        self.place_repo.add(place.id, place)
+        self.place_repo.add(place)
         return place
 
     # Placeholder method for fetching all places
