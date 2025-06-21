@@ -32,7 +32,6 @@ def serialize_place(place):
 class PlaceList(Resource):
     @api.expect(place_model)
     @api.marshal_with(place_model, code=201)
-    @jwt_required()
     def post(self):
         current_user = get_jwt_identity()
         user_obj = facade.get_user(current_user['id'])
@@ -52,7 +51,7 @@ class PlaceList(Resource):
 class PlaceResource(Resource):
     @api.marshal_with(place_model)
     def get(self, place_id):
-        places = facade.get_all_places()
+        places = facade.get_all_places(place_id)
         if not places:
             return {"error": "Place not found"}, 404
         # Fetch the place by ID
@@ -60,7 +59,6 @@ class PlaceResource(Resource):
 
     @api.expect(place_model)
     @api.marshal_with(place_model)
-    @jwt_required()
     def put(self, place_id):
         current_user = get_jwt_identity()
         place = facade.get_place(place_id)

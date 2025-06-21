@@ -23,7 +23,6 @@ class AmenityList(Resource):
 
     @api.expect(amenity_model)
     @api.marshal_with(amenity_model, code=201)
-    @jwt_required()
     def post(self):
         """Create a new amenity"""
         current_user = get_jwt_identity()
@@ -51,7 +50,6 @@ class AmenityResource(Resource):
 
     @api.expect(amenity_model)
     @api.marshal_with(amenity_model)
-    @jwt_required()
     def put(self, amenity_id):
         """Update an existing amenity"""
         current_user = get_jwt_identity()
