@@ -52,6 +52,12 @@ class HBnBFacade:
         for field in required_fields:
             if field not in data:
                 raise ValueError(f"Missing field: {field}")
+        # Convert owner_id to owner object
+        owner = self.get_user(data['owner_id'])
+        if not owner:
+            raise ValueError("Owner not found")
+        data['owner'] = owner
+        data.pop('owner_id')  # Remove owner_id so Place doesn't get it
         place = Place(**data)
         self.place_repo.create(place.id, place)
         return place
