@@ -1,5 +1,8 @@
 from app.persistence.repository import InMemoryRepository
 from app.models.place import Place
+from app.models.user import User
+from app.models.review import Review
+from app.models.amenity import Amenity
 
 
 class HBnBFacade:
@@ -9,13 +12,33 @@ class HBnBFacade:
         self.review_repo = InMemoryRepository()
         self.amenity_repo = InMemoryRepository()
 
-    # Placeholder method for creating a user
+     #  _________________User Operations____________________
+
     def create_user(self, user_data):
-        # Logic will be implemented in later tasks
-        pass
+        user = User(**user_data)
+        self.user_repo.add(user)
+        return user
 
+    def get_user(self, user_id):
+        return self.user_repo.get(user_id)
 
+    def get_user_by_email(self, email):
+        return self.user_repo.get_by_attribute('email', email)
 
+    def get_all_users(self):
+        return self.user_repo.get_all()
+
+    def update_user(self, user_id, data):
+        # retrieve user obj with given user id
+        user = self.user_repo.get(user_id)
+        if not user:
+            return None
+        # fetch the value for the 'first_name' key from data dict and assign it to the attribute first_name of user obj
+        user.first_name = data['first_name']
+        user.last_name = data['last_name']
+        user.email = data['email']
+        self.user_repo.update(user.id, data)
+        return user
 
     #  _________________Place Operations____________________
 
@@ -24,7 +47,8 @@ class HBnBFacade:
 
     # Placeholder method for creating a place
     def create_place(self, data):
-        required_fields = ['title', 'description', 'price', 'latitude', 'longitude', 'owner']
+        required_fields = ['title', 'description',
+                           'price', 'latitude', 'longitude', 'owner']
         for field in required_fields:
             if field not in data:
                 raise ValueError(f"Missing field: {field}")
@@ -38,10 +62,10 @@ class HBnBFacade:
 
     # Placeholder method for fetching a place by ID
     def get_place(self, place_id):
-       return self.place_repo.get(place_id)
-
+        return self.place_repo.get(place_id)
 
     # Placeholder method for updating a place
+
     def update_place(self, place_id, place_data):
         place = self.place_repo.get(place_id)
         if not place:
@@ -54,8 +78,8 @@ class HBnBFacade:
         self.place_repo.update(place_id, place)
         return place
 
-
     # Placeholder method for deleting a place
+
     def request_delete_place(self, place_id):
         place = self.place_repo.get(place_id)
         if not place:
@@ -63,11 +87,10 @@ class HBnBFacade:
         self.place_repo.delete(place_id)
         return place
 
-
-
     #  _________________Amenity Operations____________________
 
     # Placeholder method for fetching all amenities
+
     def get_all_amenities(self):
         return self.amenity_repo.get_all()
 
@@ -91,11 +114,11 @@ class HBnBFacade:
 
         from app.models.amenity import Amenity
         amenity = Amenity(
-        name=amenity_data['name'],
-        description=amenity_data['description'],
-        number=amenity_data['number'],
-        place_id=place_id
-    )
+            name=amenity_data['name'],
+            description=amenity_data['description'],
+            number=amenity_data['number'],
+            place_id=place_id
+        )
         self.amenity_repo.create(amenity.id, amenity)
         return amenity
 
@@ -103,8 +126,8 @@ class HBnBFacade:
     def get_amenity(self, amenity_id):
         return self.amenity_repo.get(amenity_id)
 
-
     # Placeholder method for updating an amenity
+
     def update_amenity(self, amenity_id, amenity_data):
         existing_amenity = self.amenity_repo.get(amenity_id)
         if not existing_amenity:
@@ -124,3 +147,44 @@ class HBnBFacade:
             return None
         self.amenity_repo.delete(amenity_id)
         return amenity
+
+ #  _________________Review Operations____________________
+
+    def create_review(self, review_data):
+        user = self.user_repo.get(review_data['user_id'])
+        place = self.place_repo.get(review_data['place_id'])
+        if user is None or place is None:
+            raise ValueError("User or Place not found!")
+        review = Review(
+            text=review_data['text'],
+            rating=review_data['rating'],
+            place=place,
+            user=user
+        )
+        self.review_repo.add(review)
+        return review
+
+    def get_review(self, review_id):
+        return self.review_repo.get(review_id)
+
+    def get_all_reviews(self):
+        return self.review_repo.get_all()
+
+    def get_reviews_by_place(self, place_id):
+        return self.review_repo.get_by_attribute('place_id', place_id)
+
+    def update_review(self, review_id, review_data):
+        review = self.review_repo.get(review_id)
+        if not review:
+            return None
+        review.text = review_data['text']
+        review.rating = review_data['rating']
+        self.review_repo.update(review.id, review_data)
+        return review
+
+    def delete_review(self, review_id):
+        review = self.review_repo.get(review_id)
+        if not review:
+            return None
+        self.review_repo.delete(review_id)
+        return True
