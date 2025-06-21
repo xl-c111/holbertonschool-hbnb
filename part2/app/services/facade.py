@@ -22,12 +22,9 @@ class HBnBFacade:
     def place_exists(self, place_id):
         return self.place_repo.get(place_id) is not None
 
-
-    #  _________________User____________________
-
     # Placeholder method for creating a place
     def create_place(self, data):
-        required_fields = ['title', 'description', 'price', 'latitude', 'longitude', 'owner_id']
+        required_fields = ['title', 'description', 'price', 'latitude', 'longitude', 'owner']
         for field in required_fields:
             if field not in data:
                 raise ValueError(f"Missing field: {field}")
@@ -46,48 +43,27 @@ class HBnBFacade:
 
     # Placeholder method for updating a place
     def update_place(self, place_id, place_data):
-        existing_place = self.place_repo.get(place_id)
-        if not existing_place:
-            return None
-        updated_place = self.place_repo.update(place_id, place_data)
-        return
-
-    # Placeholder method for Requed deleting a place
-    def request_delete_place(self, place_id):
         place = self.place_repo.get(place_id)
         if not place:
             return None
-        place['status'] = 'pending_deletion'
+        # Update the place with the provided data
+        for key in ['title', 'description', 'price', 'latitude', 'longitude']:
+            if key in place_data:
+                setattr(place, key, place_data[key])
+        place.save()
         self.place_repo.update(place_id, place)
         return place
 
-    # _________________Admin____________________
-
-    # Placeholder method for Admin approving a place
-    def approve_place(self, place_id):
-        place = self.place_repo.get(place_id)
-        if not place:
-            return None
-        place['status'] = 'approved'
-        self.place_repo.update(place_id, place)
-        return place
-
-    # Placeholder method for Admin rejecting a place
-    def reject_place(self, place_id):
-        place = self.place_repo.get(place_id)
-        if not place:
-            return None
-        place['status'] = 'rejected'
-        self.place_repo.update(place_id, place)
-        return place
 
     # Placeholder method for deleting a place
-    def delete_place(self, place_id):
+    def request_delete_place(self, place_id):
         place = self.place_repo.get(place_id)
         if not place:
             return None
         self.place_repo.delete(place_id)
         return place
+
+
 
     #  _________________Amenity Operations____________________
 
@@ -108,11 +84,20 @@ class HBnBFacade:
             raise ValueError(f"Place with ID {place_id} does not exist")
 
         # check if the user is the owner of the place
-        if place.owner_id != user_id:
-            raise ValueError("User is not the owner of the place")
+        if str(place.owner.id) != user_id:
+            raise PermissionError("User is not the owner of the place")
 
         # create the amenity
-        return self.amenity_repo.create(amenity_data)
+
+        from app.models.amenity import Amenity
+        amenity = Amenity(
+        name=amenity_data['name'],
+        description=amenity_data['description'],
+        number=amenity_data['number'],
+        place_id=place_id
+    )
+        self.amenity_repo.create(amenity.id, amenity)
+        return amenity
 
     # Placeholder method for fetching an amenity by ID
     def get_amenity(self, amenity_id):
@@ -124,8 +109,13 @@ class HBnBFacade:
         existing_amenity = self.amenity_repo.get(amenity_id)
         if not existing_amenity:
             return None
-        updated_amenity = self.amenity_repo.update(amenity_id, amenity_data)
-        return updated_amenity
+        for key in ['name', 'description', 'number']:
+            if key in amenity_data:
+                setattr(existing_amenity, key, amenity_data[key])
+        existing_amenity.save()
+
+        self.amenity_repo.update(amenity_id, existing_amenity)
+        return existing_amenity
 
     # Placeholder method for deleting an amenity
     def delete_amenity(self, amenity_id):

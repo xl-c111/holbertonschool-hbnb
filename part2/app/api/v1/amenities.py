@@ -60,7 +60,7 @@ class AmenityResource(Resource):
             return {"error": "Amenity not found"}, 404
         # Check ownership
         place = facade.get_place(amenity.place_id)
-        if not place or place.owner_id != current_user['id']:
+        if not place or str(place.owner.id) != current_user['id']:
             return {"error": "Only the owner can update this amenity"}, 403
         data = request.json
         updated_amenity = facade.update_amenity(amenity_id, data)
@@ -75,9 +75,7 @@ class AmenityResource(Resource):
             return {"error": "Amenity not found"}, 404
         # Check ownership via place
         place = facade.get_place(amenity.place_id)
-        if not place or place.owner_id != current_user['id']:
+        if not place or str(place.owner.id) != current_user['id']:
             return {"error": "Only the owner of the place can delete this amenity"}, 403
-        facade.delete_amenity(amenity_id), 204
+        facade.delete_amenity(amenity_id)
         return {"message": "Amenity deleted successfully"}, 204
-
-
