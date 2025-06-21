@@ -48,7 +48,7 @@ class HBnBFacade:
     # Placeholder method for creating a place
     def create_place(self, data):
         required_fields = ['title', 'description',
-                           'price', 'latitude', 'longitude', 'owner']
+                           'price', 'latitude', 'longitude', 'owner_id']
         for field in required_fields:
             if field not in data:
                 raise ValueError(f"Missing field: {field}")
