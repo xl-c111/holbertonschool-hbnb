@@ -89,7 +89,7 @@ class PlaceResource(Resource):
 
 
     def delete(self, place_id):
-        place = facade.get(place_id)git
+        place = facade.get(place_id)
         if not place:
             return {"error": "Place not found"}, 404
         facade.delete(place_id)
