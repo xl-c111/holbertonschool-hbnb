@@ -85,7 +85,7 @@ class HBnBFacade:
 
     # Placeholder method for deleting a place
 
-    def request_delete_place(self, place_id):
+    def delete_place(self, place_id):
         place = self.place_repo.get(place_id)
         if not place:
             return None

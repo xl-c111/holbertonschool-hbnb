@@ -71,7 +71,7 @@ class PlaceList(Resource):
 class PlaceResource(Resource):
     @api.marshal_with(place_model)
     def get(self, place_id):
-        places = facade.get(place_id)
+        places = facade.get_place(place_id)
         if not places:
             return {"error": "Place not found"}, 404
         # Fetch the place by ID
@@ -80,17 +80,17 @@ class PlaceResource(Resource):
     @api.expect(place_model)
     @api.marshal_with(place_model)
     def put(self, place_id):
-        place = facade.get(place_id)
+        place = facade.get_place(place_id)
         if not place:
             return {"error": "Place not found"}, 404
         data = request.json
-        updated_place = facade.update(place_id, data)
+        updated_place = facade.update_place(place_id, data)
         return serialize_place(updated_place)
 
 
     def delete(self, place_id):
-        place = facade.get(place_id)
+        place = facade.get_place(place_id)
         if not place:
             return {"error": "Place not found"}, 404
-        facade.delete(place_id)
+        facade.delete_place(place_id)
         return 'Place deleted successfully', 204
