@@ -84,8 +84,14 @@ class PlaceResource(Resource):
         if not place:
             return {"error": "Place not found"}, 404
         data = request.json
-        updated_place = facade.update_by_owner_or_admin(place_id, data)
-        return serialize_place(updated_place)
+
+        current_user = place.owner
+        try:
+            updated_place = place.update_by_owner_or_admin(current_user, **data)
+            return serialize_place(updated_place)
+
+        except PermissionError as e:
+            return {"error": str(e)}, 403
 
 
     def delete(self, place_id):
