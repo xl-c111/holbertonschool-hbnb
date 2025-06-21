@@ -96,7 +96,7 @@ class PlaceResource(Resource):
         updated_place = facade.update_place(place_id, data)
         return serialize_place(updated_place)
 
-    @jwt_required()
+
     def delete(self, place_id):
         current_user = get_jwt_identity()
         place = facade.get_place(place_id)
