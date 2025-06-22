@@ -1,4 +1,4 @@
-# 🧪 Testing Process Log
+# Testing Process Log
 
 ## 1. Endpoints and Models Tested
 
