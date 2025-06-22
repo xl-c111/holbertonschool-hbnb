@@ -1,6 +1,7 @@
 # HBnB - BL and API
 
 ## Directory Structure
+```
 hbnb/
 ├── app/
 │   ├── __init__.py
@@ -28,7 +29,7 @@ hbnb/
 ├── config.py
 ├── requirements.txt
 ├── README.md
-
+```
 ## Directory and File Purpose
 
 - **app/**  
@@ -83,12 +84,12 @@ hbnb/
 
 ## Install Required Packages
 
-List the dependencies in `requirements.txt`:
+- **List the dependencies in `requirements.txt`:** 
+```
 flask
 flask-restx
-
-
-Install the dependencies using:
+```
+- **Install the dependencies using:** 
 ```
 pip install -r requirements.txt
 ```
