@@ -1,33 +1,33 @@
 # HBnB - BL and API
 
 ## Directory Structure
-app/
-├── init.py
-├── api/
-│ ├── init.py
-│ ├── v1/
-│ ├── init.py
-│ ├── users.py
-│ ├── places.py
-│ ├── reviews.py
-│ ├── amenities.py
-├── models/
-│ ├── init.py
-│ ├── user.py
-│ ├── place.py
-│ ├── review.py
-│ ├── amenity.py
-├── services/
-│ ├── init.py
-│ ├── facade.py
-├── persistence/
-│ ├── init.py
-│ ├── repository.py
-config.py
-requirements.txt
-run.py
-README.md
-
+hbnb/
+├── app/
+│   ├── __init__.py
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── v1/
+│   │       ├── __init__.py
+│   │       ├── users.py
+│   │       ├── places.py
+│   │       ├── reviews.py
+│   │       ├── amenities.py
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── user.py
+│   │   ├── place.py
+│   │   ├── review.py
+│   │   ├── amenity.py
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── facade.py
+│   ├── persistence/
+│       ├── __init__.py
+│       ├── repository.py
+├── run.py
+├── config.py
+├── requirements.txt
+├── README.md
 
 ## Directory and File Purpose
 
@@ -96,6 +96,8 @@ pip install -r requirements.txt
 ```
 python3 run.py
 ```
+The API will be available at [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
+
 
 
 
