@@ -25,9 +25,11 @@ class UserList(Resource):
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             return {'error': 'Email already registered'}, 400
-
-        new_user = facade.create_user(user_data)
-        return {'id': new_user.id, 'first_name': new_user.first_name, 'last_name': new_user.last_name, 'email': new_user.email}, 201
+        try:
+            new_user = facade.create_user(user_data)
+            return {'id': new_user.id, 'first_name': new_user.first_name, 'last_name': new_user.last_name, 'email': new_user.email}, 201
+        except ValueError as e:
+            return {'error': str(e)}, 400
 
     @api.response(200, 'List of users retrieved successfully')
     def get(self):
@@ -79,3 +81,42 @@ class UserResource(Resource):
             'last_name': updated_user.last_name,
             'email': updated_user.email
         }, 200
+
+
+# Test Example
+"""
+{
+  "first_name": "Wawa",
+  "last_name": "Niampoung",
+  "email": "wawa@example.com"
+}
+"""
+
+"""
+{
+  "title": "Cozy Apartment",
+  "description": "A nice place to stay",
+  "price": 100.0,
+  "latitude": 37.7749,
+  "longitude": -122.4194,
+  "owner_id": ""
+}
+"""
+
+"""
+
+{
+  "first_name": "Xiaoling",
+  "last_name": "Cui",
+  "email": "xiaoling@example.com"
+}
+"""
+
+"""
+{
+  "text": "Great place to stay!",
+  "rating": 5,
+  "user_id": "",
+  "place_id": ""
+}
+"""
