@@ -93,7 +93,7 @@ hbnb/
         **Example curl:**
 
         ```bash
-        curl -X POST http://127.0.0.1:5000/api/v1/place/ \
+        curl -X POST http://127.0.0.1:5000/api/v1/places/ \
         -H "Content-Type: application/json" \
         -d '{
         "title": "Cozy Apartment",
@@ -129,13 +129,13 @@ hbnb/
         **Example curl:**
 
         ```bash
-        curl -X POST http://127.0.0.1:5000/api/v1/review/ \
+        curl -X POST http://127.0.0.1:5000/api/v1/reviews/ \
         -H "Content-Type: application/json" \
         -d '{
           "text": "Great place to stay!",
           "rating": 5,
           "user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-          "place_id": "1fa85f64-5717-4562-b3fc-2c963f66afa6"
+          "addplace_id": "1fa85f64-5717-4562-b3fc-2c963f66afa6"
         }'
 
         ```
