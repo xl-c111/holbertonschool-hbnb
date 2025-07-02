@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime
-from app import bcrypt
 import re
 
 
@@ -26,11 +25,13 @@ class User:
     # --- password methods ---
 
     def hash_password(self, password):
+        from app import bcrypt
         """Hashes the password before storing it."""
         # there is no return, this method returns None
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def verify_password(self, password):
+        from app import bcrypt
         """Verifies if the provided password matches the hashed password."""
         return bcrypt.check_password_hash(self.password, password)
 
