@@ -7,7 +7,8 @@ api = Namespace('users', description='User operations')
 user_model = api.model('User', {
     'first_name': fields.String(required=True, description='First name of the user'),
     'last_name': fields.String(required=True, description='Last name of the user'),
-    'email': fields.String(required=True, description='Email of the user')
+    'email': fields.String(required=True, description='Email of the user'),
+    'password': fields.String(required=True, description='Password of the user', min_length=8)
 })
 
 
@@ -27,7 +28,9 @@ class UserList(Resource):
             return {'error': 'Email already registered'}, 400
         try:
             new_user = facade.create_user(user_data)
-            return {'id': new_user.id, 'first_name': new_user.first_name, 'last_name': new_user.last_name, 'email': new_user.email}, 201
+            return {'id': new_user.id,
+                    'message': 'User registered successfully.'
+                    }, 201
         except ValueError as e:
             return {'error': str(e)}, 400
 
@@ -81,42 +84,3 @@ class UserResource(Resource):
             'last_name': updated_user.last_name,
             'email': updated_user.email
         }, 200
-
-
-# Test Example
-"""
-{
-  "first_name": "Wawa",
-  "last_name": "Niampoung",
-  "email": "wawa@example.com"
-}
-"""
-
-"""
-{
-  "title": "Cozy Apartment",
-  "description": "A nice place to stay",
-  "price": 100.0,
-  "latitude": 37.7749,
-  "longitude": -122.4194,
-  "owner_id": ""
-}
-"""
-
-"""
-
-{
-  "first_name": "Xiaoling",
-  "last_name": "Cui",
-  "email": "xiaoling@example.com"
-}
-"""
-
-"""
-{
-  "text": "Great place to stay!",
-  "rating": 5,
-  "user_id": "",
-  "place_id": ""
-}
-"""
