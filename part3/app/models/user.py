@@ -8,7 +8,7 @@ class User:
     # a list of User objects
     users_db = []
 
-    def __init__(self, first_name, last_name, email, is_admin=False):
+    def __init__(self, first_name, last_name, email, password, is_admin=False):
         if first_name is None or last_name is None or email is None or is_admin is None:
             raise ValueError("Required attributes not specified!")
         self.id = str(uuid.uuid4())
@@ -17,9 +17,22 @@ class User:
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
+        # calls the method, handles the hashing and assigns the result to self.passowrd internally
+        self.hash_password(password)
         self.is_admin = is_admin
         self.reviews = []
         self.places = []
+
+    # --- password methods ---
+
+    def hash_password(self, password):
+        """Hashes the password before storing it."""
+        # there is no return, this method returns None
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def verify_password(self, password):
+        """Verifies if the provided password matches the hashed password."""
+        return bcrypt.check_password_hash(self.password, password)
 
     # ---getter and setter---
 
