@@ -1,11 +1,19 @@
 import uuid
 from datetime import datetime
 import re
-
+from app import db
+from baseclass import BaseModel
 
 class User:
-    # a list of User objects
-    users_db = []
+
+    __table_name__ = 'users'
+
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(120), nullable=False, unique=True)
+    password = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
+
 
     def __init__(self, first_name, last_name, email, password, is_admin=False):
         if first_name is None or last_name is None or email is None or is_admin is None:
