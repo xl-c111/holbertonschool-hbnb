@@ -1,16 +1,17 @@
-from app.persistence.repository import InMemoryRepository
+# from app.persistence.repository import InMemoryRepository
 from app.models.place import Place
 from app.models.user import User
 from app.models.review import Review
 from app.models.amenity import Amenity
+from app.persistence.repository import SQLAlchemyRepository as InMemoryRepository
 
 
 class HBnBFacade:
     def __init__(self):
-        self.user_repo = InMemoryRepository()
-        self.place_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository()
-        self.amenity_repo = InMemoryRepository()
+        self.user_repo = InMemoryRepository(User)
+        self.place_repo = InMemoryRepository(Place)
+        self.review_repo = InMemoryRepository(Review)
+        self.amenity_repo = InMemoryRepository(Amenity)
 
      #  _________________User Operations____________________
 
@@ -106,25 +107,7 @@ class HBnBFacade:
         if not place_id:
             raise ValueError("Missing field: place_id")
 
-
-    #  ___Mock : always assume the place exists___
-        class MockPlace:
-            id = place_id
-        place = MockPlace()
-
-        from app.models.amenity import Amenity
-        amenity = Amenity(
-        name=amenity_data['name'],
-        description=amenity_data['description'],
-        number=amenity_data['number'],
-        place_id=place_id
-    )
-        self.amenity_repo.add(amenity)
-        return amenity
-
-    #  _____end the mock part_____
-
-    """   # check if the place exists
+         # check if the place exists
         place = self.place_repo.get(place_id)
         if not place:
             raise ValueError(f"Place with ID {place_id} does not exist")
@@ -143,7 +126,7 @@ class HBnBFacade:
             place_id=place_id
         )
         self.amenity_repo.add(amenity.id, amenity)
-        return amenity """
+        return amenity
 
     # Placeholder method for fetching an amenity by ID
     def get_amenity(self, amenity_id):
@@ -170,7 +153,7 @@ class HBnBFacade:
         self.amenity_repo.delete(amenity_id)
         return amenity
 
- #  _________________Review Operations____________________
+  #  _________________Review Operations____________________
 
     def create_review(self, review_data):
         user = self.user_repo.get(review_data['user_id'])

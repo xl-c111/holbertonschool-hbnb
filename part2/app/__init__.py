@@ -4,15 +4,19 @@ from app.api.v1.users import api as users_ns
 from app.api.v1.reviews import api as reviews_ns
 from app.api.v1.places import api as places_ns
 from app.api.v1.amenities import api as amenities_ns
+from flask_sqlalchemy import SQLAlchemy
+
+
+db = SQLAlchemy()  # Create the SQLAlchemy object
 
 
 def create_app():
     app = Flask(__name__)
 
-    app.config['JWT_SECRET_KEY'] = 'your-secret-key'
-    app.config['JWT_TOKEN_LOCATION'] = ['headers']
-    app.config['JWT_HEADER_NAME'] = 'Authorization'
-    app.config['JWT_HEADER_TYPE'] = 'Bearer'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:1234@localhost/hbnb'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    db.init_app(app)
 
     api = Api(app, version='1.0', title='HBnB API',
               description='HBnB Application API')
