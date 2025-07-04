@@ -1,13 +1,15 @@
 from app.persistence.repository import SQLAlchemyRepository
+from app.persistence.user_repository import UserRepository
 from app.models.place import Place
 from app.models.user import User
 from app.models.review import Review
 from app.models.amenity import Amenity
+from app import db
 
 
 class HBnBFacade:
     def __init__(self):
-        self.user_repo = SQLAlchemyRepository(User)
+        self.user_repo = UserRepository()
         self.place_repo = SQLAlchemyRepository(Place)
         self.review_repo = SQLAlchemyRepository(Review)
         self.amenity_repo = SQLAlchemyRepository(Amenity)
@@ -15,30 +17,37 @@ class HBnBFacade:
      #  _________________User Operations____________________
 
     def create_user(self, user_data):
+        """Create a new user after checking email uniqueness"""
+        existing = self.user_repo.get_user_by_email(user_data['email'])
+        if existing:
+            raise ValueError("Email already registered.")
         user = User(**user_data)
-        self.user_repo.add(user)
+        user.hash_password(user_data['password'])
+
+        db.session.add(user)
+        db.session.commit()
         return user
 
     def get_user(self, user_id):
+        """Retrieve a user by ID"""
         return self.user_repo.get(user_id)
 
     def get_user_by_email(self, email):
-        return self.user_repo.get_by_attribute('email', email)
+        """Retrieve a user by email"""
+        return self.user_repo.get_user_by_email(email)
 
     def get_all_users(self):
+        """Return all users"""
         return self.user_repo.get_all()
 
     def update_user(self, user_id, data):
-        # retrieve user obj with given user id
-        user = self.user_repo.get(user_id)
-        if not user:
-            return None
-        # fetch the value for the 'first_name' key from data dict and assign it to the attribute first_name of user obj
-        user.first_name = data['first_name']
-        user.last_name = data['last_name']
-        user.email = data['email']
-        self.user_repo.update(user.id, data)
-        return user
+        """Update an existing user"""
+        self.user_repo.update(user_id, data)
+        return self.user_repo.get(user_id)
+
+    def delete_user(self, user_id):
+        """Delete a user using repository"""
+        self.user_repo.delete(user_id)
 
     #  _________________Place Operations____________________
 
