@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from app import db
+from app.extensions import db
 from .baseclass import BaseModel
 from app.models.user import User
 from app.models.place import Place
@@ -14,8 +14,10 @@ class Review(BaseModel):
     text = db.Column(db.String(1000), nullable=False)
     rating = db.Column(db.Integer, nullable=False)
 
-    user_id = db.Column(db.String(36), ForeignKey='users.id', nullable=False)
-    place_id = db.Column(db.String(36), ForeignKey='places.id', nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey(
+        'users.id'), nullable=False)
+    place_id = db.Column(db.String(36), db.ForeignKey(
+        'places.id'), nullable=False)
 
     place = db.relationship('Place', back_populates='reviews')
     user = db.relationship('User', back_populates='reviews')

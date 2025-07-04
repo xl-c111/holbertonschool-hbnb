@@ -1,15 +1,11 @@
 from flask import Flask
 from flask_restx import Api
 from config import DevelopmentConfig
-from flask_sqlalchemy import SQLAlchemy
+from app.extensions import db
 from app.api.v1.users import api as users_ns
 from app.api.v1.reviews import api as reviews_ns
 from app.api.v1.places import api as places_ns
 from app.api.v1.amenities import api as amenities_ns
-
-
-
-db = SQLAlchemy()
 
 
 def create_app(config_class="config.DevelopmentConfig"):
