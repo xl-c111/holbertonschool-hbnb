@@ -25,8 +25,7 @@ class HBnBFacade:
         user = User(**user_data)
         user.hash_password(user_data['password'])
 
-        db.session.add(user)
-        db.session.commit()
+        self.user_repo.add(user)
         return user
 
     def get_user(self, user_id):
@@ -205,21 +204,24 @@ class HBnBFacade:
     def get_reviews_by_place(self, place_id):
         return self.review_repo.get_by_attribute('place_id', place_id)
 
-    def update_review(self, review_id, review_data):
+    def update_review(self, review_id, review_data, user):
         review = self.review_repo.get(review_id)
         if not review:
             return None
-        if "text" in review_data:
-            review.text = review_data["text"]
-        if "rating" in review_data:
-            review.rating = review_data["rating"]
-        review.save()
-        self.review_repo.update(review.id, review)
+        if not review.can_update_by(user):
+            return PermissionError("Not allowed to edit this review.")
+
+        review.update(user, review_data.get('text'), review_data.get('rating'))
+        self.review_repo.update(review.id, {})
         return review
 
-    def delete_review(self, review_id):
+    def delete_review(self, review_id, user):
         review = self.review_repo.get(review_id)
         if not review:
             return None
+        if not review.can_delete_by(user):
+            raise PermissionError("Only admin can delete the review.")
+
+        review.delete(user)
         self.review_repo.delete(review_id)
         return True

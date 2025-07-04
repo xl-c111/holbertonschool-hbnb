@@ -84,17 +84,10 @@ class User(BaseModel):
         return value
 
     # ---methods---
-
-    def save(self):
-        """Update the updated_at timestamp whenever the object is modified"""
-        self.updated_at = datetime.utcnow()
-        db.session.commit()
-
     def register(self):
         if User.query.filter_by(email=self.email).first():
             raise ValueError("Email already registered.")
         db.session.add(self)
-        db.session.commit()
 
     def update(self, data):
         if 'first_name' in data:
@@ -104,11 +97,9 @@ class User(BaseModel):
         if 'email' in data:
             self.email = data['email']
         self.updated_at = datetime.utcnow()
-        db.session.commit()
 
     def delete_account(self):
         db.session.delete(self)
-        db.session.commit()
 
     def write_review(self, review):
         from app.models.review import Review
@@ -119,7 +110,6 @@ class User(BaseModel):
             raise ValueError("Input must be a Review object.")
         review.user = self
         db.session.add(review)
-        db.session.commit()
 
     def add_place(self, place):
         from app.models.place import Place
@@ -130,4 +120,3 @@ class User(BaseModel):
             raise ValueError("Input must be a Place object.")
         place.owner = self
         db.session.add(place)
-        db.session.commit()
