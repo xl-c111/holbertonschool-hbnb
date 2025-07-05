@@ -1,5 +1,5 @@
-from app import db
-from app.extensions import create_app
+from app import create_app
+from app.extensions import db
 import mysql.connector
 
 
