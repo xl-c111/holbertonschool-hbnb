@@ -11,7 +11,7 @@ from sqlalchemy import ForeignKey
 class Review(BaseModel):
     __tablename__ = 'reviews'
 
-    text = db.Column(db.String(1000), nullable=False)
+    text = db.Column(db.Text, nullable=False)
     rating = db.Column(db.Integer, nullable=False)
 
     user_id = db.Column(db.String(36), db.ForeignKey(
@@ -25,18 +25,16 @@ class Review(BaseModel):
     # ---validates---
 
     @validates('text')
-    def validate_text(self,  value):
+    def validate_text(self, key, value):
         if not isinstance(value, str):
             raise ValueError("Text must be a string.")
         value = value.strip()
         if len(value) == 0:
             raise ValueError("Text must be a non-empty string.")
-        if len(value) > 1000:
-            raise ValueError("Text must less than 1000 characters.")
         return value
 
     @validates('rating')
-    def validate_rating(self, value):
+    def validate_rating(self, key, value):
         if not isinstance(value, int):
             raise ValueError("Rating must be an integer.")
         if value > 5 or value < 1:
