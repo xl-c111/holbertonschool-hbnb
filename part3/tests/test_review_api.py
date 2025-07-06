@@ -12,12 +12,14 @@ class TestReviewEndpoints(unittest.TestCase):
         self.app = create_app()
         self.client = self.app.test_client()
         # Create a user
-        email = f"review_test_{uuid.uuid4().hex}@example.com"
+        email = f"test_{uuid.uuid4().hex[:6]}@example.com"
         user_resp = self.client.post('/api/v1/users/', json={
-            "first_name": "Review",
-            "last_name": "Tester",
-            "email": email
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "email": email,
+            "password": "StrongPass1!"
         })
+
         print("User create status:", user_resp.status_code)
         print("User create response:", user_resp.get_json())
         self.assertEqual(user_resp.status_code, 201)
@@ -27,7 +29,7 @@ class TestReviewEndpoints(unittest.TestCase):
         place_resp = self.client.post('/api/v1/places/', json={
             "title": "Review Place",
             "description": "Place for review test",
-            "price": 80,
+            "price": 80.0,
             "latitude": 30.0,
             "longitude": 120.0,
             "owner_id": self.user_id
@@ -77,3 +79,6 @@ class TestReviewEndpoints(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+# python3 -m tests.test_review_api -v
