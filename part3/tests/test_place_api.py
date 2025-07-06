@@ -15,7 +15,8 @@ class TestPlaceEndpoints(unittest.TestCase):
         response = self.client.post('/api/v1/users/', json={
             "first_name": "Unit",
             "last_name": "Test",
-            "email": email
+            "email": email,
+            "password": "StrongPass1!"
         })
         print("User create status:", response.status_code)
         print("User create response:", response.get_json())
@@ -27,7 +28,7 @@ class TestPlaceEndpoints(unittest.TestCase):
         data = {
             "title": "Nice Apartment",
             "description": "Cozy and quiet.",
-            "price": 100,
+            "price": 100.0,
             "latitude": 45.0,
             "longitude": 120.0,
             "owner_id": self.owner_id

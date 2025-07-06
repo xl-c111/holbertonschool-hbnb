@@ -13,3 +13,6 @@ def test_user_creation():
 
 
 test_user_creation()
+
+
+# python3 -m tests.test_user_model -v

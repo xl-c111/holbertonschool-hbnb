@@ -2,6 +2,7 @@ import unittest
 import sys
 import os
 from app import create_app
+import uuid
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -14,10 +15,11 @@ class TestUserEndpoints(unittest.TestCase):
 
     def test_create_user(self):
         """Valid user creation should return 201"""
+        email = f"jane_{uuid.uuid4().hex[:8]}@example.com"
         response = self.client.post('/api/v1/users/', json={
             "first_name": "Jane",
             "last_name": "Doe",
-            "email": "jane.doe@example.com",
+            "email": email,
             "password": "StrongPass1!"
         })
         print("DEBUG:", response.status_code, response.json)

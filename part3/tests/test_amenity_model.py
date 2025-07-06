@@ -8,3 +8,6 @@ def test_amenity_creation():
 
 
 test_amenity_creation()
+
+
+# python3 -m tests.test_amenity_model -v
