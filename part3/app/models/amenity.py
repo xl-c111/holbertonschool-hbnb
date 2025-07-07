@@ -1,35 +1,24 @@
-import uuid
 from datetime import datetime
-from app.models.user import User
-from app.models.place import Place
+from .baseclass import BaseModel
+from sqlalchemy.orm import validates
+from app.extensions import db
 
 
-class Amenity:
-    def __init__(self, name, description, number, place_id):
-        if not all([name, description, number, place_id]):
-            raise ValueError("All fields are required!")
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
-        self.name = name
-        self.description = description
-        self.number = number
-        self.place_id = place_id
+class Amenity(BaseModel):
 
-    # ---getter and setter
-    @property
-    def name(self):
-        return self._name
+    __tablename__ = 'amenities'
+    name = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(50), nullable=False)
+    number = db.Column(db.Integer, nullable=False)
+    place_id = db.Cloumn(db.Integer, db.ForeignKey('places.id'), nullable=False)
 
-    @name.setter
-    def name(self, value):
-        if not isinstance(value, str):
-            raise ValueError("Name must be a string.")
-        value = value.strip()
-        if len(value) == 0:
-            raise ValueError("Name must be a non-empty string.")
-        self._name = value
-        self.save()
+
+    # ---validates---
+    @validates('name')
+    def validates_name(self, key, value):
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("Name must be a non-emty string.")
+        return value.strip()
 
     # --methods---
 
