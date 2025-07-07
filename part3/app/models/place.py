@@ -15,7 +15,7 @@ class Place(BaseModel):
     price = db.Column(db.Integer, nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
-    owner_id = db.Column(db.String(50), db.ForeignKey(
+    owner_id = db.Column(db.String(60), db.ForeignKey(
         'users.id'), nullable=False)
 
     # Many-to-one relationship from Owner to Place

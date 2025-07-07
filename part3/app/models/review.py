@@ -14,9 +14,9 @@ class Review(BaseModel):
     text = db.Column(db.Text, nullable=False)
     rating = db.Column(db.Integer, nullable=False)
 
-    user_id = db.Column(db.String(36), db.ForeignKey(
+    user_id = db.Column(db.String(60), db.ForeignKey(
         'users.id'), nullable=False)
-    place_id = db.Column(db.String(36), db.ForeignKey(
+    place_id = db.Column(db.String(60), db.ForeignKey(
         'places.id'), nullable=False)
     # Many-to-one relationship from Review to Place
     place = db.relationship('Place', back_populates='reviews')

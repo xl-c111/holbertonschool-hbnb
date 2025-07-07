@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restx import Api
 from config import DevelopmentConfig
-from app.extensions import db
+from app.extensions import db, bcrypt
 from app.api.v1.users import api as users_ns
 from app.api.v1.reviews import api as reviews_ns
 from app.api.v1.places import api as places_ns
@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
+
 
 def create_app(config_class="config.DevelopmentConfig"):
     app = Flask(__name__)

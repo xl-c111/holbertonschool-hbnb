@@ -14,22 +14,15 @@ sudo systemctl start mysql
 
 ```bash
 mysql -u root -p
-# Enter your root password when prompted
 ```
 ### 3. Create the database and user
 
 Inside the MySQL prompt, run the following:
 ```
--- Create the database (if it doesn't exist)
-CREATE DATABASE hbnb_db;
-
--- Create a new user
-CREATE USER 'flaskuser'@'localhost' IDENTIFIED BY 'flaskpass';
-
--- Grant all privileges on the database
-GRANT ALL PRIVILEGES ON hbnb_db.* TO 'flaskuser'@'localhost';
-
--- Apply changes
+DROP USER IF EXISTS 'hbnb_user'@'localhost';
+CREATE USER 'hbnb_user'@'localhost' IDENTIFIED BY '1234';
+ALTER USER 'hbnb_user'@'localhost' IDENTIFIED BY '1234';
+GRANT ALL PRIVILEGES ON hbnb_db.* TO 'hbnb_user'@'localhost';
 FLUSH PRIVILEGES;
 
 ```
