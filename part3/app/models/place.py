@@ -36,32 +36,35 @@ class Place(BaseModel):
     def validates_title(self, key, value):
         value = value.strip()
         if 0 < len(value) <= 100:
-            self._title = value
+            # return value → tells SQLAlchemy what to store in the actual database column
+            # self._title = value → does not assign to the SQLAlchemy-managed attribute. It just adds a random attribute _title on your object.
+            # self._title = value
+            return value
         else:
             raise ValueError("Invalid title length!")
 
-    @validates('dercription')
+    @validates('description')
     def validates_description(self, key, value):
-        value.strip()
+        return value.strip()
 
     @validates('price')
     def validates_price(self, key, value):
         if isinstance(value, (int, float)) and value > 0.0:
-            self._price = value
+            return value
         else:
             raise ValueError("Invalid value specified for price")
 
     @validates('latitude')
     def valiadtes_latitude(self, key, value):
         if isinstance(value, (int, float)) and -90.0 <= value <= 90.0:
-            self._latitude = value
+            return value
         else:
             raise ValueError("Invalid value specified for Latitude")
 
     @validates('longitude')
     def valiadtes_longitude(self, key, value):
         if isinstance(value, (int, float)) and -180.0 <= value <= 180.0:
-            self._longitude = value
+            return value
         else:
             raise ValueError("Invalid value specified for Longitude")
 
