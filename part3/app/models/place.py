@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 from app.extensions import db
+from app.models.place_amenity import place_amenity
 from .baseclass import BaseModel
 from sqlalchemy.orm import validates, relationship
 

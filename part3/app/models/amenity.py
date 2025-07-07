@@ -1,5 +1,6 @@
 from datetime import datetime
 from .baseclass import BaseModel
+from app.models.place_amenity import place_amenity
 from sqlalchemy.orm import validates
 from app.extensions import db
 
@@ -10,10 +11,11 @@ class Amenity(BaseModel):
     name = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(50), nullable=False)
     number = db.Column(db.Integer, nullable=False)
-    place_id = db.Column(db.String(50), db.ForeignKey('places.id'), nullable=False)
-
+    place_id = db.Column(db.String(50), db.ForeignKey(
+        'places.id'), nullable=False)
 
     # ---validates---
+
     @validates('name')
     def validates_name(self, key, value):
         if not isinstance(value, str) or not value.strip():
