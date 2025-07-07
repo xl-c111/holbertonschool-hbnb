@@ -15,11 +15,14 @@ class Place(BaseMode):
     longitude = db.Column(db.Float, nullable=False)
     owner_id = db.Cloumn(db.Integer, db.ForeignKey('users.id'), nullable=False)
     owner = db.relationship(
-        'Users', back_populates='places', cascade='all, delete-orphan')
+        'Users', back_populates='places', cascade='all, delete-orphan'
+        )
     reviews = db.relationship(
-        'Review', back_populates='places', cascade='all, delete-orphan')
+        'Review', back_populates='places', cascade='all, delete-orphan'
+        )
     amenities = db.relationship(
-        'Amenity', decondary='place_amenity' back_populates='places')
+        'Amenity', secoundary='place_amenity', back_poopulates='places'
+        )
 
     # ---validates---
 
