@@ -1,10 +1,10 @@
 import uuid
 from datetime import datetime
 from app.extensions import db
-from .baseclass import BaseMode
+from .baseclass import BaseModel
 from sqlalchemy.orm import validates, relationship
 
-class Place(BaseMode):
+class Place(BaseModel):
 
     __tablename__ = 'places'
 
@@ -13,7 +13,7 @@ class Place(BaseMode):
     price = db.Column(db.Integer, nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
-    owner_id = db.Cloumn(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    owner_id = db.Column(db.String(50), db.ForeignKey('users.id'), nullable=False)
     owner = db.relationship(
         'Users', back_populates='places', cascade='all, delete-orphan'
         )
@@ -21,7 +21,7 @@ class Place(BaseMode):
         'Review', back_populates='places', cascade='all, delete-orphan'
         )
     amenities = db.relationship(
-        'Amenity', secoundary='place_amenity', back_poopulates='places'
+        'Amenity', secondary='place_amenity', backref='places'
         )
 
     # ---validates---

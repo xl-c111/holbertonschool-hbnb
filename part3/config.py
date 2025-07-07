@@ -14,8 +14,15 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
 
+    #  build database URI from environment variables
+    DB_USER = os.getenv('DB_USER', 'hbnb_user')
+    DB_PASSWORD = os.getenv('DB_USER', '1234')
+    DB_HOST = os.getenv('DB_HOST', 'localhost')
+    DB_NAME = os.getenv('DB_NAME', 'hbnb_db')
 
-config = {
-    'development': DevelopmentConfig,
-    'default': DevelopmentConfig
-}
+
+
+class ProductionConfig(Config):
+    """Production configuration"""
+    DEBUG = False
+    # Add production-specific settings here

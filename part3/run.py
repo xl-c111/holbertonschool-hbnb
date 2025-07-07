@@ -10,8 +10,8 @@ load_dotenv()
 
 def create_database_if_not_exists():
     config = {
-        'user': os.getenv('DB_USER', 'root'),
-        'password': os.getenv('DB_PASSWORD', ''),
+        'user': os.getenv('DB_USER', 'hbnb_user'),
+        'password': os.getenv('DB_PASSWORD', '1234'),
         'host': os.getenv('DB_HOST', 'localhost'),
     }
     db_name = os.getenv('DB_NAME', 'hbnb_db')
