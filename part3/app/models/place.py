@@ -4,6 +4,7 @@ from app.extensions import db
 from .baseclass import BaseModel
 from sqlalchemy.orm import validates, relationship
 
+
 class Place(BaseModel):
 
     __tablename__ = 'places'
@@ -13,16 +14,20 @@ class Place(BaseModel):
     price = db.Column(db.Integer, nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
-    owner_id = db.Column(db.String(50), db.ForeignKey('users.id'), nullable=False)
+    owner_id = db.Column(db.String(50), db.ForeignKey(
+        'users.id'), nullable=False)
+
+    # Many-to-one relationship from Owner to Place
     owner = db.relationship(
-        'Users', back_populates='places', cascade='all, delete-orphan'
-        )
+        'User', back_populates='places')
+    # One-to-many relationship from Place to Review
     reviews = db.relationship(
-        'Review', back_populates='places', cascade='all, delete-orphan'
-        )
+        'Review', back_populates='place', cascade='all, delete-orphan'
+    )
+    # Many-to-Many relationship between Place and Amenity
     amenities = db.relationship(
         'Amenity', secondary='place_amenity', backref='places'
-        )
+    )
 
     # ---validates---
 
@@ -58,7 +63,6 @@ class Place(BaseModel):
             self._longitude = value
         else:
             raise ValueError("Invalid value specified for Longitude")
-
 
     # ---methods----
 

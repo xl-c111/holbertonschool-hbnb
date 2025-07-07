@@ -18,8 +18,9 @@ class Review(BaseModel):
         'users.id'), nullable=False)
     place_id = db.Column(db.String(36), db.ForeignKey(
         'places.id'), nullable=False)
-
+    # Many-to-one relationship from Review to Place
     place = db.relationship('Place', back_populates='reviews')
+    # Many-to-one relationship from Review to User
     user = db.relationship('User', back_populates='reviews')
 
     # ---validates---
