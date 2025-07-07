@@ -1,14 +1,32 @@
 import uuid
 from datetime import datetime
+from app.extensions import db
+from .baseclass import BaseMode
+from sqlalchemy.orm import validates, relationship
+
+class Place(BaseMode):
+
+    __tablename__ = 'places'
+
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(100), nullable=False)
+    price = db.Column(db.Integer, nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
+    owner_id = db.Cloumn(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    owner = db.relationship(
+        'Users', back_populates='places', cascade='all, delete-orphan')
+    reviews = db.relationship(
+        'Review', back_populates='places', cascade='all, delete-orphan')
+    amenities = db.relationship(
+        'Amenity', decondary='place_amenity' back_populates='places')
 
 
-class Place:
+
     def __init__(self, title, description, price, latitude, longitude, owner):
         if title is None or description is None or price is None or latitude is None or longitude is None or owner is None:
             raise ValueError("Required attributes not specified!")
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
+
         self.title = title
         self.description = description
         self.price = price
@@ -19,75 +37,41 @@ class Place:
         self.reviews = []  # List to store related reviews
         self.amenities = []  # List to store related amenities
 
-    # ---getter and setter methods----
+    # ---validates---
 
-    @property
-    def title(self):
-        return self._title
-
-    @title.setter
-    def title(self, value):
+    @validates('title')
+    def validates_title(self, key, value):
         value = value.strip()
         if 0 < len(value) <= 100:
             self._title = value
         else:
             raise ValueError("Invalid title length!")
 
-    @property
-    def description(self):
-        return self._description
+    @validates('dercription')
+    def validates_description(self, key, value):
+        value.strip()
 
-    @description.setter
-    def description(self, value):
-        self._description = value.strip()
-
-    @property
-    def price(self):
-        return self._price
-
-    @price.setter
-    def price(self, value):
+    @validates('price')
+    def validates_price(self, key, value):
         if isinstance(value, (int, float)) and value > 0.0:
             self._price = value
         else:
             raise ValueError("Invalid value specified for price")
 
-    @property
-    def latitude(self):
-        return self._latitude
-
-    @latitude.setter
-    def latitude(self, value):
+    @validates('latitude')
+    def valiadtes_latitude(self, key, value):
         if isinstance(value, (int, float)) and -90.0 <= value <= 90.0:
             self._latitude = value
         else:
             raise ValueError("Invalid value specified for Latitude")
 
-    @property
-    def longitude(self):
-        return self._longitude
-
-    @longitude.setter
-    def longitude(self, value):
+    @validates('longitude')
+    def valiadtes_longitude(self, key, value):
         if isinstance(value, (int, float)) and -180.0 <= value <= 180.0:
             self._longitude = value
         else:
             raise ValueError("Invalid value specified for Longitude")
 
-    @property
-    def owner(self):
-        return self._owner
-
-    @owner.setter
-    def owner(self, value):
-        from app.models.user import User
-        # p = User("Tom") --> p = Place() --> p.owner = u
-        # createa User obj u with name "Tom", create a place obj named p, set u as the owner of place p
-        # triggers the owner setter to check if u is a User obj
-        if isinstance(value, User):
-            self._owner = value
-        else:
-            raise ValueError("Invalid object type passed in for owner!")
 
     # ---methods----
 
