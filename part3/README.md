@@ -18,7 +18,7 @@ mysql -u root -p
 ### 3. Create the database and user
 
 Inside the MySQL prompt, run the following:
-```
+```sql
 DROP USER IF EXISTS 'hbnb_user'@'localhost';
 CREATE USER 'hbnb_user'@'localhost' IDENTIFIED BY '1234';
 ALTER USER 'hbnb_user'@'localhost' IDENTIFIED BY '1234';
@@ -26,4 +26,16 @@ GRANT ALL PRIVILEGES ON hbnb_db.* TO 'hbnb_user'@'localhost';
 FLUSH PRIVILEGES;
 
 ```
+## Initialize Database Schema
+Once you've created the user and database:
+### 4. Run SQL Schema Script
+Use the SQL script to create all tables defined in hbnb_db.sql.
+```bash
+mysql -u root -p < hbnb_db.sql
 
+```
+### 5. Verify the Tables Were Created
+```bash
+mysql -u root -p -e "USE hbnb_db; SHOW TABLES;"
+
+```
