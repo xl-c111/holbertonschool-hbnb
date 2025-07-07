@@ -21,22 +21,6 @@ class Place(BaseMode):
     amenities = db.relationship(
         'Amenity', decondary='place_amenity' back_populates='places')
 
-
-
-    def __init__(self, title, description, price, latitude, longitude, owner):
-        if title is None or description is None or price is None or latitude is None or longitude is None or owner is None:
-            raise ValueError("Required attributes not specified!")
-
-        self.title = title
-        self.description = description
-        self.price = price
-        self.latitude = latitude
-        self.longitude = longitude
-        self.owner = owner
-        self.owner_id = owner.id
-        self.reviews = []  # List to store related reviews
-        self.amenities = []  # List to store related amenities
-
     # ---validates---
 
     @validates('title')
