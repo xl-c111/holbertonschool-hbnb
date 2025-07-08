@@ -104,10 +104,15 @@ class HBnBFacade:
     def add_amenity_to_place(self, place_id, amenity_id, user):
         place = self.place_repo.get(place_id)
         amenity = self.amenity_repo.get(amenity_id)
+
         if not place or not amenity:
-            raise ValueError("Place or Amenity not found.")
+            return None
+
+        if place.owner_id != user.id:
+            raise PermissionError("Unauthorized")
         place.add_amenity(amenity, user)
-        self.place_repo.update(place_id, place)
+        db.session.commit()
+        return amenity
 
     def delete_amenity_from_place(self, place_id, amenity_id, user):
         place = self.place_repo.get(place_id)
@@ -116,23 +121,22 @@ class HBnBFacade:
             raise ValueError("Place or Amenity not found.")
 
         place.remove_amenity(amenity, user)
-        self.place_repo.update(place_id, place)
+        db.session.commit()
 
     #  _________________Amenity Operations____________________
-
-    # Placeholder method for fetching all amenities
 
     def get_all_amenities(self):
         return self.amenity_repo.get_all()
 
-    # Placeholder methof for creating an amenity
     def create_amenity(self, amenity_data, user_id):
-        place_id = amenity_data.get("place_id")
+        place_id = amenity_data.get('place_id')
         if not place_id:
             raise ValueError("Missing 'place_id' in amenity data.")
+
         place = self.place_repo.get(place_id)
         if not place:
             raise ValueError(f"Place with ID {place_id} does not exist.")
+
         if str(place.owner.id) != user_id:
             raise PermissionError("User is not the owner of the place")
 
@@ -149,14 +153,10 @@ class HBnBFacade:
 
         amenity = Amenity(name=name, description=description, number=number)
         self.amenity_repo.add(amenity)
-        place.add_amenity(amenity, place.owner)
         return amenity
 
-    # Placeholder method for fetching an amenity by ID
     def get_amenity(self, amenity_id):
         return self.amenity_repo.get(amenity_id)
-
-    # Placeholder method for updating an amenity
 
     def update_amenity(self, amenity_id, amenity_data):
         existing_amenity = self.amenity_repo.get(amenity_id)
@@ -169,7 +169,6 @@ class HBnBFacade:
         self.amenity_repo.update(amenity_id, existing_amenity)
         return existing_amenity
 
-    # Placeholder method for deleting an amenity
     def delete_amenity(self, amenity_id):
         amenity = self.amenity_repo.get(amenity_id)
         if not amenity:

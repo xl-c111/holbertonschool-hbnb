@@ -101,3 +101,42 @@ class PlaceResource(Resource):
             return {"error": "Place not found"}, 404
         facade.delete_place(place_id)
         return 'Place deleted successfully', 204
+
+
+@api.route('/<string:place_id>/amenities/<string:amenity_id>')
+class PlaceAmenityResoiurce(Resource):
+    def post(self, place_id, amenity_id):
+        place = facade.get_place(place_id)
+        if not place:
+            return {"error": "Place not found"}, 404
+
+        user = place.owner
+
+        try:
+            amenity = facade.add_amenity_to_place(place_id, amenity_id, user)
+            if amenity is None:
+                return {"error": "Place or Amenity not found"}, 404
+            return {
+                "id": amenity.id,
+                "name": amenity.name
+            }, 201
+        except ValueError as e:
+            return {"error": str(e)}, 400
+        except PermissionError as e:
+            return {"error": str(e)}, 403
+
+    def delete(self, place_id, amenity_id):
+        # Replace this with actual user context
+        place = facade.get_place(place_id)
+        if not place:
+            return {"error": "Place not found"}, 404
+
+        user = place.owner
+
+        try:
+            facade.delete_amenity_from_place(place_id, amenity_id, user)
+            return {"message": "Amenity removed successfully"}, 200
+        except ValueError as e:
+            return {"error": str(e)}, 400
+        except PermissionError as e:
+            return {"error": str(e)}, 403
