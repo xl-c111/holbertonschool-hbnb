@@ -101,6 +101,23 @@ class HBnBFacade:
         self.place_repo.delete(place_id)
         return place
 
+    def add_amenity_to_place(self, place_id, amenity_id, user):
+        place = self.place_repo.get(place_id)
+        amenity = self.amenity_repo.get(amenity_id)
+        if not place or not amenity:
+            raise ValueError("Place or Amenity not found.")
+        place.add_amenity(amenity, user)
+        self.place_repo.update(place_id, place)
+
+    def delete_amenity_from_place(self, place_id, amenity_id, user):
+        place = self.place_repo.get(place_id)
+        amenity = self.amenity_repo.get(amenity_id)
+        if not place or not amenity:
+            raise ValueError("Place or Amenity not found.")
+
+        place.remove_amenity(amenity, user)
+        self.place_repo.update(place_id, place)
+
     #  _________________Amenity Operations____________________
 
     # Placeholder method for fetching all amenities
@@ -109,50 +126,28 @@ class HBnBFacade:
         return self.amenity_repo.get_all()
 
     # Placeholder methof for creating an amenity
-    def create_amenity(self, amenity_data):
-        # check if place_id is provided
-        place_id = amenity_data.get('place_id')
+    def create_amenity(self, amenity_data, user_id):
+        # extract place_id from amenity_data
+        place_id = amenity_data.get("place_id")
         if not place_id:
-            raise ValueError("Missing field: place_id")
-
-    #  ___Mock : always assume the place exists___
-
-        class MockPlace:
-            id = place_id
-        place = MockPlace()
-
-        from app.models.amenity import Amenity
-        amenity = Amenity(
-            name=amenity_data['name'],
-            description=amenity_data['description'],
-            number=amenity_data['number'],
-            place_id=place_id
-        )
-        self.amenity_repo.add(amenity)
-        return amenity
-
-    #  _____end the mock part_____
-
-    """   # check if the place exists
+            raise ValueError("Missing 'place_id' in amenity data.")
         place = self.place_repo.get(place_id)
         if not place:
-            raise ValueError(f"Place with ID {place_id} does not exist")
-
+            raise ValueError(f"Place with ID {place_id} does not exist.")
         # check if the user is the owner of the place
         if str(place.owner.id) != user_id:
             raise PermissionError("User is not the owner of the place")
-
         # create the amenity
-
         from app.models.amenity import Amenity
         amenity = Amenity(
             name=amenity_data['name'],
             description=amenity_data['description'],
-            number=amenity_data['number'],
-            place_id=place_id
+            number=amenity_data['number']
         )
-        self.amenity_repo.add(amenity.id, amenity)
-        return amenity """
+        self.amenity_repo.add(amenity)
+        place.add_amenity(amenity, place.owner)
+        self.place_repo.update(place.id, place)
+        return amenity
 
     # Placeholder method for fetching an amenity by ID
     def get_amenity(self, amenity_id):
@@ -212,11 +207,11 @@ class HBnBFacade:
             return PermissionError("Not allowed to edit this review.")
 
         review.update(user, review_data.get('text'), review_data.get('rating'))
-        self.review_repo.update(review.id, {})
+        self.review_repo.update(review.id)
         return review
 
     def delete_review(self, review_id, user):
-        review = self.review_repo.get(review_id)
+        review = self.review_repo.get(review_id, review)
         if not review:
             return None
         if not review.can_delete_by(user):
