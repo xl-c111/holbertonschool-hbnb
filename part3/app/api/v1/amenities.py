@@ -9,7 +9,7 @@ amenity_model = api.model('Amenity', {
     'id': fields.String(readonly=True),
     'name': fields.String(required=True, description='Name of the amenity'),
     'description': fields.String(required=True, description='Description of the amenity'),
-    'number' : fields.Integer(required=True, description='Number of this amenity available'),
+    'number': fields.Integer(required=True, description='Number of this amenity available'),
     'place_id': fields.String(required=True, description='ID of the place this amenity belongs to'),
 })
 
@@ -17,6 +17,7 @@ amenity_brief_model = api.model('AmenityBrief', {
     'id': fields.String(readonly=True),
     'name': fields.String(required=True, description='Name of the amenity'),
 })
+
 
 @api.route('/')
 class AmenityList(Resource):
@@ -30,14 +31,19 @@ class AmenityList(Resource):
     def post(self):
         """Create a new amenity"""
         data = request.json
-
+        user_id = data.get('owner_id')
+        if not user_id:
+            return {"error": "Missing owner_id"}, 400
         try:
-            new_amenity = facade.create_amenity(data)
+            new_amenity = facade.create_amenity(data, user_id)
             return {'id': new_amenity.id, 'name': new_amenity.name}, 201
         except ValueError as e:
             return {"error": str(e)}, 400
         except PermissionError as e:
             return {"error": str(e)}, 403
+        except ValueError as e:
+            print("DEBUG: ValueError thrown in POST:", e)
+            return {"error": str(e)}, 400
 
 
 @api.route('/<string:amenity_id>')
@@ -61,7 +67,6 @@ class AmenityResource(Resource):
         data = request.json
         updated_amenity = facade.update_amenity(amenity_id, data)
         return updated_amenity
-
 
     def delete(self, amenity_id):
         """Delete an amenity"""

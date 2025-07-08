@@ -127,26 +127,29 @@ class HBnBFacade:
 
     # Placeholder methof for creating an amenity
     def create_amenity(self, amenity_data, user_id):
-        # extract place_id from amenity_data
         place_id = amenity_data.get("place_id")
         if not place_id:
             raise ValueError("Missing 'place_id' in amenity data.")
         place = self.place_repo.get(place_id)
         if not place:
             raise ValueError(f"Place with ID {place_id} does not exist.")
-        # check if the user is the owner of the place
         if str(place.owner.id) != user_id:
             raise PermissionError("User is not the owner of the place")
-        # create the amenity
-        from app.models.amenity import Amenity
-        amenity = Amenity(
-            name=amenity_data['name'],
-            description=amenity_data['description'],
-            number=amenity_data['number']
-        )
+
+        name = amenity_data.get("name", "").strip()
+        description = amenity_data.get("description", "").strip()
+        number = amenity_data.get("number")
+
+        if not name:
+            raise ValueError("Amenity name cannot be empty.")
+        if not description:
+            raise ValueError("Amenity description cannot be empty.")
+        if not isinstance(number, int):
+            raise ValueError("Amenity number must be an integer.")
+
+        amenity = Amenity(name=name, description=description, number=number)
         self.amenity_repo.add(amenity)
         place.add_amenity(amenity, place.owner)
-        self.place_repo.update(place.id, place)
         return amenity
 
     # Placeholder method for fetching an amenity by ID
