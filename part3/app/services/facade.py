@@ -101,12 +101,18 @@ class HBnBFacade:
         self.place_repo.delete(place_id)
         return place
 
-    #  _________________Amenity Operations____________________
+    def add_amenity_to_place(self, place_id, amenity_id, user):
+        place = self.place_repo.get(place_id)
+        amenity = self.amenity_repo.get(amenity_id)
 
-    # Placeholder method for fetching all amenities
+        if not place or not amenity:
+            return None
 
-    def get_all_amenities(self):
-        return self.amenity_repo.get_all()
+        if place.owner_id != user.id:
+            raise PermissionError("Unauthorized")
+        place.add_amenity(amenity, user)
+        db.session.commit()
+        return amenity
 
     # Placeholder methof for creating an amenity
     def create_amenity(self, amenity_data):
@@ -122,7 +128,7 @@ class HBnBFacade:
         place_id = amenity_data['place_id']
         place = self.place_repo.get(place_id)
         if not place:
-            raise ValueError(f"Place with ID {place_id} does not exist")
+            raise ValueError(f"Place with ID {place_id} does not exist.")
 
         # create the amenity
 
@@ -136,11 +142,8 @@ class HBnBFacade:
         return amenity
 
 
-    # Placeholder method for fetching an amenity by ID
     def get_amenity(self, amenity_id):
         return self.amenity_repo.get(amenity_id)
-
-    # Placeholder method for updating an amenity
 
     def update_amenity(self, amenity_id, amenity_data):
 
@@ -205,11 +208,11 @@ class HBnBFacade:
             return PermissionError("Not allowed to edit this review.")
 
         review.update(user, review_data.get('text'), review_data.get('rating'))
-        self.review_repo.update(review.id, {})
+        self.review_repo.update(review.id)
         return review
 
     def delete_review(self, review_id, user):
-        review = self.review_repo.get(review_id)
+        review = self.review_repo.get(review_id, review)
         if not review:
             return None
         if not review.can_delete_by(user):

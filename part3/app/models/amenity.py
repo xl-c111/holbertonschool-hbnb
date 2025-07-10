@@ -9,7 +9,7 @@ class Amenity(BaseModel):
 
     __tablename__ = 'amenities'
     name = db.Column(db.String(50), nullable=False)
-    description = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(100), nullable=False)
     number = db.Column(db.Integer, nullable=False)
 
 

@@ -3,6 +3,7 @@ import unittest
 import sys
 import os
 import uuid
+from flask_restx import fields
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
@@ -11,11 +12,11 @@ class TestPlaceEndpoints(unittest.TestCase):
     def setUp(self):
         self.app = create_app()
         self.client = self.app.test_client()
-        email = f"unittest_{uuid.uuid4().hex}@example.com"
+        self.email = f"unittest_{uuid.uuid4().hex}@example.com"
         response = self.client.post('/api/v1/users/', json={
             "first_name": "Unit",
             "last_name": "Test",
-            "email": email,
+            "email": self.email,
             "password": "StrongPass1!"
         })
         print("User create status:", response.status_code)

@@ -17,6 +17,7 @@ amenity_brief_model = api.model('AmenityBrief', {
     'name': fields.String(required=True, description='Name of the amenity'),
 })
 
+
 @api.route('/')
 class AmenityList(Resource):
     @api.marshal_list_with(amenity_model)
@@ -41,6 +42,9 @@ class AmenityList(Resource):
             return {"error": str(e)}, 400
         except PermissionError as e:
             return {"error": str(e)}, 403
+        except ValueError as e:
+            print("DEBUG: ValueError thrown in POST:", e)
+            return {"error": str(e)}, 400
 
 
 @api.route('/<string:amenity_id>')
@@ -64,7 +68,6 @@ class AmenityResource(Resource):
         data = request.get_json()
         updated_amenity = facade.update_amenity(amenity_id, data)
         return updated_amenity, 200
-
 
     def delete(self, amenity_id):
         """Delete an amenity"""

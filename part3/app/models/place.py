@@ -40,9 +40,6 @@ class Place(BaseModel):
     def validates_title(self, key, value):
         value = value.strip()
         if 0 < len(value) <= 100:
-            # return value → tells SQLAlchemy what to store in the actual database column
-            # self._title = value → does not assign to the SQLAlchemy-managed attribute. It just adds a random attribute _title on your object.
-            # self._title = value
             return value
         else:
             raise ValueError("Invalid title length!")
