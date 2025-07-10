@@ -10,7 +10,6 @@ from app.api.v1.auth import api as auth_ns
 import os
 from dotenv import load_dotenv
 
-
 # Load environment variables
 load_dotenv()
 

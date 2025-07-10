@@ -115,7 +115,7 @@ class PlaceResource(Resource):
 
 
 @api.route('/<string:place_id>/amenities/<string:amenity_id>')
-class PlaceAmenityResoiurce(Resource):
+class PlaceAmenityResource(Resource):
     def post(self, place_id, amenity_id):
         place = facade.get_place(place_id)
         if not place:

@@ -26,3 +26,8 @@ class ProductionConfig(Config):
     """Production configuration"""
     DEBUG = False
     # Add production-specific settings here
+
+class TestingConfig(Config):
+    TESTING = True
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = os.getenv("TEST_DATABASE_URI", "mysql+mysqlconnector://hbnb_user:1234@localhost/hbnb_db")

@@ -1,5 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api = Namespace('users', description='User operations')
 
@@ -11,6 +12,10 @@ user_model = api.model('User', {
     'password': fields.String(required=True, description='Password of the user', min_length=8)
 })
 
+user_update_model = api.model('UserUpdate', {
+    'first_name': fields.String(required=False, description='First name'),
+    'last_name': fields.String(required=False, description='Last name')
+})
 
 @api.route('/')
 class UserList(Resource):
@@ -62,20 +67,27 @@ class UserResource(Resource):
             return {'error': 'User not found'}, 404
         return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email}, 200
 
-    @api.expect(user_model, validate=True)
+    @jwt_required()
+    @api.expect(user_update_model, validate=True)
     @api.response(200, 'User updated successfully')
     @api.response(400, 'Invalid input data')
+    @api.response(403, 'Unauthorized action')
     @api.response(404, 'User not found')
     def put(self, user_id):
         """update user info by ID"""
+        identity = get_jwt_identity()
+        current_user_id = identity.get('id')
+
+        if user_id != current_user_id:
+            return {'error': 'Unauthorized action'}, 403
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
+        
         update_data = api.payload
 
-        existing_user = facade.get_user_by_email(update_data['email'])
-        if existing_user and existing_user.id != user.id:
-            return {'error': 'Email already registered by another user'}, 400
+        if 'email' in update_data or 'password' in update_data:
+            return {'error': 'You cannot modify email or password.'}, 400
 
         updated_user = facade.update_user(user_id, update_data)
         return {
@@ -83,4 +95,4 @@ class UserResource(Resource):
             'first_name': updated_user.first_name,
             'last_name': updated_user.last_name,
             'email': updated_user.email
-        }, 200
+        }, 201
