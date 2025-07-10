@@ -2,6 +2,8 @@ from flask_restx import Namespace, Resource, fields
 from flask import request
 from app.services import facade
 from app.models.review import Review
+from app.models.user import User
+from app.extensions import db
 from flask_login import current_user
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -80,9 +82,12 @@ class ReviewResource(Resource):
         """Update a review's information"""
         update_data = api.payload
         identity = get_jwt_identity()
+        user = db.session.get(User, identity["id"])
+        if not user:
+            return {"error": "User not found"}, 404
 
         try:
-            updated_review = facade.update_review(review_id, update_data, identity)
+            updated_review = facade.update_review(review_id, update_data, user)
             if not updated_review:
                 return {'error': 'Review not found'}, 404
             return {
@@ -97,12 +102,16 @@ class ReviewResource(Resource):
         except ValueError as e:
             return {'error': str(e)}, 400
 
+
     @jwt_required
     @api.response(200, 'Review deleted successfully')
     @api.response(404, 'Review not found')
     def delete(self, review_id):
         """Delete a review"""
         identity = get_jwt_identity()
+        user = User.query.get(identity["id"])
+        if not user:
+            return {"error": "User not found"}, 404
         try:
             result = facade.get_review(review_id, identity)
             if not result:

@@ -101,6 +101,32 @@ class TestReviewAPI(unittest.TestCase):
         resp = self.client.post("/api/v1/reviews/", json=payload, headers=self.headers)
         self.assertEqual(resp.status_code, 403)
 
+    def test_update_review_success(self):
+  
+        review = self.client.post("/api/v1/reviews/", json=self._review_payload(), headers=self.headers)
+        print("POST review status:", review.status_code)
+        print("POST review json:", review.get_json())
+        review_id = review.get_json()["id"]
+        updated_payload = {
+            "text": "Updated review text",
+            "rating": 4
+        }
+        resp = self.client.put(f"/api/v1/reviews/{review_id}", json=updated_payload, headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.get_json()["text"], "Updated review text")
+
+    def test_update_review_unauthenticated(self):
+
+        review = self.client.post("/api/v1/reviews/", json=self._review_payload(), headers=self.headers)
+        review_id = review.get_json()["id"]
+        updated_payload = {
+            "text": "Malicious update",
+            "rating": 1
+        }
+        resp = self.client.put(f"/api/v1/reviews/{review_id}", json=updated_payload)
+        self.assertEqual(resp.status_code, 401)
+
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -223,20 +223,19 @@ class HBnBFacade:
         review = self.review_repo.get(review_id)
         if not review:
             return None
-        if not review.can_update_by(user):
+        if review.user.id != user.id and not getattr(user, 'is_admin', False):
             raise PermissionError("Not allowed to edit this review.")
-
-        review.update(user, review_data.get('text'), review_data.get('rating'))
-        self.review_repo.update(review.id)
+        review.text = review_data.get('text', review.text)
+        review.rating = review_data.get('rating', review.rating)
+        db.session.commit()  
         return review
+        
 
     def delete_review(self, review_id, user):
         review = self.review_repo.get(review_id)
         if not review:
-            return None
-        if not review.can_delete_by(user):
+            return None    
+        if review.user.id != user.id and not getattr(user, 'is_admin', False):
             raise PermissionError("Unauthorized action.")
-
-        review.delete(user)
         self.review_repo.delete(review_id)
         return True
