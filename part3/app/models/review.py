@@ -46,7 +46,7 @@ class Review(BaseModel):
 
     def can_update_by(self, user):
         """Only the author of this review can edit it"""
-        return self.user.id == user.id
+        return self.user.id == user.id or getattr(user, 'is_admin', False)
 
     def can_delete_by(self, user):
         """Only admin can delete the review"""

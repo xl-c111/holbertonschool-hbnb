@@ -192,6 +192,15 @@ class HBnBFacade:
         place = self.place_repo.get(review_data['place_id'])
         if user is None or place is None:
             raise ValueError("User or Place not found!")
+        
+        if place.owner_id == user.id:
+            raise ValueError("You cannot review your own place.")
+        
+        existing_reviews = self.review_repo.get_all_by_attribute("place_id", place.id) or []
+        if any(review.user.id == user.id for review in existing_reviews):
+            raise ValueError("You have already reviewed this place.")
+            
+        
         review = Review(
             text=review_data['text'],
             rating=review_data['rating'],
@@ -208,25 +217,25 @@ class HBnBFacade:
         return self.review_repo.get_all()
 
     def get_reviews_by_place(self, place_id):
-        return self.review_repo.get_by_attribute('place_id', place_id)
+        return self.review_repo.get_by_attribute("place_id", place_id) or []
 
     def update_review(self, review_id, review_data, user):
         review = self.review_repo.get(review_id)
         if not review:
             return None
         if not review.can_update_by(user):
-            return PermissionError("Not allowed to edit this review.")
+            raise PermissionError("Not allowed to edit this review.")
 
         review.update(user, review_data.get('text'), review_data.get('rating'))
         self.review_repo.update(review.id)
         return review
 
     def delete_review(self, review_id, user):
-        review = self.review_repo.get(review_id, review)
+        review = self.review_repo.get(review_id)
         if not review:
             return None
         if not review.can_delete_by(user):
-            raise PermissionError("Only admin can delete the review.")
+            raise PermissionError("Unauthorized action.")
 
         review.delete(user)
         self.review_repo.delete(review_id)

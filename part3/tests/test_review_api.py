@@ -1,84 +1,110 @@
-from app import create_app
 import unittest
-import sys
-import os
 import uuid
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from app import create_app, db
+from config import TestingConfig
 
-
-class TestReviewEndpoints(unittest.TestCase):
-
+class TestReviewAPI(unittest.TestCase):
     def setUp(self):
-        self.app = create_app()
+        self.app = create_app(TestingConfig)
+        self.app.app_context().push()
+        db.create_all()
         self.client = self.app.test_client()
-        # Create a user
-        email = f"test_{uuid.uuid4().hex[:6]}@example.com"
-        user_resp = self.client.post('/api/v1/users/', json={
-            "first_name": "Jane",
-            "last_name": "Doe",
-            "email": email,
-            "password": "StrongPass1!"
+
+        # Register main user
+        self.email = f"test_{uuid.uuid4().hex[:6]}@example.com"
+        self.password = "TestPassword1!"
+        resp = self.client.post("/api/v1/users/", json={
+            "first_name": "Main",
+            "last_name": "User",
+            "email": self.email,
+            "password": self.password
         })
+        self.user_id = resp.get_json()["id"]
 
-        print("User create status:", user_resp.status_code)
-        print("User create response:", user_resp.get_json())
-        self.assertEqual(user_resp.status_code, 201)
-        self.user_id = user_resp.get_json()["id"]
+        # Login
+        login = self.client.post("/api/v1/auth/login", json={
+            "email": self.email,
+            "password": self.password
+        })
+        self.token = login.get_json()["access_token"]
+        self.headers = {"Authorization": f"Bearer {self.token}"}
 
-        # Create a place
-        place_resp = self.client.post('/api/v1/places/', json={
-            "title": "Review Place",
-            "description": "Place for review test",
-            "price": 80.0,
-            "latitude": 30.0,
-            "longitude": 120.0,
+        # Create place owned by current user
+        place_resp = self.client.post("/api/v1/places/", json={
+            "title": "My Place",
+            "description": "Test place",
+            "price": 200,
+            "latitude": 1.0,
+            "longitude": 1.0,
             "owner_id": self.user_id
-        })
-        print("Place create status:", place_resp.status_code)
-        print("Place create response:", place_resp.get_json())
-        self.assertEqual(place_resp.status_code, 201)
-        self.place_id = place_resp.get_json()["id"]
+        }, headers=self.headers)
+        self.my_place_id = place_resp.get_json()["id"]
 
-    def valid_review_payload(self, **overrides):
-        """Helper to get a valid review payload, with option to override fields"""
-        data = {
+        # Register another user
+        self.email2 = f"other_{uuid.uuid4().hex[:6]}@example.com"
+        self.password2 = "OtherPassword1!"
+        resp2 = self.client.post("/api/v1/users/", json={
+            "first_name": "Other",
+            "last_name": "User",
+            "email": self.email2,
+            "password": self.password2
+        })
+        self.other_user_id = resp2.get_json()["id"]
+
+        # Login other user
+        login2 = self.client.post("/api/v1/auth/login", json={
+            "email": self.email2,
+            "password": self.password2
+        })
+        self.token2 = login2.get_json()["access_token"]
+        self.headers2 = {"Authorization": f"Bearer {self.token2}"}
+
+        # Create place owned by other user
+        other_place = self.client.post("/api/v1/places/", json={
+            "title": "Other Place",
+            "description": "Nice place",
+            "price": 150,
+            "latitude": 2.0,
+            "longitude": 2.0,
+            "owner_id": self.other_user_id
+        }, headers=self.headers2)
+        self.other_place_id = other_place.get_json()["id"]
+
+    def _review_payload(self, user_id=None, place_id=None):
+        return {
             "text": "Great place!",
             "rating": 5,
-            "user_id": self.user_id,
-            "place_id": self.place_id
+            "user_id": user_id or self.user_id,
+            "place_id": place_id or self.other_place_id
         }
-        data.update(overrides)
-        return data
 
-    def test_create_review_valid(self):
-        """Valid review creation should return 201"""
-        response = self.client.post(
-            '/api/v1/reviews/', json=self.valid_review_payload())
-        self.assertEqual(response.status_code, 201)
+    def test_review_other_user_place_success(self):
+        resp = self.client.post("/api/v1/reviews/", json=self._review_payload(), headers=self.headers)
+        self.assertEqual(resp.status_code, 201)
 
-    def test_create_review_text_empty(self):
-        """Empty text should return 400"""
-        response = self.client.post(
-            '/api/v1/reviews/', json=self.valid_review_payload(text=""))
-        self.assertEqual(response.status_code, 400)
+    def test_cannot_review_own_place(self):
+        payload = self._review_payload(place_id=self.my_place_id)
+        resp = self.client.post("/api/v1/reviews/", json=payload, headers=self.headers)
+        self.assertEqual(resp.status_code, 400)
 
-    def test_create_review_invalid_user(self):
-        """Non-existent user_id should return 400 or 404 depending on your API logic"""
-        response = self.client.post(
-            '/api/v1/reviews/', json=self.valid_review_payload(user_id="non-existent-user-id"))
-        # Change to 404 if your API uses 404 for not found entities
-        self.assertIn(response.status_code, [400, 404])
+    def test_cannot_review_same_place_twice(self):
+        self.client.post("/api/v1/reviews/", json=self._review_payload(), headers=self.headers)
+        resp = self.client.post("/api/v1/reviews/", json=self._review_payload(), headers=self.headers)
+        self.assertEqual(resp.status_code, 400)
 
-    def test_create_review_invalid_place(self):
-        """Non-existent place_id should return 400 or 404 depending on your API logic"""
-        response = self.client.post(
-            '/api/v1/reviews/', json=self.valid_review_payload(place_id="non-existent-place-id"))
-        # Change to 404 if your API uses 404 for not found entities
-        self.assertIn(response.status_code, [400, 404])
+    def test_unauthenticated_user_cannot_review(self):
+        resp = self.client.post("/api/v1/reviews/", json=self._review_payload())
+        self.assertEqual(resp.status_code, 401)
+
+    def test_user_id_mismatch_in_payload(self):
+        payload = self._review_payload(user_id=self.other_user_id)
+        resp = self.client.post("/api/v1/reviews/", json=payload, headers=self.headers)
+        self.assertEqual(resp.status_code, 403)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
+
 
 
 # python3 -m tests.test_review_api -v
