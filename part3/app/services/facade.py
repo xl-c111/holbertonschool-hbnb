@@ -114,6 +114,9 @@ class HBnBFacade:
         db.session.commit()
         return amenity
 
+
+   #  _________________Amenities Operations____________________
+
     # Placeholder methof for creating an amenity
     def create_amenity(self, amenity_data):
         # debug
@@ -129,6 +132,10 @@ class HBnBFacade:
         place = self.place_repo.get(place_id)
         if not place:
             raise ValueError(f"Place with ID {place_id} does not exist.")
+
+        if amenity_data['owner_id'] != place.owner_id:
+            raise PermissionError("User is not the owner of this place.")
+
 
         # create the amenity
 
@@ -174,6 +181,9 @@ class HBnBFacade:
             return None
         self.amenity_repo.delete(amenity_id)
         return amenity
+
+    def get_all_amenities(self):
+        return self.amenity_repo.get_all()
 
  #  _________________Review Operations____________________
 
