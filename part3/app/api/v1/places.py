@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request
 from app.services import facade
-
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api = Namespace('places', description='Place operations')
 
@@ -49,19 +49,30 @@ def serialize_place(place):
         "owner_id": str(place.owner.id) if place.owner else None
     }
 
-
 @api.route('/')
 class PlaceList(Resource):
     @api.expect(place_model)
-    @api.marshal_with(place_model, code=201)
+    @jwt_required()
     def post(self):
-        data = request.json
+        current_user = get_jwt_identity()
+
+        # Get the actual user object
+        user = facade.get_user(current_user['id'])
+        if not user:
+            return {'error': 'User not found'}, 404
+
+        # Get data from api.payload (not request.json)
+        data = api.payload
+
+        # Add the current user as owner
+        data['owner_id'] = user.id
+
         try:
             new_place = facade.create_place(data)
-            if new_place:
-                return serialize_place(new_place), 201
+            return serialize_place(new_place), 201
         except ValueError as e:
             return {'error': str(e)}, 400
+
 
     @api.marshal_list_with(place_model)
     def get(self):
