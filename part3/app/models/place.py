@@ -25,10 +25,14 @@ class Place(BaseModel):
     reviews = db.relationship(
         'Review', back_populates='place', cascade='all, delete-orphan'
     )
-    # Many-to-Many relationship between Place and Amenity
+    # many-to-many relationship between Place and Amenity
     amenities = db.relationship(
-        'Amenity', secondary='place_amenity', backref='places'
-    )
+    'Amenity',
+    secondary=place_amenity,
+    back_populates='places'
+)
+
+
 
     # ---validates---
 
@@ -55,14 +59,14 @@ class Place(BaseModel):
             raise ValueError("Invalid value specified for price")
 
     @validates('latitude')
-    def valiadtes_latitude(self, key, value):
+    def validates_latitude(self, key, value):
         if isinstance(value, (int, float)) and -90.0 <= value <= 90.0:
             return value
         else:
             raise ValueError("Invalid value specified for Latitude")
 
     @validates('longitude')
-    def valiadtes_longitude(self, key, value):
+    def validates_longitude(self, key, value):
         if isinstance(value, (int, float)) and -180.0 <= value <= 180.0:
             return value
         else:

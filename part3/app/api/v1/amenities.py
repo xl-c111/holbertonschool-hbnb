@@ -10,7 +10,6 @@ amenity_model = api.model('Amenity', {
     'name': fields.String(required=True, description='Name of the amenity'),
     'description': fields.String(required=True, description='Description of the amenity'),
     'number' : fields.Integer(required=True, description='Number of this amenity available'),
-    'place_id': fields.String(required=True, description='ID of the place this amenity belongs to'),
 })
 
 amenity_brief_model = api.model('AmenityBrief', {
@@ -28,8 +27,12 @@ class AmenityList(Resource):
     @api.expect(amenity_model)
     @api.marshal_with(amenity_brief_model, code=201)
     def post(self):
+
         """Create a new amenity"""
         data = request.json
+
+        if not data:
+            return {"error": "No JSON data provided"}, 400
 
         try:
             new_amenity = facade.create_amenity(data)
@@ -58,9 +61,9 @@ class AmenityResource(Resource):
         if not amenity:
             return {"error": "Amenity not found"}, 404
 
-        data = request.json
+        data = request.get_json()
         updated_amenity = facade.update_amenity(amenity_id, data)
-        return updated_amenity
+        return updated_amenity, 200
 
 
     def delete(self, amenity_id):

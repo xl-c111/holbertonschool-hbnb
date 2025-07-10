@@ -39,3 +39,20 @@ mysql -u root -p < hbnb_db.sql
 mysql -u root -p -e "USE hbnb_db; SHOW TABLES;"
 
 ```
+##  Database Viwever Setup
+
+When setting up a new connection, use the following:
+
+| Feature | HTTP     |
+| :-------- | :------- |
+| **Host** | `localhost` |
+| **Port** | `3306` |
+| **Username**| `hbhb_user` |
+| **Password** | `1234 ` |
+| **Database Name** | `hbnb_db` |
+
+Make sure your MySQL server is running:
+
+```bash
+sudo systemctl start mysql
+```

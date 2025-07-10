@@ -110,49 +110,31 @@ class HBnBFacade:
 
     # Placeholder methof for creating an amenity
     def create_amenity(self, amenity_data):
-        # check if place_id is provided
-        place_id = amenity_data.get('place_id')
-        if not place_id:
-            raise ValueError("Missing field: place_id")
+        # debug
+        print(f"DEBUG: Received amenity_data: {amenity_data}")
+        print(f"DEBUG: Data type: {type(amenity_data)}")
 
-    #  ___Mock : always assume the place exists___
+        requires_fields = ['name', 'description', 'number']
+        for field in requires_fields:
+            if field not in amenity_data or amenity_data[field] is None:
+                raise ValueError(f"Missing or null field: {field}")
 
-        class MockPlace:
-            id = place_id
-        place = MockPlace()
-
-        from app.models.amenity import Amenity
-        amenity = Amenity(
-            name=amenity_data['name'],
-            description=amenity_data['description'],
-            number=amenity_data['number'],
-            place_id=place_id
-        )
-        self.amenity_repo.add(amenity)
-        return amenity
-
-    #  _____end the mock part_____
-
-    """   # check if the place exists
+        place_id = amenity_data['place_id']
         place = self.place_repo.get(place_id)
         if not place:
             raise ValueError(f"Place with ID {place_id} does not exist")
 
-        # check if the user is the owner of the place
-        if str(place.owner.id) != user_id:
-            raise PermissionError("User is not the owner of the place")
-
         # create the amenity
 
-        from app.models.amenity import Amenity
         amenity = Amenity(
             name=amenity_data['name'],
             description=amenity_data['description'],
-            number=amenity_data['number'],
-            place_id=place_id
+            number=amenity_data['number']
         )
-        self.amenity_repo.add(amenity.id, amenity)
-        return amenity """
+
+        self.amenity_repo.add(amenity)
+        return amenity
+
 
     # Placeholder method for fetching an amenity by ID
     def get_amenity(self, amenity_id):
@@ -161,15 +143,26 @@ class HBnBFacade:
     # Placeholder method for updating an amenity
 
     def update_amenity(self, amenity_id, amenity_data):
+
+        if not isinstance(amenity_data, dict):
+             raise TypeError(f"Expected amenity_data to be dict, got {type(amenity_data)}")
+
         existing_amenity = self.amenity_repo.get(amenity_id)
         if not existing_amenity:
             return None
-        for key in ['name', 'description', 'number']:
-            if key in amenity_data:
-                setattr(existing_amenity, key, amenity_data[key])
+        for key, value in amenity_data.items():
+            if hasattr(existing_amenity, key):
+                setattr(existing_amenity, key, value)
 
         self.amenity_repo.update(amenity_id, existing_amenity)
         return existing_amenity
+
+    def get_amenities_for_place(self, place_id):
+        place = self.place_repo.get(place_id)
+        if not place:
+            raise ValueError(f"Place with ID {place_id} does not exist")
+
+        return place.amenities
 
     # Placeholder method for deleting an amenity
     def delete_amenity(self, amenity_id):
