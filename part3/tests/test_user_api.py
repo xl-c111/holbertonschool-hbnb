@@ -113,7 +113,7 @@ class TestUserEndpoints(unittest.TestCase):
         response = self.client.put(f"/api/v1/users/{self.user_id}",
                                    headers=self.auth_header(),
                                    json={"first_name": "Updated Jane"})
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 200)
         self.assertIn("Updated Jane", response.get_data(as_text=True))
 
     def test_modify_other_user_should_fail(self):

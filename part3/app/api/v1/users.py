@@ -68,6 +68,7 @@ class UserResource(Resource):
         return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email}, 200
 
     @jwt_required()
+    @api.expect(user_update_model, validate=True)
     @api.response(200, 'User updated successfully')
     @api.response(400, 'Invalid input data')
     @api.response(403, 'Unauthorized action')
@@ -94,7 +95,7 @@ class UserResource(Resource):
             'first_name': updated_user.first_name,
             'last_name': updated_user.last_name,
             'email': updated_user.email
-        }, 201
+        }, 200
     
     @jwt_required()
     @api.response(200, 'User deleted successfully')
