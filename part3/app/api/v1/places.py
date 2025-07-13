@@ -37,6 +37,16 @@ place_model = api.model('Place', {
 })
 
 
+def serialize_create_place(place):
+    return {
+        "id": place.id,
+        "title": place.title,
+        "description": place.description,
+        "price": place.price,
+        "latitude": place.latitude,
+        "longitude": place.longitude,
+        "owner_id": str(place.owner.id) if place.owner else None
+    }
 
 def serialize_place(place):
     return {
@@ -85,7 +95,7 @@ class PlaceList(Resource):
 
         try:
             new_place = facade.create_place(data)
-            return serialize_place(new_place), 201
+            return serialize_create_place(new_place), 201
         except ValueError as e:
             return {'error': str(e)}, 400
 
