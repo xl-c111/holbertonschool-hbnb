@@ -95,4 +95,24 @@ class UserResource(Resource):
             'first_name': updated_user.first_name,
             'last_name': updated_user.last_name,
             'email': updated_user.email
-        }, 201
+        }, 200
+    
+    @jwt_required()
+    @api.response(200, 'User deleted successfully')
+    @api.response(403, 'Unauthorized action')
+    @api.response(404, 'User not found')
+    def delete(self, user_id):
+        """Delete a user by ID"""
+        identity = get_jwt_identity()
+        current_user_id = identity.get('id')
+
+        user = facade.get_user(user_id)
+        if str(user_id).strip() != str(current_user_id).strip():
+            return {'error': 'Unauthorized action'}, 403
+        if not user:
+            return {"error": "User not found"}, 404
+        try:
+            result = facade.delete_user(user_id)
+            return {"message": "User deleted successfully"}, 200
+        except Exception as e:
+            return {"error": str(e)}, 400
