@@ -37,6 +37,7 @@ place_model = api.model('Place', {
 })
 
 
+
 def serialize_place(place):
     return {
         "id": place.id,
@@ -45,8 +46,23 @@ def serialize_place(place):
         "price": place.price,
         "latitude": place.latitude,
         "longitude": place.longitude,
-        "amenities": [str(a.id) for a in getattr(place, "amenities", [])],
-        "owner_id": str(place.owner.id) if place.owner else None
+        "owner_id": str(place.owner.id) if place.owner else None,
+        "amenities": [serialize_amenity(a) for a in place.amenities],
+        "reviews": [serialize_review(r) for r in place.reviews]
+    }
+
+def serialize_amenity(amenity):
+    return {
+        "id": amenity.id,
+        "name": amenity.name
+    }
+
+def serialize_review(review):
+    return {
+        "id": review.id,
+        "text": review.text,
+        "rating": review.rating,
+        "user_id": review.user_id
     }
 
 @api.route('/')
@@ -83,7 +99,7 @@ class PlaceList(Resource):
 class PlaceResource(Resource):
     @api.marshal_with(place_model)
     def get(self, place_id):
-        places = facade.get_place(place_id)
+        places = facade.get_place_with_details(place_id)
         if not places:
             return {"error": "Place not found"}, 404
         # Fetch the place by ID

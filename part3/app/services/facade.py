@@ -6,6 +6,9 @@ from app.models.user import User
 from app.models.review import Review
 from app.models.amenity import Amenity
 from app.extensions import db
+from sqlalchemy.orm import selectinload
+
+
 
 
 class HBnBFacade:
@@ -114,6 +117,14 @@ class HBnBFacade:
         db.session.commit()
         return amenity
 
+    def get_place_with_details(self, place_id):
+        place = db.session.query(Place).options(
+            selectinload(Place.amenities),
+            selectinload(Place.reviews)
+        ).filter_by(id=place_id).first()
+        return place
+
+
 
    #  _________________Amenities Operations____________________
 
@@ -192,15 +203,15 @@ class HBnBFacade:
         place = self.place_repo.get(review_data['place_id'])
         if user is None or place is None:
             raise ValueError("User or Place not found!")
-        
+
         if place.owner_id == user.id:
             raise ValueError("You cannot review your own place.")
-        
+
         existing_reviews = self.review_repo.get_all_by_attribute("place_id", place.id) or []
         if any(review.user.id == user.id for review in existing_reviews):
             raise ValueError("You have already reviewed this place.")
-            
-        
+
+
         review = Review(
             text=review_data['text'],
             rating=review_data['rating'],
@@ -227,14 +238,14 @@ class HBnBFacade:
             raise PermissionError("Not allowed to edit this review.")
         review.text = review_data.get('text', review.text)
         review.rating = review_data.get('rating', review.rating)
-        db.session.commit()  
+        db.session.commit()
         return review
-        
+
 
     def delete_review(self, review_id, user):
         review = self.review_repo.get(review_id)
         if not review:
-            return None    
+            return None
         if review.user.id != user.id and not getattr(user, 'is_admin', False):
             raise PermissionError("Unauthorized action.")
         self.review_repo.delete(review_id)
