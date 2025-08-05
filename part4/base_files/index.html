@@ -9,46 +9,32 @@
   <body>
     <!-- Header -->
     <header>
+      <img src="images/logo.png" alt="App Logo" class="logo" />
       <nav>
-        <a href="index.html">
-          <img src="images/logo.png" alt="App Logo" class="logo" />
-        </a>
-        <ul class="nav-links">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="login.html" class="login-button">Login</a></li>
-        </ul>
+        <a href="index.html">Home</a>
+        <a href="login.html" class="login-button" id="login-link">Login</a>
       </nav>
     </header>
-    <!-- Main Content -->
+
     <main>
+      <!-- Main Content -->
       <section id="filter">
         <label for="price-filter">Max Price:</label>
-        <select id="price-filter"></select>
+        <select id="price-filter">
+          <!-- Options will be populated dynamically -->
+        </select>
       </section>
+
       <section id="places-list">
-        <div class="place_card">
-          <h3>Beautiful Beach House</h3>
-          <p>Price per night: $150</p>
-          <button class="details-button">View Details</button>
-        </div>
-
-        <div class="place_card">
-          <h3>Cozy Cabin</h3>
-          <p>Price per night: $100</p>
-          <button class="details-button">View Details</button>
-        </div>
-
-        <div class="place-card">
-          <h3>Modern Apartment</h3>
-          <p>Price per night: $200</p>
-          <button class="details-button">View Details</button>
-        </div>
+        <!-- List of places will be populated dynamically -->
       </section>
     </main>
+
     <!-- Footer -->
     <footer>
-      © 2025 Wawa & Xiaoling – HBnB Project. All rights reserved.
+      <p>© 2025 Xiaoling & Wawa – HBnB Project. All rights reserved.</p>
     </footer>
+
     <script src="scripts.js"></script>
   </body>
 </html>
