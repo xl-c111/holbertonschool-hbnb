@@ -124,7 +124,7 @@ class HBnBFacade:
 
    #  _________________Amenities Operations____________________
 
-    # Placeholder methof for creating an amenity
+    # Placeholder method for creating an amenity
 
     def create_amenity(self, amenity_data):
         # debug
