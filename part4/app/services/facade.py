@@ -157,6 +157,8 @@ class HBnBFacade:
         )
 
         self.amenity_repo.add(amenity)
+        amenity.places.append(place)
+        db.session.commit()
         return amenity
 
 
