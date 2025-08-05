@@ -15,7 +15,10 @@ load_dotenv()
 
 
 def create_app(config_class="config.DevelopmentConfig"):
-    app = Flask(__name__)
+    app = Flask(__name__,
+                static_folder='../base_files',
+                static_url_path=''
+                )
     app.config.from_object(config_class)
 
     # initialize extensions
