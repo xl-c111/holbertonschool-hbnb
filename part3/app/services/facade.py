@@ -153,10 +153,12 @@ class HBnBFacade:
         amenity = Amenity(
             name=amenity_data['name'],
             description=amenity_data['description'],
-            number=amenity_data['number']
+            number=amenity_data['number'],
         )
 
         self.amenity_repo.add(amenity)
+        amenity.places.append(place)
+        db.session.commit()
         return amenity
 
 
