@@ -9,33 +9,53 @@
   <body>
     <!-- Header -->
     <header>
-      <nav>
-        <a href="index.html">
-          <img src="images/logo.png" alt="App Logo" class="logo" />
-        </a>
-        <ul class="nav-links">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="login.html" class="login-button">Login</a></li>
-        </ul>
-      </nav>
+      <div class="header-content">
+        <img src="images/logo.png" alt="App Logo" class="logo" />
+        <a href="index.html" class="login-button">🏚️ Home</a>
+      </div>
     </header>
+
+    <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">🏚️ Home</a></li>
+          <li><a href="login.html">🎃 Login</a></li>
+        </ul>
+    </nav>
+
+
     <!-- Main Content-->
-    <main class="login-page">
-      <form id="login-form">
-        <h2>Login</h2>
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required />
+    <main>
+      <form class="form" id="login-page">
+        <h2>🧙‍♀️ Login</h2>
+        <div id="message" class="message hidden"></div>
 
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required />
+        <div class="form-group">
+          <label for="email">📧 Email:</label>
+          <input type="email" id="email" name="email" required />
+        </div>
 
-        <button type="submit">Login</button>
+        <div class="form-group">
+          <label for="password">🔐 Password:</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+
+        <button type="submit" id="loginBtn">
+          <span id="loginText">🎃 Login</span>
+          <span id="loginLoading" class="loading hidden"></span>
+        </button>
       </form>
     </main>
     <!-- Footer -->
     <footer>
-      © 2025 Wawa & Xiaoling - HBnB Project. All rights reserved.
+
+      <p>&copy;
+        2025 Wawa & Xiaoling - HBnB Project. All rights reserved.👻
+      </p>
+
     </footer>
+
     <script src="scripts.js"></script>
+
+
   </body>
 </html>
