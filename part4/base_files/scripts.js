@@ -1,25 +1,37 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const loginForm = document.getElementById('login-form');
+  const loginForm = document.getElementById('login-page');
 
   if (loginForm) {
     loginForm.addEventListener('submit', async (event) => {
       event.preventDefault(); // Prevent default form submission behavior
 
-      const email = document.getElementById('email').value;
+      const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
+      const loginBtn = document.getElementById('loginBtn');
+      const loginText = document.getElementById('loginText');
+      const loginLoading = document.getElementById('loginLoading');
+      const messageDiv = document.getElementById('message');
+
+      loginBtn.disabled = true;
+      loginText.classList.add('hidden');
+      loginLoading.classList.remove('hidden');
 
       try {
+
+        console.log('Attempting login with:', { email });
         // Send POST request to the login API
-        const response = await fetch('/api/v1/auth/login', {
+        const response = await fetch('http://127.0.0.1:5000/api/v1/auth/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ email, password }) // Send credentials as JSON
         });
+        console.log('Login response status:', response.status);
 
         if (response.ok) {
           const data = await response.json();
+          console.log('Login successful:', data);
           // Store JWT token in cookie
           document.cookie = `token=${data.access_token}; path=/`;
 
@@ -56,6 +68,10 @@ function getCookie(name) {
 function checkAuthentication() {
   const token = getCookie('token');
   const loginLink = document.getElementById('login-link');
+
+  if (loginLink) {
+    loginLink.style.display = token ? 'none' : 'block';
+  }
 
   if (!token) {
     loginLink.style.display = 'block';

@@ -9,6 +9,7 @@ from app.api.v1.amenities import api as amenities_ns
 from app.api.v1.auth import api as auth_ns
 import os
 from dotenv import load_dotenv
+from flask_cors import CORS
 
 # Load environment variables
 load_dotenv()
@@ -25,6 +26,7 @@ def create_app(config_class="config.DevelopmentConfig"):
     db.init_app(app)
     jwt.init_app(app)
     bcrypt.init_app(app)
+    CORS(app)
 
     # register API namespace
     api = Api(app, version='1.0', title='HBnB API',
