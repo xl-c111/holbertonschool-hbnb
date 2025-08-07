@@ -66,10 +66,10 @@ class ReviewResource(Resource):
         if not review:
             return {'error': 'Review not found'}, 404
         return {
-            'id': review.id, 
-            'text': review.text, 
-            'rating': review.rating, 
-            'user_id': review.user_id, 
+            'id': review.id,
+            'text': review.text,
+            'rating': review.rating,
+            'user_id': review.user_id,
             'place_id': review.place_id
             }, 200
 
@@ -128,18 +128,31 @@ class PlaceReviewList(Resource):
     def get(self, place_id):
         """Get all reviews for a specific place"""
         reviews = facade.get_reviews_by_place(place_id)
+        place = facade.place_exists(place_id)
         # if reviews is None or len(reviews) == 0:
+        if not place:
+            return {'error': 'Place not found'}, 404
+
         if not reviews:
-            return {'error': 'Place not found or no reviews for this place'}, 404
+            return {
+                'place_id': place_id,
+                'total_reviews': 0,
+                'reviews': []
+            },200
 
-        review_list = []
-        for review in reviews:
-            review_list.append({
-                'id': review.id,
-                'text': review.text,
-                'rating': review.rating,
-                'user_id': review.user.id,
-                'place_id': review.place.id
-            })
+        # Format and return reviews
 
-        return review_list, 200
+        review_list = [{
+            'id': r.id,
+            'text': r.text,
+            'rating': r.rating,
+            'user_id': r.user.id,
+            'place_id': r.place.id
+        } for r in reviews]
+
+        return {
+        'place_id': place_id,
+        'total_reviews': len(review_list),
+        'reviews': review_list
+    }, 200
+
