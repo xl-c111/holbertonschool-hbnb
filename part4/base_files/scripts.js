@@ -197,10 +197,9 @@ function displayPlaces(places) {
         placeCard.dataset.price = place.price || 0;
 
         placeCard.innerHTML = `
-            <div class="place-header">
-                <h3 class="place-title">🏚️ ${place.title || place.name || 'Unnamed Place'}</h3>
-                <span class="place-price">$${place.price || 0}/night</span>
-            </div>
+            <h3 class="place-title-card">🏚️ ${place.title || place.name || 'Unnamed Place'}</h3>
+            <span class="place-price">$${place.price || 0}/night</span>
+
             <div class="place-details">
                 <p class="place-description">
                     ${place.description || 'No description available'}

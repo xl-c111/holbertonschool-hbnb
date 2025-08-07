@@ -106,6 +106,65 @@ main {
   padding: 0 2rem;
 }
 
+/* index Details */
+
+.place-card {
+    background: var(--dark-bg);
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+}
+
+.place-card:hover {
+  transform: scale(1.02);
+}
+
+.place-title-card {
+  font-size: 1rem;
+  color: var(--accent-orange);
+  text-align: left;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.place-price {
+  display: block;
+  font-size: 1.1rem;
+  color: var(--light-purple);
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+
+.place-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.details-button {
+  background: var(--primary-purple);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.2rem;
+  border-radius: 25px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(107, 70, 193, 0.4);
+}
+
+.details-button:hover {
+  background: var(--light-purple);
+  transform: translateY(-2px);
+}
+
+.place-location {
+  color: var(--accent-orange);
+  font-size: 0.95rem;
+}
+
 /* Place Details */
 .place-details {
     display: grid;
@@ -133,6 +192,11 @@ main {
   letter-spacing: 1px;
 }
 
+.place-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
 
 .place-info h1 {
   color: var(--accent-orange);
@@ -149,8 +213,7 @@ main {
 
 .place-description {
     font-size: 1.1rem;
-    margin-bottom: 2rem;
-    text-align: center;
+    text-align: start;
     color: #d1d5db;
 }
 
@@ -164,6 +227,18 @@ main {
   display: block;
   margin: 0;
 
+}
+
+.place-details-v {
+  display: block;
+}
+
+.place-details,
+.place-price,
+.place-location,
+.place-amenities,
+.place-ratings {
+  margin-bottom: 16px; /* Adjust the value as needed */
 }
 
 .image-wrapper {
@@ -234,9 +309,6 @@ main {
 }
 
 /* Review Cards */
-.reviews-sectionn {
-  margin-top: 2rem;
-}
 
 .reviews-section {
     margin-top: 3rem;
@@ -389,12 +461,54 @@ main {
   border-radius: 15px;
   margin-bottom: 2rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-color);
+  display: grid;
+  gap: 1.5rem;
 }
 
 .filter-section h3 {
   color: var(--accent-orange);
   margin-bottom: 1rem;
 }
+
+/* Filter Section Enhancements */
+#filter {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+#filter label {
+  font-weight: bold;
+  color: var(--text-light);
+  font-size: 1rem;
+}
+
+#price-filter {
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: 2px solid var(--primary-purple);
+  background: rgba(31, 27, 36, 0.8);
+  color: var(--text-light);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#price-filter:focus {
+  border-color: var(--accent-orange);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+  outline: none;
+}
+
+/* Places List Grid */
+.places-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
 
 /* Messages */
 .message {
@@ -417,6 +531,22 @@ main {
   color: #ef4444;
 }
 
+/* Message Display Fix */
+#message {
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  transition: opacity 0.3s ease;
+}
+
+/* When message is visible */
+#message:not(.hidden) {
+  opacity: 1;
+}
+
+
 /* Footer */
 footer {
   background: var(--dark-bg);
@@ -433,16 +563,17 @@ footer {
     gap: 1rem;
   }
 
-  .places-container {
-    grid-template-columns: 1fr;
-  }
-
-  .place-card {
-    margin: 10px 0;
-  }
-
   main {
     padding: 0 1rem;
+  }
+
+  #filter {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  #price-filter {
+    width: 100%;
   }
 }
 
