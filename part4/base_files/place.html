@@ -11,51 +11,58 @@
     <header>
       <div class="header-content">
         <img src="images/logo.png" alt="App Logo" class="logo" />
-        <a href="index.html" class="login-button">🏚️ Home</a>
+        <a href="index.html" class="login-button">🏚️ Back</a>
       </div>
-
-      <nav>
-        <ul class="nav-links">
-          <li><a href="index.html">🏚️ Home</a></li>
-          <li><a href="login.html">🎃 Login</a></li>
-        </ul>
-      </nav>
 
     </header>
     <!-- Main Content -->
     <main>
-      <div id="message" class="message hidden"></div>
-      <div id="place-details" class="place-details">
-          <div class="loading"></div>
-      </div>
 
-      <div id="reviews-section" class="reviews-section">
-          <h3>👻 Guest Reviews</h3>
-          <div id="reviews-list"></div>
-      </div>
+      <div class="place-detail-card">
+        <h2 class="place-title">🏚️ Loading...</h2>
+        <div class="image-wrapper">
+        <img class="place-image" src="images/cute ghost house.png" alt="Place image" /> </div>
 
-      <div id="add-review-section" class="add-review hidden">
-        <h3>🕯️ Share Your Experience</h3>
-        <form id="reviewForm" class="form">
-          <div class="form-group">
-              <label for="rating">⭐ Rating (1-5):</label>
-              <select id="rating" name="rating" required>
-                  <option value="">Select Rating</option>
-                  <option value="1">1 - Terrifying 😱</option>
-                  <option value="2">2 - Spooky 👻</option>
-                  <option value="3">3 - Mysterious 🔮</option>
-                  <option value="4">4 - Enchanting 🧙‍♀️</option>
-                  <option value="5">5 - Magical ✨</option>
-              </select>
+        <p class="place-description">Description will appear here.</p>
+        <!-- Place Details -->
+        <div class="place-details">
+        <div class="detail-section">
+            <span class="detail-label">💰 Price per Night:</span>
+            <div class="detail-value price">$150</div>
+        </div>
+
+        <div class="location-section">
+          <span class="detail-label">📍 Location:</span>
+          <div class="detail-value">
+          <span class="place-location"> location loading..</span>
           </div>
-          <div class="form-group">
-              <label for="comment">💭 Your Review:</label>
-              <textarea id="comment" name="comment" rows="4" placeholder="Tell us about your supernatural stay..." required></textarea>
-          </div>
+        </div>
 
-          <button type="submit">🎃 Submit Review</button>
-        </form>
+        <div class="rating">
+          <div class="rating-inline">
+            <span class="detail-label">⭐ Rating:</span>
+            <div class="detail-value">
+              <span class="place-rating">⭐</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <span class="detail-label">👻 Amenities:</span>
+          <ul class="amenities-list"></ul>
+        </div>
+
       </div>
+
+      <div class="reviews-section">
+            <h3 class="reviews-title">👻 Guest Experiences</h3>
+            <div id="reviews-list"></div>
+      </div>
+
+      <div class="reviews-sectionn">
+        <a href="add_review.html"><button class="add-review-btn">🕯️ Share Your Supernatural Experience</button></a>
+      </div>
+
     </main>
 
 

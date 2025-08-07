@@ -59,8 +59,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Always check authentication on page load
-    checkAuthentication();
+    // Check if we're on the place details page and initialize it
+    const urlParams = new URLSearchParams(window.location.search);
+    const placeId = urlParams.get('id');
+
+    if (placeId) {
+        // We're on a place details page
+        fetchPlaceDetails(placeId);
+        fetchPlaceReviews(placeId);
+    } else {
+        // We're on another page, check authentication normally
+        checkAuthentication();
+    }
 });
 
 /**
@@ -84,7 +94,7 @@ function getCookie(name) {
  */
 function checkAuthentication() {
     const token = getCookie('token');
-    const loginLink = document.getElementById('loginLink'); // Updated to match your HTML
+    const loginLink = document.getElementById('loginLink');
     const logoutBtn = document.getElementById('logoutBtn');
 
     currentToken = token;
@@ -92,7 +102,6 @@ function checkAuthentication() {
     // Handle login link visibility
     if (loginLink) {
         if (!token) {
-            // User is not authenticated - show login link
             loginLink.style.display = 'block';
             loginLink.classList.remove('hidden');
             if (logoutBtn) {
@@ -100,12 +109,10 @@ function checkAuthentication() {
                 logoutBtn.classList.add('hidden');
             }
 
-            // Show message to login if we're on the main page
             if (document.getElementById('places-list')) {
                 showMessage('Please log in to view places.', 'info');
             }
         } else {
-            // User is authenticated - hide login link, show logout button
             loginLink.style.display = 'none';
             loginLink.classList.add('hidden');
             if (logoutBtn) {
@@ -113,7 +120,6 @@ function checkAuthentication() {
                 logoutBtn.classList.remove('hidden');
             }
 
-            // Fetch places data if we're on the main page
             if (document.getElementById('places-list')) {
                 fetchPlaces(token);
             }
@@ -130,7 +136,6 @@ async function fetchPlaces(token) {
     if (!placesContainer) return;
 
     try {
-        // Show loading state
         placesContainer.innerHTML = '<div class="loading">🔮 Loading places...</div>';
 
         const response = await fetch('http://127.0.0.1:5000/api/v1/places/', {
@@ -146,7 +151,7 @@ async function fetchPlaces(token) {
         }
 
         const places = await response.json();
-        allPlaces = places; // Store globally for filtering
+        allPlaces = places;
 
         console.log('Fetched places:', places);
 
@@ -174,7 +179,6 @@ function displayPlaces(places) {
     const placesContainer = document.getElementById('places-list');
     if (!placesContainer) return;
 
-    // Clear current content
     placesContainer.innerHTML = '';
 
     if (!places || places.length === 0) {
@@ -187,7 +191,6 @@ function displayPlaces(places) {
         return;
     }
 
-    // Create place cards using your structure
     places.forEach(place => {
         const placeCard = document.createElement('div');
         placeCard.classList.add('place-card');
@@ -218,19 +221,17 @@ function displayPlaces(places) {
 }
 
 /**
- * Setup price filter event listener (works with existing HTML options)
+ * Setup price filter event listener
  */
 function setupPriceFilter() {
     const priceFilter = document.getElementById('price-filter');
     if (!priceFilter) return;
 
-    // Add event listener for filtering based on your HTML structure
     priceFilter.addEventListener('change', function() {
         const selectedValue = priceFilter.value;
         let minPrice = 0;
         let maxPrice = Infinity;
 
-        // Parse the selected filter value from your HTML options
         if (selectedValue === '0-50') {
             maxPrice = 50;
         } else if (selectedValue === '51-100') {
@@ -242,7 +243,6 @@ function setupPriceFilter() {
         } else if (selectedValue === '201+') {
             minPrice = 201;
         }
-        // 'all' means no filtering (minPrice = 0, maxPrice = Infinity)
 
         const placeCards = document.querySelectorAll('.place-card');
         let visibleCount = 0;
@@ -259,7 +259,6 @@ function setupPriceFilter() {
             }
         });
 
-        // Update message with filter results
         const filterMessage = selectedValue === 'all'
             ? `Showing all ${visibleCount} places`
             : `Showing ${visibleCount} places in range ${selectedValue}`;
@@ -267,12 +266,11 @@ function setupPriceFilter() {
         showMessage(filterMessage, 'info');
     });
 
-    // Trigger the filter on page load to show all initially
     priceFilter.dispatchEvent(new Event('change'));
 }
 
 /**
- * Show all places (for navigation link)
+ * Show all places
  */
 function showAllPlaces() {
     if (!currentToken) {
@@ -280,7 +278,6 @@ function showAllPlaces() {
         return;
     }
 
-    // Reset price filter
     const priceFilter = document.getElementById('price-filter');
     if (priceFilter) {
         priceFilter.value = 'all';
@@ -302,7 +299,6 @@ function showMessage(text, type = 'info') {
         messageDiv.className = `message ${type}`;
         messageDiv.classList.remove('hidden');
 
-        // Hide message after 5 seconds
         setTimeout(() => {
             messageDiv.classList.add('hidden');
         }, 5000);
@@ -310,37 +306,330 @@ function showMessage(text, type = 'info') {
 }
 
 /**
- * View place details (placeholder function)
+ * View place details
  * @param {string} placeId - Place ID
  */
 function viewPlace(placeId) {
-    showMessage(`🔮 Viewing details for place: ${placeId}`, 'info');
-    // Here you would typically redirect to a place details page
-    // window.location.href = `place.html?id=${placeId}`;
+    window.location.href = `place.html?id=${placeId}`;
 }
 
 /**
  * Logout function
  */
 function logout() {
-    // Remove the token cookie
     document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 
-    // Clear global variables
     allPlaces = [];
     currentToken = null;
 
-    // Clear places list
     const placesContainer = document.getElementById('places-list');
     if (placesContainer) {
         placesContainer.innerHTML = '';
     }
 
-    // Show message and redirect
     showMessage('👻 Logged out successfully!', 'success');
 
-    // Redirect to login page after a short delay
     setTimeout(() => {
         window.location.href = 'login.html';
     }, 1500);
 }
+
+/**
+ * Fetch place details from the API
+ * @param {string} placeId - Place ID
+ */
+async function fetchPlaceDetails(placeId) {
+    const token = getCookie('token');
+
+    try {
+        console.log(`Fetching place details for ID: ${placeId}`);
+
+        const response = await fetch(`http://127.0.0.1:5000/api/v1/places/${placeId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const place = await response.json();
+            console.log('Place details fetched:', place);
+            populatePlaceDetails(place);
+        } else {
+            const errorText = await response.text();
+            console.error('Failed to fetch place details:', errorText);
+            showError('Failed to load place details');
+        }
+    } catch (error) {
+        console.error('Error fetching place details:', error);
+        showError('Network error occurred');
+    }
+}
+
+
+/**
+ * Fetch reviews data from the API
+ * @param {string} placeId - Place ID
+ */
+async function fetchPlaceReviews(placeId) {
+    const token = getCookie('token');
+
+    try {
+        console.log(`Fetching reviews for place ID: ${placeId}`);
+
+        const response = await fetch(`http://127.0.0.1:5000/api/v1/reviews/places/${placeId}/reviews`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Reviews fetched:', data);
+
+            const review = data.reviews || [];
+            const averageRating = calculateAverageRating(review);
+
+            populateReviews(review);
+            updateRatingUI(averageRating);
+
+        } else {
+            console.error('Failed to fetch reviews');
+        }
+    } catch (error) {
+        console.error('Error fetching reviews:', error);
+    }
+}
+
+function calculateAverageRating(reviews) {
+    if (!reviews || reviews.length === 0) return null;
+
+    const total = reviews.reduce((sum, review) => sum + (review.rating || 0), 0);
+    return total / reviews.length;
+}
+
+function updateRatingUI(rating) {
+    const ratingElement = document.querySelector('.rating span:first-child');
+    const starsElement = document.querySelector('.rating span:last-child');
+
+    if (ratingElement) {
+        if (rating) {
+            ratingElement.textContent = rating.toFixed(1);
+            if (starsElement) {
+                starsElement.innerHTML = generateStars(rating);
+            }
+        } else {
+            ratingElement.textContent = 'No ratings yet';
+            if (starsElement) {
+                starsElement.innerHTML = '';
+            }
+        }
+    }
+}
+
+/**
+ * Populate place details into the HTML
+ */
+function populatePlaceDetails(place) {
+    try {
+        const titleElement = document.querySelector('.place-title');
+        if (titleElement) {
+            titleElement.textContent = `🏚️ ${place.name || place.title}`;
+        }
+
+        const descElement = document.querySelector('.place-description');
+        if (descElement) {
+            descElement.textContent = place.description || 'No description available';
+        }
+
+        const imageElement = document.querySelector('.place-image');
+        if (imageElement && place.imageUrl) {
+            imageElement.src = place.imageUrl;
+            imageElement.alt = place.name || place.title;
+        }
+
+        const priceElement = document.querySelector('.price');
+        if (priceElement) {
+            priceElement.textContent = `$${place.price || 'N/A'}`;
+        }
+
+        const locationSection = document.querySelector('.location-section');
+
+        if (locationSection) {
+        const lat = place.latitude || 'N/A';
+        const lon = place.longitude || 'N/A';
+
+        locationSection.innerHTML = `
+            <span class="detail-label">📍 Location:</span>
+            <span class="place-location"> Latitude ${place.latitude || 'N/A'}, Longitude ${place.longitude || 'N/A'}</span>
+        `;
+        }
+
+        populateAmenities(place.amenities || []);
+        console.log('Place details populated successfully');
+
+    } catch (error) {
+        console.error('Error populating place details:', error);
+        showError('Error displaying place information');
+    }
+}
+
+/**
+ * Populate amenities list
+ */
+function populateAmenities(amenities) {
+    const amenitiesList = document.querySelector('.amenities-list');
+    if (!amenitiesList) return;
+
+    amenitiesList.innerHTML = '';
+
+    if (!amenities || amenities.length === 0) {
+        amenitiesList.innerHTML = '<li class="amenity-item"><span>No amenities listed</span></li>';
+        return;
+    }
+
+    amenities.forEach(amenity => {
+        const li = document.createElement('li');
+        li.className = 'amenity-item';
+
+        let amenityName, amenityIcon;
+
+        if (typeof amenity === 'string') {
+            amenityName = amenity;
+            amenityIcon = getAmenityIcon(amenity);
+        } else if (amenity.name || amenity.title) {
+            amenityName = amenity.name || amenity.title;
+            amenityIcon = amenity.icon || getAmenityIcon(amenityName);
+        } else {
+            amenityName = 'Mysterious Amenity';
+            amenityIcon = '👁️';
+        }
+
+        li.innerHTML = `
+            <span class="amenity-icon">${amenityIcon}</span>
+            <span>${amenityName}</span>
+        `;
+        amenitiesList.appendChild(li);
+    });
+    console.log(`Populated ${amenities.length} amenities`);
+}
+
+/**
+ * Get appropriate icon for amenity based on name
+ */
+function getAmenityIcon(amenityName) {
+    const name = amenityName.toLowerCase();
+
+    const iconMap = {
+        'wifi': '📶',
+        'parking': '🅿️',
+        'pool': '🏊‍♂️',
+        'fitness': '💪',
+        'food': '🔮'
+    };
+
+    for (const [keyword, icon] of Object.entries(iconMap)) {
+        if (name.includes(keyword)) {
+            return icon;
+        }
+    }
+    return '🏠';
+}
+
+/**
+ * Populate reviews
+ */
+function populateReviews(reviews) {
+    const reviewsContainer = document.querySelector('.reviews-section');
+    if (!reviewsContainer) return;
+
+    const existingReviews = reviewsContainer.querySelectorAll('.review-item');
+    existingReviews.forEach(review => review.remove());
+
+    if (!reviews || reviews.length === 0) {
+        const noReviewsMsg = document.createElement('p');
+        noReviewsMsg.textContent = '👻 No reviews yet. Be the first to share your experience!';
+        noReviewsMsg.style.textAlign = 'center';
+        noReviewsMsg.style.color = '#9ca3af';
+        reviewsContainer.appendChild(noReviewsMsg);
+        return;
+    }
+
+    reviews.forEach(review => {
+        const reviewElement = document.createElement('div');
+        reviewElement.className = 'review-item';
+
+        const reviewerName = review.user_name || review.author || review.name || 'Anonymous';
+        const rating = review.rating || 5;
+        const reviewText = review.comment || review.text || review.review || 'No comment provided';
+
+        reviewElement.innerHTML = `
+            <div class="review-header">
+                <span class="reviewer-name">${reviewerName}</span>
+                <span class="review-rating">${generateStars(rating)}</span>
+            </div>
+            <p class="review-text">${reviewText}</p>
+        `;
+
+        reviewsContainer.appendChild(reviewElement);
+    });
+
+    console.log(`Populated ${reviews.length} reviews`);
+}
+
+/**
+ * Generate star rating HTML
+ */
+function generateStars(rating) {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+
+    let stars = '';
+
+    for (let i = 0; i < fullStars; i++) {
+        stars += '⭐';
+    }
+
+    if (hasHalfStar) {
+        stars += '⭐';
+    }
+
+    return stars;
+}
+
+/**
+ * Show error message to user
+ */
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.style.cssText = `
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 2rem;
+        text-align: center;
+    `;
+    errorDiv.textContent = message;
+
+    const main = document.querySelector('main');
+    if (main) {
+        main.insertBefore(errorDiv, main.firstChild);
+    }
+}
+
+// Add review button functionality
+document.addEventListener('DOMContentLoaded', () => {
+    const addReviewBtn = document.querySelector('.add-review-btn');
+    if (addReviewBtn) {
+        addReviewBtn.addEventListener('click', () => {
+            const placeId = new URLSearchParams(window.location.search).get('id');
+            window.location.href = `add-review.html?place_id=${placeId}`;
+        });
+    }
+});
