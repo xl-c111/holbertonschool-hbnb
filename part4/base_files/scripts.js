@@ -56,6 +56,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 loginText.classList.remove('hidden');
                 loginLoading.classList.add('hidden');
             }
+
+            initializeReviewForm();
         });
     }
 
@@ -351,10 +353,15 @@ async function fetchPlaceDetails(placeId) {
             }
         });
 
+        console.log('Place details response status:', response.status);
+
         if (response.ok) {
             const place = await response.json();
             console.log('Place details fetched:', place);
             populatePlaceDetails(place);
+
+            // Create the review button with the correct place ID
+            createReviewButton(placeId);
         } else {
             const errorText = await response.text();
             console.error('Failed to fetch place details:', errorText);
@@ -375,9 +382,9 @@ async function fetchPlaceReviews(placeId) {
     const token = getCookie('token');
 
     try {
-        console.log(`Fetching reviews for place ID: ${placeId}`);
+        console.log(`📡 Fetching reviews for place ID: ${placeId}`);
 
-        const response = await fetch(`http://127.0.0.1:5000/api/v1/reviews/places/${placeId}/reviews`, {
+        const response = await fetch(`http://127.0.0.1:5000/api/v1/places/${placeId}/reviews`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -386,20 +393,18 @@ async function fetchPlaceReviews(placeId) {
         });
 
         if (response.ok) {
-            const data = await response.json();
-            console.log('Reviews fetched:', data);
+            const reviews = await response.json(); // ✅ define reviews
+            console.log('✅ Reviews fetched:', reviews);
 
-            const review = data.reviews || [];
-            const averageRating = calculateAverageRating(review);
-
-            populateReviews(review);
+            const averageRating = calculateAverageRating(reviews);
+            populateReviews(reviews);
             updateRatingUI(averageRating);
 
         } else {
-            console.error('Failed to fetch reviews');
+            console.error(`❌ Failed to fetch reviews: ${response.status}`);
         }
     } catch (error) {
-        console.error('Error fetching reviews:', error);
+        console.error('🚨 Error fetching reviews:', error);
     }
 }
 
@@ -465,6 +470,14 @@ function populatePlaceDetails(place) {
             <span class="detail-label">📍 Location:</span>
             <span class="place-location"> Latitude ${place.latitude || 'N/A'}, Longitude ${place.longitude || 'N/A'}</span>
         `;
+        }
+
+        const reviewButton = document.querySelector('.add-review-btn');
+        const reviewLink = document.querySelector('a[href*="add_review.html"]');
+
+        if (reviewLink && place.id) {
+            reviewLink.href = `add_review.html?place_id=${place.id}`;
+            console.log(`Updated review link with place ID: ${place.id}`);
         }
 
         populateAmenities(place.amenities || []);
@@ -542,13 +555,15 @@ function getAmenityIcon(amenityName) {
  * Populate reviews
  */
 function populateReviews(reviews) {
-    const reviewsContainer = document.querySelector('.reviews-section');
+    const reviewsContainer = document.getElementById('reviews-list'); // ✅ Correct ID
+
     if (!reviewsContainer) return;
 
-    const existingReviews = reviewsContainer.querySelectorAll('.review-item');
-    existingReviews.forEach(review => review.remove());
+    reviewsContainer.innerHTML = ''; // Clear previous content
 
     if (!reviews || reviews.length === 0) {
+        console.log('Review object:', reviews);
+
         const noReviewsMsg = document.createElement('p');
         noReviewsMsg.textContent = '👻 No reviews yet. Be the first to share your experience!';
         noReviewsMsg.style.textAlign = 'center';
@@ -561,22 +576,24 @@ function populateReviews(reviews) {
         const reviewElement = document.createElement('div');
         reviewElement.className = 'review-item';
 
-        const reviewerName = review.user_name || review.author || review.name || 'Anonymous';
+        const reviewerName = review.user_name || `User #${review.user_id}` || 'Anonymous';
         const rating = review.rating || 5;
-        const reviewText = review.comment || review.text || review.review || 'No comment provided';
+        const reviewText = review.text || 'No comment provided';
 
         reviewElement.innerHTML = `
+        <div class="review-card">
             <div class="review-header">
                 <span class="reviewer-name">${reviewerName}</span>
                 <span class="review-rating">${generateStars(rating)}</span>
-            </div>
-            <p class="review-text">${reviewText}</p>
-        `;
+        </div>
+        <p class="review-text">${reviewText}</p>
+        </div>
+    `;
 
         reviewsContainer.appendChild(reviewElement);
     });
 
-    console.log(`Populated ${reviews.length} reviews`);
+    console.log(`✅ Populated ${reviews.length} reviews`);
 }
 
 /**
@@ -622,13 +639,196 @@ function showError(message) {
     }
 }
 
-// Add review button functionality
-document.addEventListener('DOMContentLoaded', () => {
-    const addReviewBtn = document.querySelector('.add-review-btn');
-    if (addReviewBtn) {
-        addReviewBtn.addEventListener('click', () => {
-            const placeId = new URLSearchParams(window.location.search).get('id');
-            window.location.href = `add-review.html?place_id=${placeId}`;
+
+// Review section
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const placeNameSpan = document.getElementById('place-name');
+    const reviewForm = document.getElementById('reviewForm');
+    const messageBox = document.getElementById('message');
+
+    // Get place_id from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const placeId = urlParams.get('id');
+
+    // DEBUG: Log all URL parameters to see what's available
+    console.log('All URL parameters:', Object.fromEntries(urlParams.entries()));
+    console.log('Looking for place_id:', placeId);
+    console.log('Current URL:', window.location.href);
+
+    if (!placeId) {
+        console.error('❌ No place_id found in URL.');
+        console.error('Available parameters:', Array.from(urlParams.keys()));
+
+        // Show error message to user
+        if (placeNameSpan) {
+            placeNameSpan.textContent = '[Unknown Place - No ID provided]';
+        }
+
+        if (messageBox) {
+            messageBox.textContent = '❌ Error: No place ID found in URL';
+            messageBox.className = 'message error';
+            messageBox.classList.remove('hidden');
+        }
+        return;
+    }
+
+    // Get token for authenticated requests
+    const token = getCookie('token');
+
+    if (!token) {
+        console.error('❌ No authentication token found');
+        if (messageBox) {
+            messageBox.textContent = '❌ Please log in to submit a review';
+            messageBox.className = 'message error';
+            messageBox.classList.remove('hidden');
+        }
+        return;
+    }
+
+    // Fetch place details using the correct endpoint
+    console.log(`Fetching place details for ID: ${placeId}`);
+
+    fetch(`http://127.0.0.1:5000/api/v1/places/${placeId}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(res => {
+            console.log('Place details response status:', res.status);
+            if (!res.ok) throw new Error(`Failed to fetch place details: ${res.status}`);
+            return res.json();
+        })
+        .then(place => {
+            console.log('Place details fetched:', place);
+            if (placeNameSpan) {
+                placeNameSpan.textContent = `🏚️ ${place.name || place.title || 'Unknown Place'}`;
+            }
+        })
+        .catch(err => {
+            console.error('Error fetching place details:', err);
+            if (placeNameSpan) {
+                placeNameSpan.textContent = '[Error Loading Place]';
+            }
+            if (messageBox) {
+                messageBox.textContent = '❌ Failed to load place details';
+                messageBox.className = 'message error';
+                messageBox.classList.remove('hidden');
+            }
+        });
+
+    // Handle review form submission
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const reviewText = document.getElementById('review').value.trim();
+            const rating = document.getElementById('rating').value;
+
+            if (!reviewText || !rating) {
+                showMessage('⚠️ Please fill in all fields.', 'error');
+                return;
+            }
+
+            const reviewData = {
+                place_id: placeId,
+                text: reviewText,
+                rating: parseInt(rating)
+            };
+
+            console.log('Submitting review data:', reviewData);
+
+            // Submit review to the correct endpoint
+            fetch('http://127.0.0.1:5000/api/v1/reviews/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(reviewData)
+            })
+                .then(res => {
+                    console.log('Review submission response status:', res.status);
+                    if (!res.ok) {
+                        return res.text().then(text => {
+                            throw new Error(`Failed to submit review: ${res.status} - ${text}`);
+                        });
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    console.log('Review submitted successfully:', data);
+                    showMessage('✅ Review submitted successfully!', 'success');
+                    reviewForm.reset();
+
+                    // Redirect back to place details after successful submission
+                    setTimeout(() => {
+                        window.location.href = `place.html?id=${placeId}`;
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Error submitting review:', err);
+                    showMessage(`❌ Failed to submit review: ${err.message}`, 'error');
+                });
         });
     }
+
+    function showMessage(msg, type) {
+        if (messageBox) {
+            messageBox.textContent = msg;
+            messageBox.className = `message ${type}`;
+            messageBox.classList.remove('hidden');
+
+            // Auto-hide success messages
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageBox.classList.add('hidden');
+                }, 5000);
+            }
+        } else {
+            console.log(`Message: ${msg} (${type})`);
+        }
+    }
+
+    // Helper function to get cookie (if not already defined)
+    function getCookie(name) {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [key, value] = cookie.trim().split('=');
+            if (key === name) {
+                return value;
+            }
+        }
+        return null;
+    }
 });
+
+// Add this function to create the review button dynamically
+function createReviewButton(placeId) {
+    const reviewsSection = document.querySelector('.reviews-sectionn');
+    if (!reviewsSection || !placeId) {
+        console.log('Cannot create review button: missing section or placeId');
+        return;
+    }
+
+    // Clear existing button if any
+    const existingLink = reviewsSection.querySelector('a[href*="add_review.html"]');
+    if (existingLink) {
+        existingLink.remove();
+    }
+
+    // Create new button with correct place ID
+    const reviewLink = document.createElement('a');
+    reviewLink.href = `add_review.html?place_id=${placeId}`;
+
+    const reviewButton = document.createElement('button');
+    reviewButton.className = 'add-review-btn';
+    reviewButton.textContent = '🕯️ Share Your Supernatural Experience';
+
+    reviewLink.appendChild(reviewButton);
+    reviewsSection.appendChild(reviewLink);
+
+    console.log(`✅ Created review button for place ID: ${placeId}`);
+}

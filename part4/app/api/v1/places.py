@@ -177,3 +177,20 @@ class PlaceAmenityResource(Resource):
             return {"error": str(e)}, 400
         except PermissionError as e:
             return {"error": str(e)}, 403
+
+@api.route('/<string:place_id>/reviews')
+class PlaceReviewList(Resource):
+    @api.response(200, 'Reviews for place retrieved successfully')
+    def get(self, place_id):
+        """Retrieve reviews for a specific place"""
+        reviews = facade.get_reviews_for_place(place_id)
+        review_list = []
+        for review in reviews:
+            review_list.append({
+                'id': review.id,
+                'text': review.text,
+                'rating': review.rating,
+                'user_id': review.user_id,
+                'place_id': review.place_id
+            })
+        return review_list, 200

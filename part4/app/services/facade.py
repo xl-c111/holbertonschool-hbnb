@@ -122,6 +122,10 @@ class HBnBFacade:
         ).filter_by(id=place_id).first()
         return place
 
+    def get_reviews_for_place(self, place_id):
+        return Review.query.filter_by(place_id=place_id).all()
+
+
    #  _________________Amenities Operations____________________
 
     # Placeholder method for creating an amenity

@@ -28,6 +28,15 @@ class ReviewList(Resource):
         """Register a new review"""
         review_data = api.payload
         identity = get_jwt_identity()
+        required_fields = ['text', 'rating', 'place_id']
+
+        missing = [field for field in required_fields if field not in review_data]
+        if missing:
+            return {'error': f'Missing fields: {", ".join(missing)}'}, 400
+
+        # Inject user_id from JWT
+        review_data['user_id'] = identity['id']
+
         if review_data['user_id'] != identity['id']:
             return {'error': 'User ID does not match the authenticated user.'}, 403
         try:
