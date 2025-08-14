@@ -78,11 +78,15 @@ holbertonschool-hbnb/
 ## 🚀 How to Run the Web Client
 
 1. Make sure your back-end API is running and accessible.
-2. Start a simple HTTP server for the front-end:
+2. Start MySQL
+   ```
+   sudo service mysql start
+   ```
+3. Start a simple HTTP server for the front-end:
    ```bash
    python3 run.py
    ```
-3. Open your browser and visit:
+4. Open your browser and visit:
    - **Login Page:** [http://localhost:5000/login.html](http://localhost:5000/login.html)
    - **List of Places:** [http://localhost:5000/index.html](http://localhost:5000/index.html)
    - **Place Details:** [http://localhost:5000/place.html?place_id=<PLACE_ID>](http://localhost:5000/place.html?place_id=<PLACE_ID>)
