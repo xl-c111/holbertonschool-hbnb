@@ -235,17 +235,17 @@ main {
   margin-bottom: 1.25rem;
 }
 .place-image {
-  width: 50%; /* Take up 50% of the container width */
-  height: auto; /* Maintain the original aspect ratio */
-  max-height: 350px; /* Limit the maximum height to prevent oversized images */
-  object-fit: cover; /* Crop the image to fill the container without distortion */
+  width: 50%;
+  height: auto;
+  max-height: 350px;
+  object-fit: cover;
   transition:
     filter 0.3s ease,
-    transform 0.3s ease; /* Animate only filter and transform to avoid stretching */
-  filter: brightness(0.9) contrast(1.1); /* Slightly darken and increase contrast */
-  border-radius: 20px; /* Rounded corners */
-  display: block; /* Treat as a block-level element */
-  margin: 0 auto; /* Center the image horizontally */
+    transform 0.3s ease;
+  filter: brightness(0.9) contrast(1.1);
+  border-radius: 20px;
+  display: block;
+  margin: 0 auto;
 }
 
 .detail-label {
