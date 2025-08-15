@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" itemscope itemtype="https://schema.org/Accommodation">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,74 +11,170 @@
     <header>
       <div class="header-content">
         <img src="images/logo.png" alt="App Logo" class="logo" />
-        <a href="index.html" class="login-button">🏚️ Back</a>
+        <a href="index.html" class="login-button" aria-label="Back to home">
+          🏚️ Back
+        </a>
       </div>
-
     </header>
+
     <!-- Main Content -->
     <main>
+      <article class="place-detail-card">
+        <h1 id="place-title" class="place-title" itemprop="name">
+          🏚️ Loading...
+        </h1>
 
-      <div class="place-detail-card">
-        <h2 class="place-title">🏚️ Loading...</h2>
         <div class="image-wrapper">
-        <img class="place-image" src="images/cute ghost house.png" alt="Place image" /> </div>
-
-        <div class="place-details-v">
-        <h4 class="detail-label">📝 Description</h4>
-        <div class="place-description">
-          Description will appear here.</div>
+          <img
+            id="place-image"
+            class="place-image"
+            src="images/cute ghost house.png"
+            alt="Accommodation image"
+            loading="lazy"
+            decoding="async"
+          />
         </div>
 
-        <!-- Place Details -->
-        <div class="place-details">
-        <div class="detail-section">
+        <!-- Description -->
+        <section class="place-details-v section">
+          <h2 class="detail-label">📝 Description</h2>
+          <p
+            id="place-description"
+            class="place-description"
+            itemprop="description"
+          >
+            Description will appear here.
+          </p>
+        </section>
+
+        <!-- Key details -->
+        <section
+          class="place-details section"
+          aria-labelledby="details-heading"
+        >
+          <h2 id="details-heading" class="sr-only">Details</h2>
+
+          <div class="detail-section">
             <span class="detail-label">💰 Price per Night:</span>
-            <div class="detail-value price">$150</div>
-        </div>
-
-        <div class="location-section">
-          <span class="detail-label">📍 Location:</span>
-          <div class="detail-value">
-          <span class="place-location"> location loading..</span>
-          </div>
-        </div>
-
-        <div class="rating">
-          <div class="rating-inline">
-            <span class="detail-label">⭐ Rating:</span>
-            <div class="detail-value">
-              <span class="place-rating">⭐</span>
+            <div
+              id="place-price"
+              class="detail-value price"
+              itemprop="priceRange"
+            >
+              $150
             </div>
           </div>
+
+          <div class="location-section">
+            <span class="detail-label">📍 Location:</span>
+            <div class="detail-value">
+              <span id="place-location" class="place-location">
+                Location loading…
+              </span>
+              <a
+                id="map-link"
+                class="map-link"
+                href="https://www.google.com/maps/search/?api=1&query=33.7,151.1"
+                target="_blank"
+                rel="noopener"
+              >
+                View on Maps
+              </a>
+              <!-- Structured latitude/longitude for SEO -->
+              <meta itemprop="latitude" id="meta-lat" content="33.7" />
+              <meta itemprop="longitude" id="meta-lon" content="151.1" />
+            </div>
+          </div>
+
+          <div class="rating" aria-label="Rating">
+            <div class="rating-inline">
+              <span class="detail-label">⭐ Rating:</span>
+              <div
+                class="detail-value"
+                itemprop="aggregateRating"
+                itemscope
+                itemtype="https://schema.org/AggregateRating"
+              >
+                <output id="avg-rating" itemprop="ratingValue">—</output>
+                <span aria-hidden="true" id="avg-stars" class="place-rating">
+                  ⭐
+                </span>
+                <meta itemprop="reviewCount" id="review-count" content="0" />
+                <span class="sr-only" id="avg-aria">out of 5</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <span class="detail-label">👻 Amenities:</span>
+            <ul
+              id="amenities-list"
+              class="amenities-list"
+              aria-live="polite"
+            ></ul>
+          </div>
+        </section>
+      </article>
+
+      <!-- Reviews -->
+      <section class="reviews-details section" aria-labelledby="reviews-title">
+        <h2 id="reviews-title" class="reviews-title">👻 Guest Experiences</h2>
+        <div id="reviews-list">
+          <!-- Example review template (will be cloned/filled by JS)
+               Keep it hidden as a template node. -->
+          <template id="review-template">
+            <article
+              class="review"
+              itemprop="review"
+              itemscope
+              itemtype="https://schema.org/Review"
+            >
+              <header class="review-head">
+                <strong itemprop="author" class="review-author">
+                  Anonymous
+                </strong>
+                <time class="review-date" datetime="">—</time>
+                <span class="review-stars" aria-label="" aria-hidden="false">
+                  ★★★★★
+                </span>
+              </header>
+              <p class="review-text" itemprop="reviewBody"></p>
+            </article>
+          </template>
         </div>
-
-        <div class="detail-section">
-          <span class="detail-label">👻 Amenities:</span>
-          <ul class="amenities-list"></ul>
-        </div>
-
-      </div>
-
-      <div class="reviews-details">
-            <h3 class="reviews-title">👻 Guest Experiences</h3>
-            <div id="reviews-list"></div>
-      </div>
-
-      <section class="reviews-section">
-        <!-- Button will be inserted here dynamically -->
       </section>
 
+      <!-- Actions (Share / Write review button inserted by JS) -->
+      <section
+        class="reviews-section"
+        id="review-actions"
+        aria-label="Review actions"
+      >
+        <!-- Buttons will be inserted here dynamically -->
+      </section>
     </main>
-
 
     <!-- Footer -->
     <footer>
-
-      <p>&copy;
-        2025 Wawa & Xiaoling - HBnB Project. All rights reserved.👻
+      <p>
+        &copy; 2025 Wawa &amp; Xiaoling - HBnB Project. All rights reserved.👻
       </p>
-
     </footer>
+
+    <!-- Accessibility helper -->
+    <style>
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+    </style>
 
     <script src="scripts.js"></script>
   </body>
