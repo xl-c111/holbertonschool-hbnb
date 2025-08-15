@@ -431,19 +431,26 @@ function calculateAverageRating(reviews) {
 }
 
 function updateRatingUI(rating) {
-  const ratingElement = document.querySelector('.rating span:first-child');
-  const starsElement = document.querySelector('.rating span:last-child');
+  // Get the elements for average rating value and stars
+  const ratingElement = document.getElementById('avg-rating');
+  const starsElement = document.getElementById('avg-stars');
 
   if (ratingElement) {
     if (rating) {
+      // Show rating value with one decimal
       ratingElement.textContent = rating.toFixed(1);
+
+      // Render stars based on rating
       if (starsElement) {
-        starsElement.innerHTML = generateStars(rating);
+        starsElement.textContent = renderStars(rating);
       }
     } else {
-      ratingElement.textContent = 'No ratings yet';
+      // Show dash if no rating
+      ratingElement.textContent = '—';
+
+      // Clear stars
       if (starsElement) {
-        starsElement.innerHTML = '';
+        starsElement.textContent = '';
       }
     }
   }
@@ -623,7 +630,7 @@ function populateReviews(reviews) {
     stars.className = 'review-stars';
     const ratingValue = Number(review.rating) || 0;
     stars.setAttribute('aria-label', `${ratingValue} out of 5`);
-    stars.textContent = generateStars(ratingValue);
+    stars.textContent = renderStars(ratingValue);
 
     // order: Author • Date .......... Stars (right)
     header.appendChild(author);
@@ -874,4 +881,38 @@ function createReviewButton(placeId) {
   reviewsSection.appendChild(reviewLink);
 
   console.log(`Review button added for place ID: ${placeId}`);
+}
+
+// Replace your existing star helpers with these
+
+function renderStars(rating) {
+  // Round to nearest 0.5
+  const r = Math.round(Number(rating) * 2) / 2;
+  if (!Number.isFinite(r) || r <= 0) return '';
+
+  const full = Math.floor(r);
+  const hasHalf = r % 1 !== 0;
+
+  // Full gold stars
+  let stars = '⭐'.repeat(full);
+
+  // Show half as a "½" symbol after the stars (keeps all stars gold)
+  if (hasHalf) stars += '½';
+
+  return stars;
+}
+
+function updateAvgRatingUI(rating) {
+  const ratingElement = document.getElementById('avg-rating');
+  const starsElement = document.getElementById('avg-stars');
+
+  if (!ratingElement) return;
+
+  if (rating && Number(rating) > 0) {
+    ratingElement.textContent = Number(rating).toFixed(1);
+    if (starsElement) starsElement.textContent = renderStars(rating);
+  } else {
+    ratingElement.textContent = '—';
+    if (starsElement) starsElement.textContent = '';
+  }
 }
