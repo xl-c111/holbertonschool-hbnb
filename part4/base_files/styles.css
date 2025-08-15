@@ -243,7 +243,7 @@ main {
     filter 0.3s ease,
     transform 0.3s ease;
   filter: brightness(0.9) contrast(1.1);
-  border-radius: 20px; /* Rounded corners */
+  border-radius: 20px;
   display: block;
   margin: 0 auto;
 }
