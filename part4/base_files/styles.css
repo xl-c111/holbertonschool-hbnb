@@ -690,3 +690,39 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+.review-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.review-author {
+  font-weight: 700;
+}
+
+.dot {
+  opacity: 0.6;
+}
+
+.review-date {
+  opacity: 0.85;
+}
+
+.review-stars {
+  margin-left: auto;
+  letter-spacing: 2px;
+  font-size: 1.05rem;
+}
+
+.review {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-top: 12px;
+}
+
+.review-text {
+  margin-top: 8px;
+  line-height: 1.6;
+}

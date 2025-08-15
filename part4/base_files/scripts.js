@@ -570,15 +570,12 @@ function getAmenityIcon(amenityName) {
  * Populate reviews
  */
 function populateReviews(reviews) {
-  const reviewsContainer = document.getElementById('reviews-list'); // ✅ Correct ID
-
+  const reviewsContainer = document.getElementById('reviews-list');
   if (!reviewsContainer) return;
 
-  reviewsContainer.innerHTML = ''; // Clear previous content
+  reviewsContainer.innerHTML = '';
 
   if (!reviews || reviews.length === 0) {
-    console.log('Review object:', reviews);
-
     const noReviewsMsg = document.createElement('p');
     noReviewsMsg.textContent =
       '👻 No reviews yet. Be the first to share your experience!';
@@ -589,25 +586,61 @@ function populateReviews(reviews) {
   }
 
   reviews.forEach((review) => {
-    const reviewElement = document.createElement('div');
-    reviewElement.className = 'review-item';
+    // Create the article element
+    const article = document.createElement('article');
+    article.className = 'review';
+    article.setAttribute('itemprop', 'review');
+    article.setAttribute('itemscope', '');
+    article.setAttribute('itemtype', 'https://schema.org/Review');
 
-    const reviewerName =
-      review.user_name || `User #${review.user_id}` || 'Anonymous';
-    const rating = review.rating || 5;
-    const reviewText = review.text || 'No comment provided';
+    // Header with author, date, and rating
+    const header = document.createElement('header');
+    header.className = 'review-head';
 
-    reviewElement.innerHTML = `
-        <div class="review-card">
-            <div class="review-header">
-                <span class="reviewer-name">${reviewerName}</span>
-                <span class="review-rating">${generateStars(rating)}</span>
-        </div>
-        <p class="review-text">${reviewText}</p>
-        </div>
-    `;
+    const author = document.createElement('strong');
+    author.className = 'review-author';
+    author.setAttribute('itemprop', 'author');
+    // Force anonymous (do not show UUID)
+    author.textContent = review.user_name || 'Anonymous';
 
-    reviewsContainer.appendChild(reviewElement);
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    dot.textContent = '•';
+
+    const time = document.createElement('time');
+    time.className = 'review-date';
+    const createdDate = review.created_at
+      ? new Date(review.created_at)
+      : new Date();
+    time.setAttribute('datetime', createdDate.toISOString());
+    time.textContent = createdDate.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit'
+    });
+
+    const stars = document.createElement('span');
+    stars.className = 'review-stars';
+    const ratingValue = Number(review.rating) || 0;
+    stars.setAttribute('aria-label', `${ratingValue} out of 5`);
+    stars.textContent = generateStars(ratingValue);
+
+    // order: Author • Date .......... Stars (right)
+    header.appendChild(author);
+    header.appendChild(dot);
+    header.appendChild(time);
+    header.appendChild(stars);
+
+    // Review body
+    const body = document.createElement('p');
+    body.className = 'review-text';
+    body.setAttribute('itemprop', 'reviewBody');
+    body.textContent = review.text || 'No comment provided';
+
+    article.appendChild(header);
+    article.appendChild(body);
+
+    reviewsContainer.appendChild(article);
   });
 
   console.log(`✅ Populated ${reviews.length} reviews`);
