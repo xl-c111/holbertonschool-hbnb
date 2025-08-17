@@ -576,7 +576,7 @@ function populateReviews(reviews) {
         const reviewElement = document.createElement('div');
         reviewElement.className = 'review-item';
 
-        const reviewerName = review.user_name || `User #${review.user_id}` || 'Anonymous';
+        const reviewerName = review.user_name || '🔮 Anonymous';
         const rating = review.rating || 5;
         const reviewText = review.text || 'No comment provided';
 
@@ -667,8 +667,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (messageBox) {
-            messageBox.textContent = '❌ Error: No place ID found in URL';
-            messageBox.className = 'message error';
             messageBox.classList.remove('hidden');
         }
         return;
@@ -821,7 +819,7 @@ function createReviewButton(placeId) {
 
     // Create new button with correct place ID
     const reviewLink = document.createElement('a');
-    reviewLink.href = `add_review.html?place_id=${placeId}`;
+    reviewLink.href = `add_review.html?id=${placeId}`;
 
     const reviewButton = document.createElement('button');
     reviewButton.className = 'add-review-btn';
