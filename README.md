@@ -1,6 +1,6 @@
-# HBnB – Part 4
+# HBnB Evolution
 
-Full‑stack rental platform built with Flask + SQLAlchemy + MySQL on the backend and vanilla HTML/CSS/JS on the frontend. Demonstrates JWT auth, layered architecture, and a polished interview-ready flow.
+Full-stack rental platform with Flask + SQLAlchemy + MySQL backend and vanilla HTML/CSS/JS frontend. Features JWT authentication, layered architecture, and production-ready patterns.
 
 ---
 
@@ -8,27 +8,25 @@ Full‑stack rental platform built with Flask + SQLAlchemy + MySQL on the backen
 
 1. **Database**
    ```bash
-   # Start MySQL (if not running)
+   # Start MySQL
    brew services start mysql
-
-   # Connect to MySQL
    mysql -u root
 
-   # Run these commands inside MySQL prompt:
+   # Inside MySQL prompt:
    CREATE USER IF NOT EXISTS 'hbnb_user'@'localhost' IDENTIFIED BY '1234';
    GRANT ALL PRIVILEGES ON *.* TO 'hbnb_user'@'localhost';
    FLUSH PRIVILEGES;
    EXIT;
 
-   # Back in terminal, import the database schema
-   cd part4
+   # Import schema
    mysql -u root < docs/hbnb_db.sql
    ```
 
 2. **Backend**
    ```bash
    cd backend
-   python3 ../scripts/add_sample_data.py  # Add sample data
+   pip install -r requirements.txt
+   python3 ../scripts/add_sample_data.py  # Add test data
    python3 run.py                          # Start API at http://127.0.0.1:5000
    ```
 
@@ -69,8 +67,17 @@ cd backend && python3 -m pytest -v
 ```
 Uses in-memory SQLite (no MySQL needed). Tests cover auth, users, places, amenities, reviews, and business rules.
 
+## Project Structure
+
+```
+backend/         # Flask API with SQLAlchemy + MySQL
+frontend/        # Static HTML/CSS/JS client
+docs/            # Database schema and documentation
+scripts/         # Setup and utility scripts
+```
+
 ## Troubleshooting
-- **Reset DB**: `mysql -u root -p < docs/hbnb_db.sql && python3 scripts/add_sample_data.py`
-- **Free port 5000**: `lsof -ti:5000 | xargs kill -9`
+- **Reset DB**: `mysql -u root < docs/hbnb_db.sql && python3 scripts/add_sample_data.py`
+- **Free port**: `lsof -ti:5000 | xargs kill -9`
 
 **Authors:** Xiaoling Cui & Wawa

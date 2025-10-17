@@ -64,11 +64,11 @@ public/
 ### Development Server
 
 ```bash
-cd /Users/xiaolingcui/holbertonschool-hbnb/part4/public
-python3 -m http.server 8000
+cd frontend
+python3 -m http.server 3000
 ```
 
-Then visit: `http://localhost:8000`
+Then visit: `http://localhost:3000`
 
 ### API Backend
 
@@ -79,7 +79,7 @@ http://127.0.0.1:5000
 
 To start the backend:
 ```bash
-cd /Users/xiaolingcui/holbertonschool-hbnb/part4
+cd backend
 python3 run.py
 ```
 
