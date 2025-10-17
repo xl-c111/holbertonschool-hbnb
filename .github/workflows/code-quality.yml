@@ -1,4 +1,5 @@
 name: Code Quality Checks
+# Force trigger for Ruleset
 
 on:
   push:
