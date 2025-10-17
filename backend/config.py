@@ -30,10 +30,8 @@ class ProductionConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.getenv(
-        "TEST_DATABASE_URI",
-        "mysql+mysqlconnector://hbnb_user:1234@localhost/hbnb_db_test?charset=utf8mb4"
-    )
+    # Use in-memory SQLite for fast, isolated tests (no MySQL required)
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     BCRYPT_LOG_ROUNDS = 4  # Minimal rounds for testing (default is 12, very slow!)
     JWT_SECRET_KEY = "test-secret-key"
     SQLALCHEMY_TRACK_MODIFICATIONS = False

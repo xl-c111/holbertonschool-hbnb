@@ -25,6 +25,12 @@ Full-stack rental platform with Flask + SQLAlchemy + MySQL backend and vanilla H
 2. **Backend**
    ```bash
    cd backend
+
+   # Setup environment variables
+   cp .env.example .env
+   # Edit .env with your MySQL credentials if different from defaults
+
+   # Install dependencies and start
    pip install -r requirements.txt
    python3 ../scripts/add_sample_data.py  # Add test data
    python3 run.py                          # Start API at http://127.0.0.1:5000
