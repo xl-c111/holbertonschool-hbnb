@@ -1,6 +1,5 @@
 name: Code Quality Checks
-# Force trigger for Ruleset
-1
+
 on:
   push:
     branches: [ main, xiaoling-deployment, xiaoling, wawa ]
