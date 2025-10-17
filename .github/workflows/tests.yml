@@ -2,7 +2,7 @@ name: Run Tests
 
 on:
   push:
-    branches: [ main, xiaoling-deployment ]
+    branches: [ main, xiaoling-deployment, xiaoling, wawa ]
   pull_request:
     branches: [ main ]
 
@@ -12,8 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: true  # Stop all jobs if any fails (faster feedback)
       matrix:
-        python-version: ['3.9', '3.10', '3.11']
+        python-version: ['3.11']  # Focus on latest stable Python
 
     steps:
     - name: Checkout code
@@ -30,24 +31,16 @@ jobs:
       run: |
         cd backend
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install -r requirements.txt pytest-cov
 
-    - name: Run tests with pytest
+    - name: Run tests with coverage
       run: |
         cd backend
-        python -m pytest -v --tb=short
+        python -m pytest -v --tb=short --cov=app --cov-report=xml --cov-report=term
       env:
         FLASK_ENV: testing
 
-    - name: Generate coverage report
-      if: matrix.python-version == '3.11'
-      run: |
-        cd backend
-        pip install pytest-cov
-        python -m pytest --cov=app --cov-report=xml --cov-report=term
-
     - name: Upload coverage to artifacts
-      if: matrix.python-version == '3.11'
       uses: actions/upload-artifact@v4
       with:
         name: coverage-report
