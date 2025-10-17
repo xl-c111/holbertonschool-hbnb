@@ -38,6 +38,8 @@ class Place(BaseModel):
 
     @validates('title')
     def validates_title(self, key, value):
+        if not isinstance(value, str):
+            raise ValueError("Title must be a string.")
         value = value.strip()
         if 0 < len(value) <= 100:
             return value
@@ -46,6 +48,8 @@ class Place(BaseModel):
 
     @validates('description')
     def validates_description(self, key, value):
+        if not isinstance(value, str):
+            raise ValueError("Description must be a string.")
         return value.strip()
 
     @validates('price')
@@ -73,7 +77,7 @@ class Place(BaseModel):
 
     def save(self):
         """Update the updated_at timestamp whenever the object is modified"""
-        self.updated_at = datetime.now()
+        self.updated_at = datetime.utcnow()
 
     def add_review(self, review):
         from app.models.review import Review
@@ -107,7 +111,7 @@ class Place(BaseModel):
             raise PermissionError("Only the owner or admin can add amenities.")
         # if amenity obj is already present in the self.amenities list, avoid duplicating
         if amenity in self.amenities:
-            return "Amenity already exists."
+            raise ValueError("Amenity already exists.")
         self.amenities.append(amenity)
 
     def remove_amenity(self, amenity, user):

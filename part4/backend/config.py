@@ -34,3 +34,6 @@ class TestingConfig(Config):
         "TEST_DATABASE_URI",
         "mysql+mysqlconnector://hbnb_user:1234@localhost/hbnb_db_test?charset=utf8mb4"
     )
+    BCRYPT_LOG_ROUNDS = 4  # Minimal rounds for testing (default is 12, very slow!)
+    JWT_SECRET_KEY = "test-secret-key"
+    SQLALCHEMY_TRACK_MODIFICATIONS = False

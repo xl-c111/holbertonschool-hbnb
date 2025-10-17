@@ -48,9 +48,6 @@ class AmenityList(Resource):
             return {"error": str(e)}, 400
         except PermissionError as e:
             return {"error": str(e)}, 403
-        except ValueError as e:
-            print("DEBUG: ValueError thrown in POST:", e)
-            return {"error": str(e)}, 400
 
 
 @api.route('/<string:amenity_id>')

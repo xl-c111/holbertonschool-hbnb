@@ -8,12 +8,21 @@ Full‑stack rental platform built with Flask + SQLAlchemy + MySQL on the backen
 
 1. **Database**
    ```bash
-   mysql -u root -p
+   # Start MySQL (if not running)
+   brew services start mysql
+
+   # Connect to MySQL
+   mysql -u root
+
+   # Run these commands inside MySQL prompt:
    CREATE USER IF NOT EXISTS 'hbnb_user'@'localhost' IDENTIFIED BY '1234';
    GRANT ALL PRIVILEGES ON *.* TO 'hbnb_user'@'localhost';
+   FLUSH PRIVILEGES;
    EXIT;
 
-   mysql -u root -p < docs/hbnb_db.sql
+   # Back in terminal, import the database schema
+   cd part4
+   mysql -u root < docs/hbnb_db.sql
    ```
 
 2. **Backend**
@@ -49,9 +58,10 @@ Full‑stack rental platform built with Flask + SQLAlchemy + MySQL on the backen
 
 ## Key Features
 - JWT auth + bcrypt password hashing
+- Public browsing (view places without login) + authenticated reviews
 - Layered architecture (models → repositories → services → API namespaces)
 - Business rules: no self-reviews, one review per user/place, owner/admin-only updates
-- Swagger UI at `http://127.0.0.1:5000/api/v1/`
+- Interactive API docs at `http://127.0.0.1:5000/api/v1/`
 
 ## Running Tests
 ```bash

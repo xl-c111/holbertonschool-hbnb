@@ -92,11 +92,12 @@ class HBnBFacade:
         if not place:
             return None
         # Update the place with the provided data
+        update_dict = {}
         for key in ['title', 'description', 'price', 'latitude', 'longitude']:
             if key in place_data:
-                setattr(place, key, place_data[key])
-        self.place_repo.update(place_id, place)
-        return place
+                update_dict[key] = place_data[key]
+        self.place_repo.update(place_id, update_dict)
+        return self.place_repo.get(place_id)
 
     # Placeholder method for deleting a place
 
@@ -114,11 +115,25 @@ class HBnBFacade:
         if not place or not amenity:
             return None
 
-        if place.owner_id != user.id:
+        if place.owner_id != user.id and not getattr(user, 'is_admin', False):
             raise PermissionError("Unauthorized")
         place.add_amenity(amenity, user)
         db.session.commit()
         return amenity
+
+    def delete_amenity_from_place(self, place_id, amenity_id, user):
+        place = self.place_repo.get(place_id)
+        amenity = self.amenity_repo.get(amenity_id)
+
+        if not place or not amenity:
+            raise ValueError("Place or Amenity not found")
+
+        if place.owner_id != user.id and not getattr(user, 'is_admin', False):
+            raise PermissionError("Unauthorized")
+
+        place.remove_amenity(amenity, user)
+        db.session.commit()
+        return True
 
     def get_place_with_details(self, place_id):
         place = db.session.query(Place).options(
@@ -128,7 +143,7 @@ class HBnBFacade:
         return place
 
     def get_reviews_for_place(self, place_id):
-        return Review.query.filter_by(place_id=place_id).all()
+        return self.review_repo.get_all_by_attribute("place_id", place_id) or []
 
 
    #  _________________Amenities Operations____________________
@@ -163,12 +178,14 @@ class HBnBFacade:
         existing_amenity = self.amenity_repo.get(amenity_id)
         if not existing_amenity:
             return None
+
+        update_dict = {}
         for key, value in amenity_data.items():
             if hasattr(existing_amenity, key):
-                setattr(existing_amenity, key, value)
+                update_dict[key] = value
 
-        self.amenity_repo.update(amenity_id, existing_amenity)
-        return existing_amenity
+        self.amenity_repo.update(amenity_id, update_dict)
+        return self.amenity_repo.get(amenity_id)
 
     def get_amenities_for_place(self, place_id):
         place = self.place_repo.get(place_id)

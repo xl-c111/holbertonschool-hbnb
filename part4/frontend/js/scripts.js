@@ -168,10 +168,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 loginText.classList.remove('hidden');
                 loginLoading.classList.add('hidden');
             }
-            // Only call if defined
-            if (typeof initializeReviewForm === 'function') {
-                initializeReviewForm();
-            }
         });
     }
 
@@ -187,6 +183,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // We're on another page, check authentication normally
         checkAuthentication();
     }
+
+    // Initialize review form if we're on the add_review page
+    initializeReviewForm();
 });
 
 /**
@@ -379,11 +378,6 @@ function setupPriceFilter() {
  * Show all places
  */
 function showAllPlaces() {
-    if (!currentToken) {
-        showMessage('Please log in to view places.', 'error');
-        return;
-    }
-
     const priceFilter = document.getElementById('price-filter');
     if (priceFilter) {
         priceFilter.value = 'all';
@@ -445,18 +439,10 @@ function logout() {
  * @param {string} placeId - Place ID
  */
 async function fetchPlaceDetails(placeId) {
-    const token = getCookie('token');
-
     try {
         console.log(`Fetching place details for ID: ${placeId}`);
 
-        const response = await fetch(`http://127.0.0.1:5000/api/v1/places/${placeId}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
+        const response = await apiFetch(`/api/v1/places/${placeId}`);
 
         console.log('Place details response status:', response.status);
 
@@ -484,18 +470,10 @@ async function fetchPlaceDetails(placeId) {
  * @param {string} placeId - Place ID
  */
 async function fetchPlaceReviews(placeId) {
-    const token = getCookie('token');
-
     try {
         console.log(`📡 Fetching reviews for place ID: ${placeId}`);
 
-        const response = await fetch(`http://127.0.0.1:5000/api/v1/places/${placeId}/reviews`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
+        const response = await apiFetch(`/api/v1/places/${placeId}/reviews`);
 
         if (response.ok) {
             const reviews = await response.json(); // ✅ define reviews
@@ -749,13 +727,16 @@ function showError(message) {
 }
 
 
-// Review section
+// Review section - Initialization for review form on add_review.html page
+// This will only run if the elements exist on the page
 
-
-document.addEventListener('DOMContentLoaded', function () {
+function initializeReviewForm() {
     const placeNameSpan = document.getElementById('place-name');
     const reviewForm = document.getElementById('reviewForm');
     const messageBox = document.getElementById('message');
+
+    // Only initialize if we're on the review form page
+    if (!reviewForm) return;
 
     // Get place_id from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -797,12 +778,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Fetch place details using the correct endpoint
     console.log(`Fetching place details for ID: ${placeId}`);
 
-    fetch(`http://127.0.0.1:5000/api/v1/places/${placeId}`, {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        }
-    })
+    apiFetch(`/api/v1/places/${placeId}`)
         .then(res => {
             console.log('Place details response status:', res.status);
             if (!res.ok) throw new Error(`Failed to fetch place details: ${res.status}`);
@@ -911,19 +887,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log(`Message: ${msg} (${type})`);
         }
     }
-
-    // Helper function to get cookie (if not already defined)
-    function getCookie(name) {
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-            const [key, value] = cookie.trim().split('=');
-            if (key === name) {
-                return value;
-            }
-        }
-        return null;
-    }
-});
+}
 
 // Add this function to create the review button dynamically
 function createReviewButton(placeId) {

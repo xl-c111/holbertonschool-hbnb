@@ -37,6 +37,8 @@ class Amenity(BaseModel):
 
     @validates('number')
     def validates_number(self, key, value):
+        if value is None:
+            return value
         if not isinstance(value, int):
             raise ValueError("Number must be an integer.")
         return value
@@ -59,4 +61,4 @@ class Amenity(BaseModel):
 
     def save(self):
         """Update the updated_at timestamp whenever the object is modified"""
-        self.updated_at = datetime.now()
+        self.updated_at = datetime.utcnow()

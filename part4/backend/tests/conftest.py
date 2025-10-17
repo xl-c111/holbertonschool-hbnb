@@ -15,14 +15,8 @@ def _unique_email(prefix="user"):
 @pytest.fixture()
 def app():
     """Create a fresh Flask app + database per test."""
-    db_fd, db_path = tempfile.mkstemp()
     app = create_app("config.TestingConfig")
-    app.config.update(
-        SQLALCHEMY_DATABASE_URI=f"sqlite:///{db_path}",
-        SQLALCHEMY_ENGINE_OPTIONS={"connect_args": {"check_same_thread": False}},
-        JWT_SECRET_KEY="test-secret",
-        BCRYPT_LOG_ROUNDS=4,
-    )
+    # Config already sets BCRYPT_LOG_ROUNDS=4 and uses in-memory SQLite
 
     with app.app_context():
         db.create_all()
@@ -32,9 +26,6 @@ def app():
     with app.app_context():
         db.session.remove()
         db.drop_all()
-
-    os.close(db_fd)
-    os.unlink(db_path)
 
 
 @pytest.fixture()
