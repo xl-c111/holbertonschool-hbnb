@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hbnb - Register</title>
+    <link rel="stylesheet" href="styles.css?v=3" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div class="header-content">
+        <img src="images/logo.png" alt="App Logo" class="logo" />
+        <a href="index.html" class="login-button">🏚️ Home</a>
+      </div>
+    </header>
+
+    <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">🏚️ Home</a></li>
+          <li><a href="login.html">🎃 Login</a></li>
+        </ul>
+    </nav>
+
+
+    <!-- Main Content-->
+    <main>
+      <form class="form" id="register-page" onsubmit="return false;">
+        <h2>🧙 Create Your Account</h2>
+        <div id="message" class="message hidden"></div>
+
+        <div class="form-group">
+          <label for="first_name">👤 First Name:</label>
+          <input type="text" id="first_name" required minlength="1" maxlength="50" pattern="[A-Za-z\s]+" title="Only letters and spaces allowed" />
+        </div>
+
+        <div class="form-group">
+          <label for="last_name">👤 Last Name:</label>
+          <input type="text" id="last_name" required minlength="1" maxlength="50" pattern="[A-Za-z\s]+" title="Only letters and spaces allowed" />
+        </div>
+
+        <div class="form-group">
+          <label for="email">📧 Email:</label>
+          <input type="email" id="email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="password">🔐 Password:</label>
+          <input type="password" id="password" required minlength="8" />
+          <small class="password-hint">Must be at least 8 characters with uppercase, lowercase, number, and special character</small>
+        </div>
+
+        <div class="form-group">
+          <label for="confirm_password">🔐 Confirm Password:</label>
+          <input type="password" id="confirm_password" required minlength="8" />
+        </div>
+
+        <button type="submit" id="registerBtn">
+          <span id="registerText">🎃 Register</span>
+          <span id="registerLoading" class="loading hidden"></span>
+        </button>
+
+        <div class="register-link">
+          <p>Already have an account? <a href="login.html" class="register-button">🎃 Login here</a></p>
+        </div>
+      </form>
+    </main>
+    <!-- Footer -->
+    <footer>
+
+      <p>&copy;
+        2025 Wawa & Xiaoling - HBnB Project. All rights reserved.👻
+      </p>
+
+    </footer>
+
+    <script src="scripts.js?v=2"></script>
+
+
+  </body>
+</html>
