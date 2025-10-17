@@ -1,5 +1,4 @@
 name: Run Tests
-# Trigger fresh checks for Ruleset validation
 
 on:
   push:
