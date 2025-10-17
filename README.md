@@ -8,6 +8,9 @@ Full-stack rental platform with Flask + SQLAlchemy + MySQL backend and vanilla H
 
 1. **Database**
    ```bash
+   # Install MySQL if you don't have it yet
+   brew install mysql
+
    # Start MySQL
    brew services start mysql
    mysql -u root
@@ -23,18 +26,22 @@ Full-stack rental platform with Flask + SQLAlchemy + MySQL backend and vanilla H
    ```
 
 2. **Backend**
-   ```bash
-   cd backend
+```bash
+cd backend
 
-   # Setup environment variables
-   cp .env.example .env
-   # Edit .env with your MySQL credentials if different from defaults
+# Setup environment variables
+cp .env.example .env
+# Edit .env with your MySQL credentials if different from defaults
 
-   # Install dependencies and start
-   pip install -r requirements.txt
-   python3 ../scripts/add_sample_data.py  # Add test data
-   python3 run.py                          # Start API at http://127.0.0.1:5000
-   ```
+# Install Python dependencies inside a virtual environment
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Start services
+python3 ../scripts/add_sample_data.py  # Add test data
+python3 run.py                          # Start API at http://127.0.0.1:5000
+```
 
 3. **Frontend**
    ```bash
