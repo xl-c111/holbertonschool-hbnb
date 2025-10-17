@@ -1,6 +1,26 @@
 // Global variables to store places data
 let allPlaces = [];
 let currentToken = null;
+const API_BASE = 'http://127.0.0.1:5000';
+
+// Helper: build headers with optional JWT from cookie
+function buildHeaders(extra = {}) {
+    const token = getCookie('token');
+    const base = { 'Content-Type': 'application/json' };
+    if (token) base['Authorization'] = `Bearer ${token}`;
+    return { ...base, ...extra };
+}
+
+// Helper: API fetch wrapper (JSON by default)
+async function apiFetch(path, options = {}) {
+    const { method = 'GET', headers = {}, body } = options;
+    const res = await fetch(`${API_BASE}${path}`, {
+        method,
+        headers: buildHeaders(headers),
+        body: body ? (typeof body === 'string' ? body : JSON.stringify(body)) : undefined,
+    });
+    return res;
+}
 
 // Initialize the page when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -25,12 +45,9 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 console.log('Attempting login with:', { email });
                 // Send POST request to the login API
-                const response = await fetch('http://127.0.0.1:5000/api/v1/auth/login', {
+                const response = await apiFetch('/api/v1/auth/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password }) // Send credentials as JSON
+                    body: { email, password }
                 });
                 console.log('Login response status:', response.status);
 
@@ -44,8 +61,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.location.href = 'index.html';
                 } else {
                     // Login failed - show error message from response
-                    const errorText = await response.text();
-                    alert('Login failed: ' + errorText);
+                    let errorText;
+                    try { errorText = await response.text(); } catch (_) { errorText = ''; }
+                    alert('Login failed: ' + (errorText || `HTTP ${response.status}`));
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -56,8 +74,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 loginText.classList.remove('hidden');
                 loginLoading.classList.add('hidden');
             }
-
-            initializeReviewForm();
+            // Only call if defined
+            if (typeof initializeReviewForm === 'function') {
+                initializeReviewForm();
+            }
         });
     }
 
@@ -140,13 +160,7 @@ async function fetchPlaces(token) {
     try {
         placesContainer.innerHTML = '<div class="loading">🔮 Loading places...</div>';
 
-        const response = await fetch('http://127.0.0.1:5000/api/v1/places/', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
+        const response = await apiFetch('/api/v1/places/');
 
         if (!response.ok) {
             throw new Error('Failed to fetch places');
@@ -739,13 +753,9 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('Submitting review data:', reviewData);
 
             // Submit review to the correct endpoint
-            fetch('http://127.0.0.1:5000/api/v1/reviews/', {
+            apiFetch('/api/v1/reviews/', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(reviewData)
+                body: reviewData
             })
                 .then(res => {
                     console.log('Review submission response status:', res.status);

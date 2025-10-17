@@ -75,8 +75,7 @@ class UserResource(Resource):
     @api.response(404, 'User not found')
     def put(self, user_id):
         """update user info by ID"""
-        identity = get_jwt_identity()
-        current_user_id = identity.get('id')
+        current_user_id = get_jwt_identity()
 
         if user_id != current_user_id:
             return {'error': 'Unauthorized action'}, 403
@@ -103,8 +102,7 @@ class UserResource(Resource):
     @api.response(404, 'User not found')
     def delete(self, user_id):
         """Delete a user by ID"""
-        identity = get_jwt_identity()
-        current_user_id = identity.get('id')
+        current_user_id = get_jwt_identity()
 
         user = facade.get_user(user_id)
         if str(user_id).strip() != str(current_user_id).strip():

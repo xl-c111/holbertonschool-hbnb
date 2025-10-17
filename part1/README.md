@@ -1,7 +1,6 @@
 # HBnB - UML Project
 
 ## Team Members
-- Tas Gidkaos
 - Xiaoling Cui
 - Wawa Niampoung
 

@@ -30,4 +30,7 @@ class ProductionConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.getenv("TEST_DATABASE_URI")
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "TEST_DATABASE_URI",
+        "mysql+mysqlconnector://hbnb_user:1234@localhost/hbnb_db_test?charset=utf8mb4"
+    )

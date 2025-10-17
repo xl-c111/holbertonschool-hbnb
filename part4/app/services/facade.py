@@ -74,7 +74,12 @@ class HBnBFacade:
 
     # Placeholder method for fetching all places
     def get_all_places(self):
-        return self.place_repo.get_all()
+        # Use eager loading to fetch amenities and reviews in one query
+        places = db.session.query(Place).options(
+            selectinload(Place.amenities),
+            selectinload(Place.reviews)
+        ).all()
+        return places
 
     # Placeholder method for fetching a place by ID
     def get_place(self, place_id):
@@ -131,24 +136,11 @@ class HBnBFacade:
     # Placeholder method for creating an amenity
 
     def create_amenity(self, amenity_data):
-        # debug
-        print(f"DEBUG: Received amenity_data: {amenity_data}")
-        print(f"DEBUG: Data type: {type(amenity_data)}")
-
-        requires_fields = ['name', 'description', 'number']
-        for field in requires_fields:
+        # Global amenity creation (no implicit place association here)
+        required_fields = ['name', 'description', 'number']
+        for field in required_fields:
             if field not in amenity_data or amenity_data[field] is None:
                 raise ValueError(f"Missing or null field: {field}")
-
-        place_id = amenity_data['place_id']
-        place = self.place_repo.get(place_id)
-        if not place:
-            raise ValueError(f"Place with ID {place_id} does not exist.")
-
-        if amenity_data['owner_id'] != place.owner_id:
-            raise PermissionError("User is not the owner of this place.")
-
-        # create the amenity
 
         amenity = Amenity(
             name=amenity_data['name'],
@@ -157,8 +149,6 @@ class HBnBFacade:
         )
 
         self.amenity_repo.add(amenity)
-        amenity.places.append(place)
-        db.session.commit()
         return amenity
 
     def get_amenity(self, amenity_id):

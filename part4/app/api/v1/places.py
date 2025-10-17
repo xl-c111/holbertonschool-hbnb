@@ -80,10 +80,10 @@ class PlaceList(Resource):
     @api.expect(place_model)
     @jwt_required()
     def post(self):
-        current_user = get_jwt_identity()
+        user_id = get_jwt_identity()
 
         # Get the actual user object
-        user = facade.get_user(current_user['id'])
+        user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
 
@@ -115,39 +115,52 @@ class PlaceResource(Resource):
         # Fetch the place by ID
         return serialize_place(places)
 
+    @jwt_required()
     @api.expect(place_model)
     @api.marshal_with(place_model)
     def put(self, place_id):
         place = facade.get_place(place_id)
         if not place:
             return {"error": "Place not found"}, 404
-        data = request.json
+        data = request.json or {}
 
-        current_user = place.owner
+        user_id = get_jwt_identity()
+        user = facade.get_user(user_id)
+        if not user:
+            return {"error": "User not found"}, 404
         try:
-            updated_place = place.update_by_owner_or_admin(
-                current_user, **data)
+            updated_place = place.update_by_owner_or_admin(user, **data)
             return serialize_place(updated_place)
-
         except PermissionError as e:
             return {"error": str(e)}, 403
 
+    @jwt_required()
     def delete(self, place_id):
         place = facade.get_place(place_id)
         if not place:
             return {"error": "Place not found"}, 404
+        user_id = get_jwt_identity()
+        user = facade.get_user(user_id)
+        if not user:
+            return {"error": "User not found"}, 404
+        # Only owner or admin can delete
+        if place.owner_id != user.id and not getattr(user, 'is_admin', False):
+            return {"error": "Unauthorized action"}, 403
         facade.delete_place(place_id)
-        return 'Place deleted successfully', 204
+        return {"message": "Place deleted successfully"}, 200
 
 
 @api.route('/<string:place_id>/amenities/<string:amenity_id>')
 class PlaceAmenityResource(Resource):
+    @jwt_required()
     def post(self, place_id, amenity_id):
         place = facade.get_place(place_id)
         if not place:
             return {"error": "Place not found"}, 404
-
-        user = place.owner
+        user_id = get_jwt_identity()
+        user = facade.get_user(user_id)
+        if not user:
+            return {"error": "User not found"}, 404
 
         try:
             amenity = facade.add_amenity_to_place(place_id, amenity_id, user)
@@ -162,13 +175,15 @@ class PlaceAmenityResource(Resource):
         except PermissionError as e:
             return {"error": str(e)}, 403
 
+    @jwt_required()
     def delete(self, place_id, amenity_id):
-        # Replace this with actual user context
         place = facade.get_place(place_id)
         if not place:
             return {"error": "Place not found"}, 404
-
-        user = place.owner
+        user_id = get_jwt_identity()
+        user = facade.get_user(user_id)
+        if not user:
+            return {"error": "User not found"}, 404
 
         try:
             facade.delete_amenity_from_place(place_id, amenity_id, user)
@@ -191,6 +206,7 @@ class PlaceReviewList(Resource):
                 'text': review.text,
                 'rating': review.rating,
                 'user_id': review.user_id,
+                'user_name': f"{review.user.first_name} {review.user.last_name}" if review.user else "Anonymous",
                 'place_id': review.place_id
             })
         return review_list, 200

@@ -13,7 +13,6 @@ api = Namespace('reviews', description='Review operations')
 review_model = api.model('Review', {
     'text': fields.String(required=True, description='Text of the review'),
     'rating': fields.Integer(required=True, description='Rating of the place (1-5)'),
-    'user_id': fields.String(required=True, description='ID of the user'),
     'place_id': fields.String(required=True, description='ID of the place')
 })
 
@@ -27,7 +26,7 @@ class ReviewList(Resource):
     def post(self):
         """Register a new review"""
         review_data = api.payload
-        identity = get_jwt_identity()
+        user_id = get_jwt_identity()
         required_fields = ['text', 'rating', 'place_id']
 
         missing = [field for field in required_fields if field not in review_data]
@@ -35,10 +34,7 @@ class ReviewList(Resource):
             return {'error': f'Missing fields: {", ".join(missing)}'}, 400
 
         # Inject user_id from JWT
-        review_data['user_id'] = identity['id']
-
-        if review_data['user_id'] != identity['id']:
-            return {'error': 'User ID does not match the authenticated user.'}, 403
+        review_data['user_id'] = user_id
         try:
             new_review = facade.create_review(review_data)
             return {'id': new_review.id,
@@ -90,8 +86,8 @@ class ReviewResource(Resource):
     def put(self, review_id):
         """Update a review's information"""
         update_data = api.payload
-        identity = get_jwt_identity()
-        user = db.session.get(User, identity["id"])
+        user_id = get_jwt_identity()
+        user = db.session.get(User, user_id)
         if not user:
             return {"error": "User not found"}, 404
 
@@ -117,14 +113,14 @@ class ReviewResource(Resource):
     @api.response(404, 'Review not found')
     def delete(self, review_id):
         """Delete a review"""
-        identity = get_jwt_identity()
-        user = User.query.get(identity["id"])
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
         if not user:
             return {"error": "User not found"}, 404
         try:
-            result = facade.get_review(review_id, identity)
-            if not result:
-                return {'error': 'Review not found or delete failed'}, 404
+            deleted = facade.delete_review(review_id, user)
+            if not deleted:
+                return {'error': 'Review not found'}, 404
             return {'message': 'Review deleted successfully'}, 200
         except PermissionError:
             return {'error': 'Unauthorized action.'}, 403
@@ -164,4 +160,3 @@ class PlaceReviewList(Resource):
         'total_reviews': len(review_list),
         'reviews': review_list
     }, 200
-

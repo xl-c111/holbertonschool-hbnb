@@ -11,8 +11,8 @@ class Place(BaseModel):
     __tablename__ = 'places'
 
     title = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.String(100), nullable=False)
-    price = db.Column(db.Integer, nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    price = db.Column(db.Float, nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
     owner_id = db.Column(db.String(60), db.ForeignKey(
@@ -119,8 +119,3 @@ class Place(BaseModel):
                 "Only the owner or admin can remove amenities.")
         if amenity in self.amenities:
             self.amenities.remove(amenity)
-
-    @staticmethod
-    def place_exists(place_id):
-        """ Search through all Places to ensure the specified place_id exists """
-        # Unused - the facade get_place method will handle this

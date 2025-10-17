@@ -10,7 +10,7 @@ class Amenity(BaseModel):
     __tablename__ = 'amenities'
     name = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(100), nullable=False)
-    number = db.Column(db.Integer, nullable=False)
+    number = db.Column(db.Integer, nullable=True)
 
 
     # many to many relationship
@@ -26,7 +26,7 @@ class Amenity(BaseModel):
     @validates('name')
     def validates_name(self, key, value):
         if not isinstance(value, str) or not value.strip():
-            raise ValueError("Name must be a non-emty string.")
+            raise ValueError("Name must be a non-empty string.")
         return value.strip()
 
     @validates('description')
