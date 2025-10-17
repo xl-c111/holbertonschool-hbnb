@@ -224,10 +224,6 @@ function checkAuthentication() {
                 logoutBtn.style.display = 'none';
                 logoutBtn.classList.add('hidden');
             }
-
-            if (document.getElementById('places-list')) {
-                showMessage('Please log in to view places.', 'info');
-            }
         } else {
             loginLink.style.display = 'none';
             loginLink.classList.add('hidden');
@@ -235,17 +231,18 @@ function checkAuthentication() {
                 logoutBtn.style.display = 'block';
                 logoutBtn.classList.remove('hidden');
             }
+        }
 
-            if (document.getElementById('places-list')) {
-                fetchPlaces(token);
-            }
+        // Always fetch places, regardless of login status
+        if (document.getElementById('places-list')) {
+            fetchPlaces(token);
         }
     }
 }
 
 /**
  * Fetch places data from the API
- * @param {string} token - JWT authentication token
+ * @param {string} token - JWT authentication token (optional)
  */
 async function fetchPlaces(token) {
     const placesContainer = document.getElementById('places-list');

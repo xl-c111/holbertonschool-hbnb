@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 """Add sample data to the database for testing"""
+import sys
+import os
+
+# Add backend directory to Python path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
+
 from app import create_app
 from app.extensions import db
 from app.models.user import User
