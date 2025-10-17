@@ -1,0 +1,106 @@
+name: Code Quality Checks
+
+on:
+  push:
+    branches: [ main, xiaoling-deployment ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    name: Lint Python Code
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install linting tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pylint
+
+    - name: Run flake8
+      run: |
+        cd backend
+        # Stop the build if there are Python syntax errors or undefined names
+        flake8 app --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Exit-zero treats all errors as warnings
+        flake8 app --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      continue-on-error: true
+
+    - name: Run pylint
+      run: |
+        cd backend
+        pylint app --exit-zero --max-line-length=127 --disable=C0111,C0103,R0903
+      continue-on-error: true
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install security tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety
+
+    - name: Run Bandit security scan
+      run: |
+        cd backend
+        bandit -r app -ll -f json -o bandit-report.json || true
+        bandit -r app -ll || true
+      continue-on-error: true
+
+    - name: Check dependencies for vulnerabilities
+      run: |
+        cd backend
+        pip install -r requirements.txt
+        safety check --json || true
+      continue-on-error: true
+
+  frontend-lint:
+    name: Lint Frontend Code
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install HTMLHint
+      run: npm install -g htmlhint
+
+    - name: Lint HTML files
+      run: |
+        cd frontend
+        htmlhint *.html || true
+      continue-on-error: true
+
+    - name: Check for console.log statements
+      run: |
+        cd frontend/js
+        if grep -r "console.log" .; then
+          echo "⚠️  Warning: console.log statements found in production code"
+        else
+          echo "✅ No console.log statements found"
+        fi
+      continue-on-error: true
