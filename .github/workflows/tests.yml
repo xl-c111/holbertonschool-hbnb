@@ -1,10 +1,16 @@
 name: Run Tests
 
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+  actions: read
+
 on:
   push:
-    branches: [ main, xiaoling-deployment ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
@@ -13,46 +19,46 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11']
+        python-version: ["3.9", "3.10", "3.11"]
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-        cache: 'pip'
-        cache-dependency-path: backend/requirements.txt
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
 
-    - name: Install dependencies
-      run: |
-        cd backend
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Run tests with pytest
-      run: |
-        cd backend
-        python -m pytest -v --tb=short
-      env:
-        FLASK_ENV: testing
+      - name: Run tests with pytest
+        run: |
+          cd backend
+          python -m pytest -v --tb=short
+        env:
+          FLASK_ENV: testing
 
-    - name: Generate coverage report
-      if: matrix.python-version == '3.11'
-      run: |
-        cd backend
-        pip install pytest-cov
-        python -m pytest --cov=app --cov-report=xml --cov-report=term
+      - name: Generate coverage report
+        if: matrix.python-version == '3.11'
+        run: |
+          cd backend
+          pip install pytest-cov
+          python -m pytest --cov=app --cov-report=xml --cov-report=term
 
-    - name: Upload coverage to artifacts
-      if: matrix.python-version == '3.11'
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-report
-        path: backend/coverage.xml
-        retention-days: 7
+      - name: Upload coverage to artifacts
+        if: matrix.python-version == '3.11'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: backend/coverage.xml
+          retention-days: 7
 
   test-summary:
     name: Test Summary
@@ -61,12 +67,12 @@ jobs:
     if: always()
 
     steps:
-    - name: Check test results
-      run: |
-        if [ "${{ needs.test.result }}" == "success" ]; then
-          echo "✅ All tests passed successfully!"
-          exit 0
-        else
-          echo "❌ Tests failed!"
-          exit 1
-        fi
+      - name: Check test results
+        run: |
+          if [ "${{ needs.test.result }}" == "success" ]; then
+            echo "✅ All tests passed successfully!"
+            exit 0
+          else
+            echo "❌ Tests failed!"
+            exit 1
+          fi
