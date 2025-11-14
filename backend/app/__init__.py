@@ -26,7 +26,15 @@ def create_app(config_class="config.DevelopmentConfig"):
     db.init_app(app)
     jwt.init_app(app)
     bcrypt.init_app(app)
-    CORS(app)
+
+    # Configure CORS based on environment
+    if config_class == "config.ProductionConfig":
+        # In production, only allow your frontend domain
+        allowed_origins = os.getenv('ALLOWED_ORIGINS', '').split(',')
+        CORS(app, origins=allowed_origins)
+    else:
+        # In development, allow all origins
+        CORS(app)
 
     # register API namespace
     api = Api(app, version='1.0', title='HBnB API',
