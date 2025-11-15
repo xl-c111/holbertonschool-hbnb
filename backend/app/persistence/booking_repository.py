@@ -4,7 +4,7 @@ from datetime import date
 from sqlalchemy import and_, or_
 
 
-class BookingRepository(SQLAlchemy Repository):
+class BookingRepository(SQLAlchemyRepository):
     """Repository for Booking model with availability checking"""
 
     def __init__(self):
