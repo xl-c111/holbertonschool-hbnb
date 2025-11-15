@@ -1,0 +1,72 @@
+/**
+ * Place Card Component (for listing page)
+ */
+
+.place-card {
+    background: linear-gradient(135deg, rgba(45, 27, 105, 0.9), rgba(31, 27, 36, 0.95));
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(167, 139, 250, 0.2);
+    padding: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.place-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 40px rgba(107, 70, 193, 0.4);
+  border-color: rgba(167, 139, 250, 0.4);
+}
+
+.place-title-card {
+  font-size: 1.3rem;
+  color: var(--accent-orange);
+  text-align: left;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.75rem;
+  text-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.place-price {
+  display: inline-block;
+  font-size: 1.2rem;
+  color: var(--light-purple);
+  font-weight: 700;
+  margin: 0.75rem 0;
+  padding: 0.5rem 1rem;
+  background: rgba(167, 139, 250, 0.15);
+  border-radius: 8px;
+  border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+.place-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.details-button {
+  background: linear-gradient(135deg, var(--primary-purple), var(--light-purple));
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+}
+
+.details-button:hover {
+  background: linear-gradient(135deg, var(--light-purple), var(--accent-orange));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(107, 70, 193, 0.5);
+}
+
+.place-location {
+  color: var(--accent-orange);
+  font-size: 0.95rem;
+}

@@ -1,0 +1,16 @@
+/**
+ * CSS Custom Properties (Variables)
+ */
+
+:root {
+  --primary-purple: #6b46c1;
+  --dark-purple: #4c1d95;
+  --light-purple: #a78bfa;
+  --accent-orange: #f59e0b;
+  --dark-bg: #1f1b24;
+  --card-bg: #2d1b69;
+  --text-light: #f3f4f6;
+  --text-dark: #1f2937;
+  --border-color: #ddd;
+  --shadow-purple: rgba(107, 70, 193, 0.3);
+}
