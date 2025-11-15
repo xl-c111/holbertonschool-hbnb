@@ -17,7 +17,8 @@ export default defineConfig({
         register: resolve(__dirname, 'register.html'),
         place: resolve(__dirname, 'place.html'),
         review: resolve(__dirname, 'review.html'),
-        addPlace: resolve(__dirname, 'add-place.html')
+        addPlace: resolve(__dirname, 'add-place.html'),
+        dashboard: resolve(__dirname, 'dashboard.html')
       }
     }
   },
