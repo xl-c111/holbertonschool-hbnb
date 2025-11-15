@@ -3,9 +3,13 @@
  */
 import { placesAPI } from '../api/places.js';
 import { reviewsAPI } from '../api/reviews.js';
+import { bookingsAPI } from '../api/bookings.js';
 import { ReviewCard, NoReviewsMessage, generateStars } from '../components/ReviewCard.js';
-import { showError } from '../components/Message.js';
+import { showError, showMessage } from '../components/Message.js';
 import { AmenityItem } from '../utils/amenities.js';
+import { auth } from '../auth/index.js';
+
+let currentPlace = null;
 
 export async function initPlacePage() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -19,6 +23,11 @@ export async function initPlacePage() {
     await loadPlaceDetails(placeId);
     await loadPlaceReviews(placeId);
     createReviewButton(placeId);
+
+    // Initialize booking form if user is logged in
+    if (auth.isAuthenticated()) {
+        initBookingForm(placeId);
+    }
 }
 
 async function loadPlaceDetails(placeId) {
@@ -27,6 +36,7 @@ async function loadPlaceDetails(placeId) {
         const place = await placesAPI.getById(placeId);
         console.log('Place details fetched:', place);
 
+        currentPlace = place; // Save for booking calculations
         populatePlaceDetails(place);
     } catch (error) {
         console.error('Error fetching place details:', error);
@@ -175,4 +185,127 @@ function createReviewButton(placeId) {
     reviewsSection.appendChild(reviewLink);
 
     console.log(`Created review button for place ID: ${placeId}`);
+}
+
+// --- Booking Form Functions ---
+
+function initBookingForm(placeId) {
+    const bookingForm = document.getElementById('booking-form');
+    if (!bookingForm) {
+        console.log('No booking form found on page');
+        return;
+    }
+
+    // Set minimum date to today
+    const checkInInput = document.getElementById('check-in');
+    const checkOutInput = document.getElementById('check-out');
+    const today = new Date().toISOString().split('T')[0];
+
+    if (checkInInput) {
+        checkInInput.setAttribute('min', today);
+        checkInInput.addEventListener('change', () => {
+            // Set check-out min to day after check-in
+            if (checkInInput.value) {
+                const checkIn = new Date(checkInInput.value);
+                checkIn.setDate(checkIn.getDate() + 1);
+                const minCheckOut = checkIn.toISOString().split('T')[0];
+                checkOutInput.setAttribute('min', minCheckOut);
+
+                // Update price calculation
+                updatePriceCalculation();
+            }
+        });
+    }
+
+    if (checkOutInput) {
+        checkOutInput.addEventListener('change', updatePriceCalculation);
+    }
+
+    // Handle form submission
+    bookingForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await handleBookingSubmit(placeId);
+    });
+
+    console.log('Booking form initialized');
+}
+
+function updatePriceCalculation() {
+    const checkIn = document.getElementById('check-in')?.value;
+    const checkOut = document.getElementById('check-out')?.value;
+    const totalPriceElement = document.getElementById('total-price');
+
+    if (!checkIn || !checkOut || !currentPlace) {
+        if (totalPriceElement) {
+            totalPriceElement.textContent = '-';
+        }
+        return;
+    }
+
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+    const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
+
+    if (nights > 0) {
+        const total = nights * currentPlace.price;
+        if (totalPriceElement) {
+            totalPriceElement.textContent = `$${total.toFixed(2)} (${nights} nights × $${currentPlace.price})`;
+        }
+    } else {
+        if (totalPriceElement) {
+            totalPriceElement.textContent = 'Invalid dates';
+        }
+    }
+}
+
+async function handleBookingSubmit(placeId) {
+    const checkIn = document.getElementById('check-in')?.value;
+    const checkOut = document.getElementById('check-out')?.value;
+    const submitBtn = document.querySelector('#booking-form button[type="submit"]');
+    const originalText = submitBtn?.textContent;
+
+    if (!checkIn || !checkOut) {
+        showError('Please select check-in and check-out dates');
+        return;
+    }
+
+    // Disable button and show loading
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Booking...';
+    }
+
+    try {
+        const response = await bookingsAPI.create({
+            place_id: placeId,
+            check_in_date: checkIn,
+            check_out_date: checkOut
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Booking failed');
+        }
+
+        const booking = await response.json();
+        showMessage('Booking created successfully! Redirecting to your bookings...', 'success');
+
+        // Reset form
+        document.getElementById('booking-form').reset();
+        document.getElementById('total-price').textContent = '-';
+
+        // Redirect to dashboard after 2 seconds
+        setTimeout(() => {
+            window.location.href = 'dashboard.html';
+        }, 2000);
+    } catch (error) {
+        console.error('Booking error:', error);
+        showError(error.message || 'Failed to create booking. Please try again.');
+    } finally {
+        // Re-enable button
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
+    }
 }

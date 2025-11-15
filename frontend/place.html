@@ -69,6 +69,31 @@
         </div>
       </div>
 
+      <!-- Booking Section -->
+      <div class="booking-section">
+        <h3>📅 Book This Place</h3>
+        <form id="booking-form" class="booking-form">
+          <div class="booking-dates">
+            <div class="form-group">
+              <label for="check-in">Check-in:</label>
+              <input type="date" id="check-in" required />
+            </div>
+            <div class="form-group">
+              <label for="check-out">Check-out:</label>
+              <input type="date" id="check-out" required />
+            </div>
+          </div>
+
+          <div class="price-summary">
+            <span>Total Price:</span>
+            <span id="total-price" class="total-price">-</span>
+          </div>
+
+          <button type="submit" class="book-btn">🎃 Book Now</button>
+          <p class="booking-note">You'll be redirected to your bookings dashboard</p>
+        </form>
+      </div>
+
       <div class="reviews-details">
             <h3 class="reviews-title">👻 Guest Experiences</h3>
             <div id="reviews-list"></div>
