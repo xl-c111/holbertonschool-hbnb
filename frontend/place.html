@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hbnb - Accommodation</title>
-    <link rel="stylesheet" href="css/styles.css?v=6" />
+    <link rel="stylesheet" href="src/styles/main.css" />
   </head>
   <body>
     <!-- Header -->
@@ -90,6 +90,12 @@
 
     </footer>
 
-    <script src="js/scripts.js?v=5"></script>
+    <script type="module">
+      import { initPlacePage } from './src/pages/place.js';
+
+      document.addEventListener('DOMContentLoaded', () => {
+        initPlacePage();
+      });
+    </script>
   </body>
 </html>
