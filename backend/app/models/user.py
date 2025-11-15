@@ -102,19 +102,18 @@ class User(BaseModel):
 
     def write_review(self, review):
         from app.models.review import Review
-        if self.is_admin:
-            raise PermissionError(
-                "Owner/admin is not allowed to write reviews.")
         if not isinstance(review, Review):
             raise ValueError("Input must be a Review object.")
+        # Check if user is reviewing their own place
+        if review.place and review.place.owner_id == self.id:
+            raise PermissionError(
+                "You cannot review your own place.")
         review.user = self
         db.session.add(review)
 
     def add_place(self, place):
         from app.models.place import Place
         # check the parameter place is an instance of Place class
-        if not self.is_admin:
-            raise PermissionError("Only owner/admin can add places.")
         if not isinstance(place, Place):
             raise ValueError("Input must be a Place object.")
         place.owner = self

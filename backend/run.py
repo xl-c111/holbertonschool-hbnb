@@ -34,7 +34,12 @@ def create_database_if_not_exists():
 create_database_if_not_exists()
 
 # step 2: initialize the Flask application instance
-app = create_app()
+# Load appropriate config based on FLASK_ENV
+flask_env = os.getenv('FLASK_ENV', 'development')
+if flask_env == 'production':
+    app = create_app("config.ProductionConfig")
+else:
+    app = create_app()
 
 # step 3: create all database tables with the app context
 with app.app_context():

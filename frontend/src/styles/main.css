@@ -1,0 +1,33 @@
+/**
+ * Main CSS Entry Point
+ * Imports all modular stylesheets in correct order
+ */
+
+/* 1. Variables - Must be first */
+@import './variables.css';
+
+/* 2. Base styles */
+@import './base.css';
+
+/* 3. Layout */
+@import './layout.css';
+@import './header.css';
+@import './footer.css';
+
+/* 4. Components */
+@import './components/place-card.css';
+@import './components/place-details.css';
+@import './components/amenities.css';
+@import './components/reviews.css';
+@import './components/forms.css';
+@import './components/filter.css';
+@import './components/messages.css';
+
+/* 5. Utilities */
+@import './utilities.css';
+
+/* 6. Animations */
+@import './animations.css';
+
+/* 7. Responsive - Must be last to override */
+@import './responsive.css';

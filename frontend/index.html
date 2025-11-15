@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hbnb - Home</title>
-    <link rel="stylesheet" href="css/styles.css?v=6" />
+    <link rel="stylesheet" href="src/styles/main.css" />
   </head>
 
   <body>
@@ -13,13 +13,14 @@
       <div class="header-content">
         <img src="images/logo.png" alt="App Logo" class="logo" />
         <a href="login.html" class="login-button" id="loginLink">👻 Login</a>
-        <button class="login-button hidden" id="logoutBtn" onclick="logout()">👻 Logout</button>
+        <button class="login-button hidden" id="logoutBtn">👻 Logout</button>
       </div>
     </header>
     <nav>
       <ul>
         <li><a href="index.html">🏚️ Home</a></li>
-        <li><a href="#" onclick="showAllPlaces()">🦇 All Places</a></li>
+        <li><a href="#" id="showAllPlaces">🦇 All Places</a></li>
+        <li><a href="add-place.html" id="addPlaceLink" class="hidden">🏰 List Your Place</a></li>
       </ul>
     </nav>
 
@@ -61,6 +62,12 @@
 
     </footer>
 
-    <script src="js/scripts.js?v=5"></script>
+    <script type="module">
+      import { initHomePage } from './src/pages/home.js';
+
+      document.addEventListener('DOMContentLoaded', () => {
+        initHomePage();
+      });
+    </script>
   </body>
 </html>

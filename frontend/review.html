@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hbnb - Add Review</title>
-    <link rel="stylesheet" href="css/styles.css?v=6" />
+    <link rel="stylesheet" href="src/styles/main.css" />
   </head>
   <body>
     <header>
@@ -29,7 +29,7 @@
 
         <div class="form-group">
           <label for="review">💭 Your Review:</label>
-          <textarea id="review" name="review" rows="6" placeholder="Tell us about your supernatural stay..."required></textarea>
+          <textarea id="review" name="review" rows="6" placeholder="Tell us about your supernatural stay..." required></textarea>
         </div>
 
 
@@ -60,6 +60,12 @@
       </p>
 
     </footer>
-    <script src="js/scripts.js?v=5"></script>
+    <script type="module">
+      import { initReviewPage } from './src/pages/review.js';
+
+      document.addEventListener('DOMContentLoaded', () => {
+        initReviewPage();
+      });
+    </script>
   </body>
 </html>
