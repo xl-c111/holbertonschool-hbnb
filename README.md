@@ -2,9 +2,7 @@
 
 A full-stack two-sided marketplace rental platform built with Flask, React-like vanilla JavaScript, and deployed on AWS. Users can list properties, browse listings, and leave reviews - similar to Airbnb.
 
-**🚀 Live Demo:** Contact for production URL
-
-**🎯 Status:** Production-ready marketplace deployed on AWS
+> **🚀 [View Live Demo](https://d2gfqpg21nkiyl.cloudfront.net)** | Deployed on AWS with CloudFront
 
 ---
 
