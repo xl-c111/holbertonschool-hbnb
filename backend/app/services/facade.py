@@ -1,12 +1,15 @@
 from app.persistence.repository import SQLAlchemyRepository
 from app.persistence.user_repository import UserRepository
 from app.persistence.review_repository import ReviewRepository
+from app.persistence.booking_repository import BookingRepository
 from app.models.place import Place
 from app.models.user import User
 from app.models.review import Review
 from app.models.amenity import Amenity
+from app.models.booking import Booking
 from app.extensions import db
 from sqlalchemy.orm import selectinload
+from datetime import datetime, date
 
 
 class HBnBFacade:
@@ -15,6 +18,7 @@ class HBnBFacade:
         self.place_repo = SQLAlchemyRepository(Place)
         self.review_repo = ReviewRepository()
         self.amenity_repo = SQLAlchemyRepository(Amenity)
+        self.booking_repo = BookingRepository()
 
      #  _________________User Operations____________________
 
@@ -258,3 +262,135 @@ class HBnBFacade:
             raise PermissionError("Unauthorized action.")
         self.review_repo.delete(review_id)
         return True
+
+ #  _________________Booking Operations____________________
+
+    def create_booking(self, booking_data):
+        """Create a new booking with availability check"""
+        # Validate required fields
+        required_fields = ['place_id', 'guest_id', 'check_in_date', 'check_out_date']
+        for field in required_fields:
+            if field not in booking_data:
+                raise ValueError(f"Missing field: {field}")
+
+        # Get place and guest
+        place = self.place_repo.get(booking_data['place_id'])
+        guest = self.user_repo.get(booking_data['guest_id'])
+
+        if not place:
+            raise ValueError("Place not found")
+        if not guest:
+            raise ValueError("Guest not found")
+
+        # Prevent self-booking
+        if place.owner_id == guest.id:
+            raise ValueError("You cannot book your own place")
+
+        # Parse dates
+        check_in = booking_data['check_in_date']
+        check_out = booking_data['check_out_date']
+
+        # Convert string dates to date objects if needed
+        if isinstance(check_in, str):
+            check_in = datetime.strptime(check_in, '%Y-%m-%d').date()
+        if isinstance(check_out, str):
+            check_out = datetime.strptime(check_out, '%Y-%m-%d').date()
+
+        # Check availability
+        is_available = self.booking_repo.check_availability(
+            place.id, check_in, check_out
+        )
+        if not is_available:
+            raise ValueError("Place is not available for selected dates")
+
+        # Create booking
+        booking = Booking(
+            place_id=place.id,
+            guest_id=guest.id,
+            check_in_date=check_in,
+            check_out_date=check_out
+        )
+
+        # Validate dates
+        booking.validate_booking_dates()
+
+        # Calculate total price
+        booking.calculate_total_price(place.price)
+
+        # Save booking
+        self.booking_repo.add(booking)
+        return booking
+
+    def get_booking(self, booking_id):
+        """Get a booking by ID"""
+        return self.booking_repo.get(booking_id)
+
+    def get_all_bookings(self):
+        """Get all bookings"""
+        return self.booking_repo.get_all()
+
+    def get_user_bookings(self, user_id, status=None):
+        """Get all bookings for a user (as guest)"""
+        return self.booking_repo.get_bookings_for_guest(user_id, status)
+
+    def get_place_bookings(self, place_id, status=None):
+        """Get all bookings for a place"""
+        return self.booking_repo.get_bookings_for_place(place_id, status)
+
+    def get_upcoming_bookings(self, user_id):
+        """Get upcoming bookings for a user"""
+        return self.booking_repo.get_upcoming_bookings(user_id)
+
+    def get_past_bookings(self, user_id):
+        """Get past bookings for a user"""
+        return self.booking_repo.get_past_bookings(user_id)
+
+    def check_place_availability(self, place_id, check_in, check_out):
+        """Check if a place is available for given dates"""
+        # Convert string dates if needed
+        if isinstance(check_in, str):
+            check_in = datetime.strptime(check_in, '%Y-%m-%d').date()
+        if isinstance(check_out, str):
+            check_out = datetime.strptime(check_out, '%Y-%m-%d').date()
+
+        return self.booking_repo.check_availability(place_id, check_in, check_out)
+
+    def cancel_booking(self, booking_id, user):
+        """Cancel a booking"""
+        booking = self.booking_repo.get(booking_id)
+        if not booking:
+            raise ValueError("Booking not found")
+
+        # Check permissions: guest or place owner can cancel
+        place = self.place_repo.get(booking.place_id)
+        if booking.guest_id != user.id and place.owner_id != user.id and not getattr(user, 'is_admin', False):
+            raise PermissionError("You don't have permission to cancel this booking")
+
+        booking.cancel()
+        db.session.commit()
+        return booking
+
+    def confirm_booking(self, booking_id, user):
+        """Confirm a booking (place owner only)"""
+        booking = self.booking_repo.get(booking_id)
+        if not booking:
+            raise ValueError("Booking not found")
+
+        # Check permissions: only place owner can confirm
+        place = self.place_repo.get(booking.place_id)
+        if place.owner_id != user.id and not getattr(user, 'is_admin', False):
+            raise PermissionError("Only the place owner can confirm bookings")
+
+        booking.confirm()
+        db.session.commit()
+        return booking
+
+    def complete_booking(self, booking_id):
+        """Mark booking as completed (after check-out date)"""
+        booking = self.booking_repo.get(booking_id)
+        if not booking:
+            raise ValueError("Booking not found")
+
+        booking.complete()
+        db.session.commit()
+        return booking

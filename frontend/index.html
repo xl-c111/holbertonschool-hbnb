@@ -2,72 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hbnb - Home</title>
-    <link rel="stylesheet" href="src/styles/main.css" />
+    <title>frontend</title>
   </head>
-
   <body>
-    <!-- Header -->
-    <header>
-      <div class="header-content">
-        <img src="images/logo.png" alt="App Logo" class="logo" />
-        <a href="login.html" class="login-button" id="loginLink">👻 Login</a>
-        <button class="login-button hidden" id="logoutBtn">👻 Logout</button>
-      </div>
-    </header>
-    <nav>
-      <ul>
-        <li><a href="index.html">🏚️ Home</a></li>
-        <li><a href="#" id="showAllPlaces">🦇 All Places</a></li>
-        <li><a href="add-place.html" id="addPlaceLink" class="hidden">🏰 List Your Place</a></li>
-      </ul>
-    </nav>
-
-    <main>
-      <!-- Main Content -->
-       <div class="filter-section">
-          <h3>🔮 Filter by Price Range</h3>
-          <section id="filter">
-          <label for="price-filter">Max Price:</label>
-          <select id="price-filter">
-            <!-- Options will be populated dynamically -->
-                <option value="all">All Prices</option>
-                <option value="0-50">$0 - $50</option>
-                <option value="51-100">$51 - $100</option>
-                <option value="101-200">$101 - $200</option>
-                <option value="201+">$201+</option>
-          </select>
-          </section>
-       </div>
-
-       <!-- Message Display -->
-       <div id="message" class="message hidden"></div>
-
-       <!-- Places List -->
-
-       <div id="places-list" class="places-container">
-          <div class="loading"></div>
-      </div>
-
-
-    </main>
-
-    <!-- Footer -->
-    <footer>
-
-      <p>&copy;
-        2025 Wawa & Xiaoling - HBnB Project. All rights reserved.👻
-      </p>
-
-    </footer>
-
-    <script type="module">
-      import { initHomePage } from './src/pages/home.js';
-
-      document.addEventListener('DOMContentLoaded', () => {
-        initHomePage();
-      });
-    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

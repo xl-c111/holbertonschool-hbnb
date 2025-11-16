@@ -31,6 +31,10 @@ class Place(BaseModel):
     secondary=place_amenity,
     back_populates='places'
 )
+    # One-to-many relationship from Place to Booking
+    bookings = db.relationship(
+        'Booking', back_populates='place', cascade='all, delete-orphan'
+    )
 
 
 

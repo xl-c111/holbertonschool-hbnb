@@ -21,6 +21,9 @@ class User(BaseModel):
     # One-to-many relationship from User to Place
     places = db.relationship(
         'Place', back_populates='owner', cascade='all, delete-orphan')
+    # One-to-many relationship from User to Booking (as guest)
+    bookings = db.relationship(
+        'Booking', back_populates='guest', cascade='all, delete-orphan')
 
     # --- password methods ---
 
