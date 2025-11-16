@@ -15,6 +15,8 @@ class User(BaseModel):
     email = db.Column(db.String(120), nullable=False, unique=True)
     password = db.Column(db.String(128), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
+    phone_number = db.Column(db.String(30), nullable=True)
+    home_location = db.Column(db.String(120), nullable=True)
     # One-to-many relationship from User to Review
     reviews = db.relationship(
         'Review', back_populates='user', cascade='all, delete-orphan')
@@ -85,6 +87,28 @@ class User(BaseModel):
                 "Password must contain at least one special character.")
         return value
 
+    @validates('phone_number')
+    def validate_phone_number(self, key, value):
+        if value is None:
+            return value
+        if not isinstance(value, str):
+            raise ValueError("Phone number must be a string.")
+        value = value.strip()
+        if len(value) > 30:
+            raise ValueError("Phone number must be 30 characters or less.")
+        return value
+
+    @validates('home_location')
+    def validate_home_location(self, key, value):
+        if value is None:
+            return value
+        if not isinstance(value, str):
+            raise ValueError("Home location must be a string.")
+        value = value.strip()
+        if len(value) > 120:
+            raise ValueError("Home location must be 120 characters or less.")
+        return value
+
     # ---methods---
     def register(self):
         if User.query.filter_by(email=self.email).first():
@@ -98,6 +122,10 @@ class User(BaseModel):
             self.last_name = data['last_name']
         if 'email' in data:
             self.email = data['email']
+        if 'phone_number' in data:
+            self.phone_number = data['phone_number']
+        if 'home_location' in data:
+            self.home_location = data['home_location']
         self.updated_at = datetime.utcnow()
 
     def delete_account(self):

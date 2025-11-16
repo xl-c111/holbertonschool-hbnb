@@ -14,8 +14,20 @@ user_model = api.model('User', {
 
 user_update_model = api.model('UserUpdate', {
     'first_name': fields.String(required=False, description='First name'),
-    'last_name': fields.String(required=False, description='Last name')
+    'last_name': fields.String(required=False, description='Last name'),
+    'phone_number': fields.String(required=False, description='Phone number for host contact'),
+    'home_location': fields.String(required=False, description='Home base or location')
 })
+
+def serialize_user(user):
+    return {
+        'id': user.id,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'email': user.email,
+        'phone_number': user.phone_number,
+        'home_location': user.home_location
+    }
 
 @api.route('/')
 class UserList(Resource):
@@ -47,12 +59,7 @@ class UserList(Resource):
         user_list = []
         for user in users:
             # extract key info from each user obj, create a dict and append it to user_list
-            user_list.append({
-                'id': user.id,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'email': user.email
-            })
+            user_list.append(serialize_user(user))
         return user_list, 200
 
 
@@ -65,7 +72,7 @@ class UserResource(Resource):
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
-        return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email}, 200
+        return serialize_user(user), 200
 
     @jwt_required()
     @api.expect(user_update_model, validate=True)
@@ -89,12 +96,7 @@ class UserResource(Resource):
             return {'error': 'You cannot modify email or password.'}, 400
 
         updated_user = facade.update_user(user_id, update_data)
-        return {
-            'id': updated_user.id,
-            'first_name': updated_user.first_name,
-            'last_name': updated_user.last_name,
-            'email': updated_user.email
-        }, 200
+        return serialize_user(updated_user), 200
     
     @jwt_required()
     @api.response(200, 'User deleted successfully')
@@ -114,3 +116,15 @@ class UserResource(Resource):
             return {"message": "User deleted successfully"}, 200
         except Exception as e:
             return {"error": str(e)}, 400
+
+@api.route('/me')
+class CurrentUser(Resource):
+    @jwt_required()
+    @api.response(200, 'Current user details')
+    def get(self):
+        """Return profile for the authenticated user"""
+        user_id = get_jwt_identity()
+        user = facade.get_user(user_id)
+        if not user:
+            return {'error': 'User not found'}, 404
+        return serialize_user(user), 200
