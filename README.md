@@ -272,7 +272,28 @@ terraform/
 
 ## Deployment
 
-### Deploy Frontend
+### Automated CI/CD (GitHub Actions)
+
+The project includes automated deployment via GitHub Actions:
+
+**Setup:**
+1. Follow the guide in `.github/SETUP_SECRETS.md` to configure GitHub secrets
+2. Push to `main` branch to trigger automatic deployment
+3. Or manually trigger from the Actions tab
+
+**What it does:**
+- ✅ Runs backend tests
+- ✅ Deploys backend to EC2
+- ✅ Builds and deploys frontend to S3
+- ✅ Invalidates CloudFront cache
+
+See `.github/workflows/deploy.yml` for the full workflow.
+
+---
+
+### Manual Deployment
+
+#### Deploy Frontend
 ```bash
 cd frontend
 npm run build                    # Build with Vite

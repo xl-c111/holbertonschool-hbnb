@@ -1,0 +1,154 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+
+      - name: Run backend tests
+        run: |
+          cd backend
+          python3 -m pytest -v
+        env:
+          TESTING: true
+
+  deploy-backend:
+    name: Deploy Backend to EC2
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/hbnb-backend-key.pem
+          chmod 600 ~/.ssh/hbnb-backend-key.pem
+          ssh-keyscan -H ${{ secrets.EC2_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to EC2
+        run: |
+          ssh -i ~/.ssh/hbnb-backend-key.pem ubuntu@${{ secrets.EC2_IP }} << 'ENDSSH'
+            set -e
+            cd /home/ubuntu/holbertonschool-hbnb
+
+            echo "📥 Pulling latest code..."
+            git stash
+            git pull origin main
+
+            echo "📦 Installing dependencies..."
+            cd backend
+            source venv/bin/activate
+            pip install -r requirements.txt --quiet
+
+            echo "🔄 Restarting service..."
+            sudo systemctl daemon-reload
+            sudo systemctl restart hbnb
+
+            echo "✅ Deployment complete"
+            sudo systemctl status hbnb --no-pager | head -10
+          ENDSSH
+
+      - name: Verify backend deployment
+        run: |
+          sleep 5
+          curl -f http://${{ secrets.EC2_IP }}/api/v1/places/ || exit 1
+          echo "✅ Backend is responding"
+
+  deploy-frontend:
+    name: Deploy Frontend to S3
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Create production env file
+        run: |
+          cd frontend
+          cat > .env.production << EOF
+          VITE_API_URL=${{ secrets.PROD_API_URL }}
+          VITE_STRIPE_PUBLISHABLE_KEY=${{ secrets.STRIPE_PUBLISHABLE_KEY }}
+          EOF
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Deploy to S3
+        run: |
+          cd frontend
+          aws s3 sync dist/ s3://${{ secrets.S3_BUCKET }}/ --delete
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DIST_ID }} \
+            --paths "/*"
+
+      - name: Verify frontend deployment
+        run: |
+          sleep 10
+          curl -f https://${{ secrets.CLOUDFRONT_URL }} || exit 1
+          echo "✅ Frontend is accessible"
+
+  notify:
+    name: Deployment Complete
+    needs: [deploy-backend, deploy-frontend]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Check deployment status
+        run: |
+          if [ "${{ needs.deploy-backend.result }}" == "success" ] && [ "${{ needs.deploy-frontend.result }}" == "success" ]; then
+            echo "✅ Deployment successful!"
+            echo "🌐 Frontend: https://${{ secrets.CLOUDFRONT_URL }}"
+            echo "🔌 Backend: https://${{ secrets.PROD_API_URL }}"
+          else
+            echo "❌ Deployment failed"
+            exit 1
+          fi
