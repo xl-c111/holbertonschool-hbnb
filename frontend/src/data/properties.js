@@ -8,12 +8,12 @@ export const properties = [
     price: 1600,
     rating: 4.82,
     reviews: 55,
-    image: "/modern-luxury-house.png",
+    image: "/modern-luxury-house-architecture-twilight.png",
     images: [
+      "/modern-luxury-house-architecture-twilight.png",
       "/modern-luxury-house-with-glass-walls-exterior.png",
       "/modern-house-interior-evening-lighting.png",
-      "/modern-house-exterior-evening-pathway.png",
-      "/modern-luxury-house-architecture-twilight.png"
+      "/modern-house-exterior-evening-pathway.png"
     ],
     guests: 4,
     bedrooms: 2,
@@ -23,7 +23,7 @@ export const properties = [
   },
   {
     id: 2,
-    name: "Mountain Villa",
+    name: "Mountain Villa Aspen",
     type: "Mountain Villa",
     location: "Aspen, Colorado",
     fullLocation: "Aspen, Colorado, United States",
@@ -43,7 +43,7 @@ export const properties = [
   },
   {
     id: 3,
-    name: "Beach House",
+    name: "Malibu Beach House",
     type: "Beach House",
     location: "Malibu, California",
     fullLocation: "Malibu, California, United States",
@@ -63,7 +63,7 @@ export const properties = [
   },
   {
     id: 4,
-    name: "Forest Cabin",
+    name: "Forest Cabin Portland",
     type: "Cabin",
     location: "Portland, Oregon",
     fullLocation: "Portland, Oregon, United States",
@@ -83,7 +83,7 @@ export const properties = [
   },
   {
     id: 5,
-    name: "Desert Retreat",
+    name: "Palm Springs Desert Retreat",
     type: "Luxury",
     location: "Palm Springs, California",
     fullLocation: "Palm Springs, California, United States",
@@ -103,7 +103,7 @@ export const properties = [
   },
   {
     id: 6,
-    name: "Lake House",
+    name: "Lake Tahoe Modern Lakehouse",
     type: "Modern",
     location: "Lake Tahoe, Nevada",
     fullLocation: "Lake Tahoe, Nevada, United States",
@@ -121,7 +121,3 @@ export const properties = [
     amenities: ["Kitchen", "Wi-Fi", "Free parking", "Lake access", "Dock", "TV", "Washer", "Heating"]
   }
 ];
-
-export const getPropertyById = (id) => {
-  return properties.find(property => property.id === parseInt(id));
-};

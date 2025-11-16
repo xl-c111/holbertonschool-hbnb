@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigation } from '@/components/navigation';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,10 @@ export default function SignUpPage() {
 
   const { register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get the page user was trying to access, or default to homepage
+  const from = location.state?.from || '/';
 
   const handleChange = (e) => {
     setFormData({
@@ -42,7 +46,8 @@ export default function SignUpPage() {
     const result = await register(userData);
 
     if (result.success) {
-      navigate('/');
+      // Redirect back to the page they came from
+      navigate(from, { replace: true });
     } else {
       setError(result.error || 'Registration failed. Please try again.');
     }

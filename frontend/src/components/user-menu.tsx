@@ -38,7 +38,7 @@ export function UserMenu() {
           <User className="w-5 h-5 text-white" />
         </div>
         <span className="text-sm font-medium hidden md:block">
-          {user?.firstName || 'User'}
+          {user?.first_name || 'User'}
         </span>
       </button>
 
@@ -47,7 +47,7 @@ export function UserMenu() {
         <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-2xl shadow-lg py-2 z-50">
           <div className="px-4 py-3 border-b border-gray-100">
             <p className="font-medium text-gray-900">
-              {user?.firstName} {user?.lastName}
+              {user ? `${user.first_name} ${user.last_name}` : ''}
             </p>
             <p className="text-sm text-gray-500">{user?.email}</p>
           </div>

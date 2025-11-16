@@ -9,6 +9,11 @@ import SearchPage from './pages/SearchPage';
 import ReviewsPage from './pages/ReviewsPage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
+import HostPage from './pages/HostPage';
+import MyBookingsPage from './pages/MyBookingsPage';
+import FavoritesPage from './pages/FavoritesPage';
+import MessagesPage from './pages/MessagesPage';
+import CancellationPolicyPage from './pages/CancellationPolicyPage';
 
 function App() {
   return (
@@ -20,10 +25,15 @@ function App() {
           <Route path="/property/:id" element={<PropertyPage />} />
           <Route path="/booking" element={<BookingPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/bookings" element={<MyBookingsPage />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
+          <Route path="/messages" element={<MessagesPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/reviews" element={<ReviewsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/host" element={<HostPage />} />
+          <Route path="/cancellation-policy" element={<CancellationPolicyPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

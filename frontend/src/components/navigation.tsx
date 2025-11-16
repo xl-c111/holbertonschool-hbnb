@@ -1,11 +1,15 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home } from "lucide-react";
+import { Home, Menu, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { UserMenu } from "@/components/user-menu";
 
 export function Navigation() {
   const { isAuthenticated } = useAuth();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const closeMobile = () => setMobileOpen(false);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
@@ -46,8 +50,15 @@ export function Navigation() {
             {isAuthenticated ? (
               <UserMenu />
             ) : (
-              <>
-                <Link to="/login">
+              <div className="flex items-center gap-3">
+                <button
+                  className="md:hidden p-2 rounded-full border border-gray-300 text-gray-600"
+                  onClick={() => setMobileOpen(!mobileOpen)}
+                  aria-label="Toggle menu"
+                >
+                  {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                </button>
+                <Link to="/login" className="hidden md:inline-block">
                   <Button
                     variant="outline"
                     className="hidden md:inline-flex border-gray-300 hover:bg-gray-50 rounded-full px-5"
@@ -55,16 +66,44 @@ export function Navigation() {
                     Login
                   </Button>
                 </Link>
-                <Link to="/signup">
+                <Link to="/signup" className="hidden md:inline-block">
                   <Button className="bg-black text-white rounded-full px-5 hover:bg-gray-800">
                     Sign Up
                   </Button>
                 </Link>
-              </>
+              </div>
             )}
           </div>
         </div>
       </div>
+      {mobileOpen && (
+        <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
+          <div className="px-6 py-4 space-y-3">
+            <Link to="/" className="block text-sm font-medium" onClick={closeMobile}>
+              Home
+            </Link>
+            <Link to="/listings" className="block text-sm font-medium" onClick={closeMobile}>
+              Listings
+            </Link>
+            <Link to="/search" className="block text-sm font-medium" onClick={closeMobile}>
+              Search
+            </Link>
+            <Link to="/host" className="block text-sm font-medium" onClick={closeMobile}>
+              Become a Host
+            </Link>
+            {!isAuthenticated && (
+              <div className="pt-4 space-y-3">
+                <Button variant="outline" className="w-full" asChild onClick={closeMobile}>
+                  <Link to="/login">Login</Link>
+                </Button>
+                <Button className="w-full" asChild onClick={closeMobile}>
+                  <Link to="/signup">Sign Up</Link>
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
