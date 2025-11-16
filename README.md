@@ -8,6 +8,8 @@ A production-ready two-sided marketplace rental platform demonstrating full-stac
 
 ![HBnB screenshot](frontend/public/hbnb.png)
 
+</div>
+
 ---
 
 ## Architecture
