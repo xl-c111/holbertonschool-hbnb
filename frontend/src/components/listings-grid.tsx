@@ -1,32 +1,61 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Star } from "lucide-react";
-import { properties } from "@/data/properties";
+import { fetchPlaces } from "@/api/places";
+import { FavoriteButton } from "@/components/favorites-list";
 
 export function ListingsGrid({ filters }) {
-  // Filter properties based on search criteria
-  const filteredProperties = properties.filter((property) => {
-    if (!filters) return true;
+  const [places, setPlaces] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    let matches = true;
+  useEffect(() => {
+    let isMounted = true;
+    setLoading(true);
+    fetchPlaces()
+      .then((data) => {
+        if (!isMounted) return;
+        setPlaces(data);
+        setError(null);
+      })
+      .catch((err) => {
+        if (!isMounted) return;
+        setError(err.message || "Unable to load listings");
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoading(false);
+        }
+      });
 
-    // Filter by location (partial match) - skip if "All Locations"
-    if (filters.location && filters.location !== "All Locations") {
-      matches = matches && property.location.toLowerCase().includes(filters.location.toLowerCase().split(',')[0]);
-    }
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
-    // Filter by type - skip if "All Types"
-    if (filters.type && filters.type !== "All Types") {
-      matches = matches && property.type === filters.type;
-    }
+  const filteredProperties = useMemo(() => {
+    return places.filter((property) => {
+      if (!filters) return true;
 
-    // Filter by price range - skip if null (All Prices)
-    if (filters.priceMin !== null && filters.priceMin !== undefined &&
-        filters.priceMax !== null && filters.priceMax !== undefined) {
-      matches = matches && property.price >= filters.priceMin && property.price <= filters.priceMax;
-    }
+      let matches = true;
 
-    return matches;
-  });
+      if (filters.location && filters.location !== "All Locations") {
+        const query = filters.location.toLowerCase().split(",")[0];
+        const haystack = (property.location || property.fullLocation || property.description || "").toLowerCase();
+        matches = matches && haystack.includes(query);
+      }
+
+      if (filters.type && filters.type !== "All Types") {
+        matches = matches && property.type === filters.type;
+      }
+
+      if (filters.priceMin !== null && filters.priceMin !== undefined && filters.priceMax !== null && filters.priceMax !== undefined) {
+        matches = matches && property.price >= filters.priceMin && property.price <= filters.priceMax;
+      }
+
+      return matches;
+    });
+  }, [places, filters]);
 
   return (
     <div className="pt-20 px-6 max-w-7xl mx-auto pb-16">
@@ -61,8 +90,20 @@ export function ListingsGrid({ filters }) {
         )}
       </div>
 
+      {loading && (
+        <div className="text-center py-12 text-gray-500">
+          Loading listings...
+        </div>
+      )}
+
+      {error && !loading && (
+        <div className="text-center py-12 text-red-600">
+          {error}
+        </div>
+      )}
+
       {/* No results message */}
-      {filteredProperties.length === 0 && (
+      {!loading && !error && filteredProperties.length === 0 && (
         <div className="text-center py-16">
           <p className="text-xl text-gray-600 mb-4">No properties found matching your criteria</p>
           <Link to="/" className="text-black underline">
@@ -72,7 +113,7 @@ export function ListingsGrid({ filters }) {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProperties.map((property) => (
+        {!loading && !error && filteredProperties.map((property) => (
           <Link key={property.id} to={`/property/${property.id}`} className="group cursor-pointer block">
             <div className="space-y-3">
               <div className="relative h-[300px] rounded-3xl overflow-hidden">
@@ -83,6 +124,9 @@ export function ListingsGrid({ filters }) {
                 />
                 <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-medium shadow-lg">
                   ${property.price}
+                </div>
+                <div className="absolute top-4 left-4">
+                  <FavoriteButton placeId={property.id} size="sm" />
                 </div>
               </div>
               <div>

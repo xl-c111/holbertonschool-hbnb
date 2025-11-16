@@ -4,12 +4,12 @@ import { BookingForm } from "@/components/booking-form";
 
 export default function BookingPage() {
   const location = useLocation();
-  const property = location.state?.property;
+  const bookingDetails = location.state || {};
 
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
-      <BookingForm property={property} />
+      <BookingForm bookingDetails={bookingDetails} />
     </div>
   );
 }

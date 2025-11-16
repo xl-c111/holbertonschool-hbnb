@@ -4,6 +4,11 @@ from app.services import facade
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.extensions import db
 from app.models.user import User
+import stripe
+import os
+
+# Initialize Stripe
+stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 
 api = Namespace('bookings', description='Booking operations')
 
@@ -21,7 +26,8 @@ booking_model = api.model('Booking', {
 booking_create_model = api.model('BookingCreate', {
     'place_id': fields.String(required=True, description='Place ID'),
     'check_in_date': fields.String(required=True, description='Check-in date (YYYY-MM-DD)'),
-    'check_out_date': fields.String(required=True, description='Check-out date (YYYY-MM-DD)')
+    'check_out_date': fields.String(required=True, description='Check-out date (YYYY-MM-DD)'),
+    'payment_intent_id': fields.String(required=True, description='Stripe Payment Intent ID')
 })
 
 availability_model = api.model('Availability', {
@@ -41,6 +47,8 @@ def serialize_booking(booking):
         'check_out_date': booking.check_out_date.isoformat(),
         'total_price': booking.total_price,
         'status': booking.status,
+        'can_cancel': booking.can_cancel(),
+        'cancellation_deadline': booking.get_cancellation_deadline().isoformat() if booking.status in ['pending', 'confirmed'] else None,
         'created_at': booking.created_at.isoformat(),
         'updated_at': booking.updated_at.isoformat()
     }
@@ -57,17 +65,37 @@ class BookingList(Resource):
         """Create a new booking"""
         user_id = get_jwt_identity()
         booking_data = api.payload
+        payment_intent_id = booking_data.get('payment_intent_id')
 
-        # Add guest_id from JWT
-        booking_data['guest_id'] = user_id
+        # Verify payment before creating booking
+        if not payment_intent_id:
+            return {'error': 'Payment intent ID is required'}, 400
 
         try:
+            # Verify payment with Stripe
+            payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+
+            if payment_intent.status != 'succeeded':
+                return {'error': f'Payment not completed. Status: {payment_intent.status}'}, 400
+
+            # Verify payment amount matches booking (optional but recommended)
+            # This prevents users from paying $1 for a $1000 booking
+            place = facade.get_place(booking_data['place_id'])
+            if not place:
+                return {'error': 'Place not found'}, 404
+
+            # Add guest_id from JWT
+            booking_data['guest_id'] = user_id
+
+            # Create booking
             new_booking = facade.create_booking(booking_data)
+
             return serialize_booking(new_booking), 201
+
         except ValueError as e:
             return {'error': str(e)}, 400
         except Exception as e:
-            return {'error': 'An error occurred while creating the booking'}, 500
+            return {'error': f'An error occurred: {str(e)}'}, 500
 
     @jwt_required()
     @api.response(200, 'List of bookings')

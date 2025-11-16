@@ -8,6 +8,7 @@ from app.api.v1.places import api as places_ns
 from app.api.v1.amenities import api as amenities_ns
 from app.api.v1.auth import api as auth_ns
 from app.api.v1.bookings import api as bookings_ns
+from app.api.v1.payments import api as payments_ns
 import os
 from dotenv import load_dotenv
 from flask_cors import CORS
@@ -28,14 +29,8 @@ def create_app(config_class="config.DevelopmentConfig"):
     jwt.init_app(app)
     bcrypt.init_app(app)
 
-    # Configure CORS based on environment
-    if config_class == "config.ProductionConfig":
-        # In production, only allow your frontend domain
-        allowed_origins = os.getenv('ALLOWED_ORIGINS', '').split(',')
-        CORS(app, origins=allowed_origins)
-    else:
-        # In development, allow all origins
-        CORS(app)
+    # Configure CORS - Allow all origins in development
+    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
     # register API namespace
     api = Api(app, version='1.0', title='HBnB API',
@@ -46,5 +41,6 @@ def create_app(config_class="config.DevelopmentConfig"):
     api.add_namespace(amenities_ns, path='/api/v1/amenities')
     api.add_namespace(auth_ns, path='/api/v1/auth')
     api.add_namespace(bookings_ns, path='/api/v1/bookings')
+    api.add_namespace(payments_ns, path='/api/v1/payments')
 
     return app

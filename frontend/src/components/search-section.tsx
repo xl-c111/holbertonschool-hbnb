@@ -173,7 +173,7 @@ export function SearchSection() {
               onClick={handleSearch}
               className="w-full bg-black text-white hover:bg-gray-800 rounded-xl px-12 py-6 text-base font-medium mt-7"
             >
-              Search Hotel
+              Search Places
             </Button>
           </div>
         </div>
