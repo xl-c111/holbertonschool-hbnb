@@ -24,6 +24,16 @@ review_model = api.model('PlaceReview', {
     'user_id': fields.String(description='ID of the user')
 })
 
+# Input model (for creating/updating places - no owner_id)
+place_input_model = api.model('PlaceInput', {
+    'title': fields.String(required=True, description='Title of the place', example='Luxury Beachfront Villa'),
+    'description': fields.String(required=True, description='Description of the place', example='Beautiful 3-bedroom villa with ocean views'),
+    'price': fields.Float(required=True, description='Price per night in USD', example=500.00),
+    'latitude': fields.Float(required=True, description='Latitude coordinate', example=34.0522),
+    'longitude': fields.Float(required=True, description='Longitude coordinate', example=-118.2437)
+})
+
+# Output model (for responses - includes owner_id)
 place_model = api.model('Place', {
     'id': fields.String(readonly=True, description='Place ID', example='550e8400-e29b-41d4-a716-446655440000'),
     'title': fields.String(required=True, description='Title of the place', example='Luxury Beachfront Villa'),
@@ -31,7 +41,7 @@ place_model = api.model('Place', {
     'price': fields.Float(required=True, description='Price per night in USD', example=500.00),
     'latitude': fields.Float(required=True, description='Latitude coordinate', example=34.0522),
     'longitude': fields.Float(required=True, description='Longitude coordinate', example=-118.2437),
-    'owner_id': fields.String(required=True, description='ID of the property owner', example='550e8400-e29b-41d4-a716-446655440001'),
+    'owner_id': fields.String(description='ID of the property owner', example='550e8400-e29b-41d4-a716-446655440001'),
     'amenities': fields.List(fields.Nested(amenity_model), description='List of amenities'),
     'reviews': fields.List(fields.Nested(review_model), description='List of reviews')
 })
@@ -91,7 +101,7 @@ class PlaceList(Resource):
         },
         security='Bearer Auth'
     )
-    @api.expect(place_model, validate=True)
+    @api.expect(place_input_model)
     @jwt_required()
     def post(self):
         """Create a new property listing"""
@@ -158,7 +168,7 @@ class PlaceResource(Resource):
         security='Bearer Auth'
     )
     @jwt_required()
-    @api.expect(place_model, validate=True)
+    @api.expect(place_input_model)
     @api.marshal_with(place_model)
     def put(self, place_id):
         """Update property listing (owner only)"""
