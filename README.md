@@ -315,10 +315,18 @@ sudo systemctl restart hbnb
 ---
 
 ## Running Tests
+
+### Backend Tests
 ```bash
 cd backend && python3 -m pytest -v
 ```
 Uses in-memory SQLite (no MySQL needed). Tests cover auth, users, places, amenities, reviews, and business rules.
+
+### Frontend Tests
+```bash
+cd frontend && npm test
+```
+Vitest + React Testing Library. Tests cover authentication, booking logic, and navigation components.
 
 ---
 
@@ -350,6 +358,8 @@ Uses in-memory SQLite (no MySQL needed). Tests cover auth, users, places, amenit
 - HTTPS via CloudFront
 - Responsive React UI with Tailwind CSS
 - Real-time availability checking
+- Automated testing (Backend: Pytest, Frontend: Vitest)
+- CI/CD pipeline (GitHub Actions)
 
 **🚧 Future Enhancements:**
 - Image uploads for properties (S3 integration)
@@ -357,8 +367,7 @@ Uses in-memory SQLite (no MySQL needed). Tests cover auth, users, places, amenit
 - Real-time messaging between hosts and guests
 - Advanced search (location, amenities, date range)
 - Calendar blocking for unavailable dates
-- Automated testing (80%+ coverage)
-- CI/CD pipeline (GitHub Actions)
+- Increase test coverage to 80%+
 
 ---
 
