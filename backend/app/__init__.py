@@ -32,9 +32,29 @@ def create_app(config_class="config.DevelopmentConfig"):
     # Configure CORS - Allow all origins in development
     CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
+    # Configure authorization for Swagger UI
+    authorizations = {
+        'Bearer Auth': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization',
+            'description': "Type in the *'Value'* input box below: **'Bearer &lt;JWT&gt;'**, where JWT is the token from /api/v1/auth/login"
+        }
+    }
+
     # register API namespace
-    api = Api(app, version='1.0', title='HBnB API',
-              description='HBnB Application API')
+    api = Api(
+        app,
+        version='1.0',
+        title='HBnB API',
+        description='HBnB - Luxury Property Rental Platform API\n\n'
+                    'Complete REST API for property listings, bookings, reviews, and payments.\n\n'
+                    '**Authentication:** Most endpoints require JWT authentication. '
+                    'Use /api/v1/auth/login to get your access token, then click "Authorize" button above.',
+        authorizations=authorizations,
+        security='Bearer Auth',
+        doc='/doc'  # Swagger UI available at /doc
+    )
     api.add_namespace(users_ns, path='/api/v1/users')
     api.add_namespace(reviews_ns, path='/api/v1/reviews')
     api.add_namespace(places_ns, path='/api/v1/places')
