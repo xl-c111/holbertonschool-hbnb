@@ -318,15 +318,45 @@ sudo systemctl restart hbnb
 
 ### Backend Tests
 ```bash
-cd backend && python3 -m pytest -v
+cd backend
+python3 -m pytest -v              # Run all tests
+python3 -m pytest --cov=app -v    # With coverage report
 ```
-Uses in-memory SQLite (no MySQL needed). Tests cover auth, users, places, amenities, reviews, and business rules.
+**Coverage**: 8 test suites covering auth, users, places, amenities, reviews, and business rules. Uses in-memory SQLite (no MySQL needed).
 
 ### Frontend Tests
 ```bash
-cd frontend && npm test
+cd frontend
+npm test                 # Run all tests
+npm run test:coverage    # With coverage report
 ```
-Vitest + React Testing Library. Tests cover authentication, booking logic, and navigation components.
+**Coverage**: 13 tests across AuthContext, BookingForm, and Navigation components using Vitest + React Testing Library.
+
+---
+
+## API Documentation
+
+Interactive Swagger UI with complete endpoint documentation, request/response examples, and built-in testing.
+
+**Access**: http://localhost:5000/doc (when backend is running)
+
+**Features**:
+- 🔐 Built-in authentication (click "Authorize" button)
+- 📝 Request/response examples for all endpoints
+- 🧪 "Try it out" buttons to test endpoints in browser
+- 📊 All response codes documented
+
+**Quick Start**:
+```bash
+# Get JWT token easily
+cd backend
+python3 get_token.py
+
+# Or use Swagger UI login endpoint
+# Then click "Authorize" and paste: Bearer YOUR_TOKEN
+```
+
+See `API_DOCUMENTATION_GUIDE.md` for detailed usage.
 
 ---
 
@@ -336,6 +366,8 @@ Vitest + React Testing Library. Tests cover authentication, booking logic, and n
 - **Reset DB**: `mysql -u root < docs/hbnb_db.sql && python3 scripts/add_sample_data.py`
 - **Free port**: `lsof -ti:5000 | xargs kill -9` (backend) or `lsof -ti:5173 | xargs kill -9` (frontend)
 - **Frontend won't start**: `cd frontend && rm -rf node_modules && npm install`
+- **Get JWT token**: `cd backend && python3 get_token.py`
+- **View API docs**: http://localhost:5000/doc
 
 **Production:**
 - **Frontend not updating?** Check CloudFront cache invalidation status
@@ -354,20 +386,23 @@ Vitest + React Testing Library. Tests cover authentication, booking logic, and n
 - Host dashboard with revenue analytics
 - Review submission and display system
 - JWT authentication with role-based access
-- AWS deployment with Terraform
+- AWS deployment with Terraform (EC2, RDS, S3, CloudFront)
 - HTTPS via CloudFront
-- Responsive React UI with Tailwind CSS
+- Responsive React 19 UI with Tailwind CSS
 - Real-time availability checking
-- Automated testing (Backend: Pytest, Frontend: Vitest)
+- Comprehensive testing (Backend: Pytest, Frontend: Vitest)
+- Interactive API documentation (Swagger UI)
 - CI/CD pipeline (GitHub Actions)
 
 **🚧 Future Enhancements:**
 - Image uploads for properties (S3 integration)
 - Email notifications (booking confirmations)
 - Real-time messaging between hosts and guests
-- Advanced search (location, amenities, date range)
+- Advanced search with filters (location, amenities, price range)
 - Calendar blocking for unavailable dates
 - Increase test coverage to 80%+
+- Database migrations (Flask-Migrate)
+- Rate limiting and input sanitization
 
 ---
 

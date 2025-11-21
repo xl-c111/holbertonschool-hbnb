@@ -25,15 +25,19 @@ review_model = api.model('PlaceReview', {
 })
 
 place_model = api.model('Place', {
-    'id': fields.String(readonly=True, description='Place ID'),
-    'title': fields.String(required=True, description='Title of the place'),
-    'description': fields.String(description='Description of the place'),
-    'price': fields.Float(required=True, description='Price per night'),
-    'latitude': fields.Float(required=True, description='Latitude of the place'),
-    'longitude': fields.Float(required=True, description='Longitude of the place'),
-    'owner_id': fields.String(required=True, description='ID of the owner'),
+    'id': fields.String(readonly=True, description='Place ID', example='550e8400-e29b-41d4-a716-446655440000'),
+    'title': fields.String(required=True, description='Title of the place', example='Luxury Beachfront Villa'),
+    'description': fields.String(description='Description of the place', example='Beautiful 3-bedroom villa with ocean views'),
+    'price': fields.Float(required=True, description='Price per night in USD', example=500.00),
+    'latitude': fields.Float(required=True, description='Latitude coordinate', example=34.0522),
+    'longitude': fields.Float(required=True, description='Longitude coordinate', example=-118.2437),
+    'owner_id': fields.String(required=True, description='ID of the property owner', example='550e8400-e29b-41d4-a716-446655440001'),
     'amenities': fields.List(fields.Nested(amenity_model), description='List of amenities'),
     'reviews': fields.List(fields.Nested(review_model), description='List of reviews')
+})
+
+error_model = api.model('Error', {
+    'error': fields.String(description='Error message', example='Place not found')
 })
 
 
@@ -77,9 +81,20 @@ def serialize_review(review):
 
 @api.route('/')
 class PlaceList(Resource):
-    @api.expect(place_model)
+    @api.doc(
+        description='Create a new property listing (authentication required)',
+        responses={
+            201: ('Place created successfully', place_model),
+            400: ('Validation error', error_model),
+            401: ('Authentication required', error_model),
+            404: ('User not found', error_model)
+        },
+        security='Bearer Auth'
+    )
+    @api.expect(place_model, validate=True)
     @jwt_required()
     def post(self):
+        """Create a new property listing"""
         user_id = get_jwt_identity()
 
         # Get the actual user object
@@ -99,26 +114,54 @@ class PlaceList(Resource):
         except ValueError as e:
             return {'error': str(e)}, 400
 
-
+    @api.doc(
+        description='Retrieve all property listings with amenities and reviews',
+        responses={
+            200: ('List of places', [place_model])
+        }
+    )
     @api.marshal_list_with(place_model)
     def get(self):
+        """Get all property listings"""
         return [serialize_place(place) for place in facade.get_all_places()]
 
 
 @api.route('/<string:place_id>')
 class PlaceResource(Resource):
+    @api.doc(
+        description='Retrieve detailed information about a specific property including amenities and reviews',
+        params={'place_id': 'The unique identifier of the place'},
+        responses={
+            200: ('Place details', place_model),
+            404: ('Place not found', error_model)
+        }
+    )
     @api.marshal_with(place_model)
     def get(self, place_id):
+        """Get property details by ID"""
         places = facade.get_place_with_details(place_id)
         if not places:
             return {"error": "Place not found"}, 404
         # Fetch the place by ID
         return serialize_place(places)
 
+    @api.doc(
+        description='Update property details (owner only)',
+        params={'place_id': 'The unique identifier of the place'},
+        responses={
+            200: ('Place updated successfully', place_model),
+            400: ('Validation error', error_model),
+            401: ('Authentication required', error_model),
+            403: ('Not authorized - only owner can update', error_model),
+            404: ('Place not found', error_model)
+        },
+        security='Bearer Auth'
+    )
     @jwt_required()
-    @api.expect(place_model)
+    @api.expect(place_model, validate=True)
     @api.marshal_with(place_model)
     def put(self, place_id):
+        """Update property listing (owner only)"""
         place = facade.get_place(place_id)
         if not place:
             return {"error": "Place not found"}, 404

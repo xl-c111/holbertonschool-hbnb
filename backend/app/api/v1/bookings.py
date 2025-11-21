@@ -14,26 +14,35 @@ api = Namespace('bookings', description='Booking operations')
 
 # API Models
 booking_model = api.model('Booking', {
-    'id': fields.String(readonly=True, description='Booking ID'),
-    'place_id': fields.String(required=True, description='Place ID'),
-    'guest_id': fields.String(readonly=True, description='Guest ID'),
-    'check_in_date': fields.String(required=True, description='Check-in date (YYYY-MM-DD)'),
-    'check_out_date': fields.String(required=True, description='Check-out date (YYYY-MM-DD)'),
-    'total_price': fields.Float(readonly=True, description='Total price'),
-    'status': fields.String(readonly=True, description='Booking status')
+    'id': fields.String(readonly=True, description='Booking ID', example='550e8400-e29b-41d4-a716-446655440000'),
+    'place_id': fields.String(required=True, description='Place ID', example='550e8400-e29b-41d4-a716-446655440001'),
+    'guest_id': fields.String(readonly=True, description='Guest ID', example='550e8400-e29b-41d4-a716-446655440002'),
+    'check_in_date': fields.String(required=True, description='Check-in date (YYYY-MM-DD)', example='2025-12-20'),
+    'check_out_date': fields.String(required=True, description='Check-out date (YYYY-MM-DD)', example='2025-12-25'),
+    'total_price': fields.Float(readonly=True, description='Total price in USD', example=2500.00),
+    'status': fields.String(readonly=True, description='Booking status: pending, confirmed, completed, cancelled', example='confirmed')
 })
 
 booking_create_model = api.model('BookingCreate', {
-    'place_id': fields.String(required=True, description='Place ID'),
-    'check_in_date': fields.String(required=True, description='Check-in date (YYYY-MM-DD)'),
-    'check_out_date': fields.String(required=True, description='Check-out date (YYYY-MM-DD)'),
-    'payment_intent_id': fields.String(required=True, description='Stripe Payment Intent ID')
+    'place_id': fields.String(required=True, description='Place ID', example='550e8400-e29b-41d4-a716-446655440001'),
+    'check_in_date': fields.String(required=True, description='Check-in date (YYYY-MM-DD)', example='2025-12-20'),
+    'check_out_date': fields.String(required=True, description='Check-out date (YYYY-MM-DD)', example='2025-12-25'),
+    'payment_intent_id': fields.String(required=True, description='Stripe Payment Intent ID from successful payment', example='pi_1234567890abcdef')
 })
 
 availability_model = api.model('Availability', {
-    'place_id': fields.String(required=True, description='Place ID'),
-    'check_in_date': fields.String(required=True, description='Check-in date (YYYY-MM-DD)'),
-    'check_out_date': fields.String(required=True, description='Check-out date (YYYY-MM-DD)')
+    'place_id': fields.String(required=True, description='Place ID', example='550e8400-e29b-41d4-a716-446655440001'),
+    'check_in_date': fields.String(required=True, description='Check-in date (YYYY-MM-DD)', example='2025-12-20'),
+    'check_out_date': fields.String(required=True, description='Check-out date (YYYY-MM-DD)', example='2025-12-25')
+})
+
+availability_response = api.model('AvailabilityResponse', {
+    'available': fields.Boolean(description='Whether the place is available for the dates', example=True),
+    'message': fields.String(description='Status message', example='Place is available for selected dates')
+})
+
+error_model = api.model('BookingError', {
+    'error': fields.String(description='Error message', example='Place is not available for selected dates')
 })
 
 
@@ -56,13 +65,20 @@ def serialize_booking(booking):
 
 @api.route('/')
 class BookingList(Resource):
+    @api.doc(
+        description='Create a new booking after successful payment verification',
+        responses={
+            201: ('Booking created successfully', booking_model),
+            400: ('Invalid input, payment not completed, or place not available', error_model),
+            401: ('Authentication required', error_model),
+            404: ('Place not found', error_model)
+        },
+        security='Bearer Auth'
+    )
     @jwt_required()
-    @api.expect(booking_create_model)
-    @api.response(201, 'Booking created successfully')
-    @api.response(400, 'Invalid input or place not available')
-    @api.response(404, 'Place not found')
+    @api.expect(booking_create_model, validate=True)
     def post(self):
-        """Create a new booking"""
+        """Create a new booking with payment verification"""
         user_id = get_jwt_identity()
         booking_data = api.payload
         payment_intent_id = booking_data.get('payment_intent_id')
@@ -97,10 +113,22 @@ class BookingList(Resource):
         except Exception as e:
             return {'error': f'An error occurred: {str(e)}'}, 500
 
+    @api.doc(
+        description='Get all bookings for the authenticated user',
+        params={
+            'status': 'Filter by booking status (pending, confirmed, completed, cancelled)',
+            'type': 'Filter by time (upcoming, past)'
+        },
+        responses={
+            200: ('List of bookings', [booking_model]),
+            401: ('Authentication required', error_model),
+            500: ('Server error', error_model)
+        },
+        security='Bearer Auth'
+    )
     @jwt_required()
-    @api.response(200, 'List of bookings')
     def get(self):
-        """Get all bookings for the authenticated user"""
+        """Get user bookings with optional filters"""
         user_id = get_jwt_identity()
 
         # Get query parameters
