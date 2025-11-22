@@ -71,13 +71,10 @@ export function BookingForm({ bookingDetails }) {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            amount: Math.round(total * 100), // Convert to cents
             currency: "usd",
-            booking_details: {
-              place_id: property.id,
-              check_in_date: bookingDetails.checkInDate,
-              check_out_date: bookingDetails.checkOutDate,
-            },
+            place_id: property.id,
+            check_in_date: bookingDetails.checkInDate,
+            check_out_date: bookingDetails.checkOutDate,
           }),
         });
 

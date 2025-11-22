@@ -9,6 +9,7 @@ load_dotenv()
 
 
 def create_database_if_not_exists():
+    """Optional helper to bootstrap a local database when explicitly requested."""
     config = {
         'user': os.getenv('DB_USER', 'hbnb_user'),
         'password': os.getenv('DB_PASSWORD', '1234'),
@@ -19,10 +20,9 @@ def create_database_if_not_exists():
         connection = mysql.connector.connect(**config)
         cursor = connection.cursor()
         cursor.execute(f"CREATE DATABASE IF NOT EXISTS {db_name}")
-        print(f"Database '{db_name}' is ready.")
-
     except mysql.connector.Error as e:
-        print(f"MySQL Error: {e}")
+        # Surface the error rather than failing silently
+        raise RuntimeError(f"MySQL error while ensuring database exists: {e}") from e
     finally:
         if 'cursor' in locals():
             cursor.close()
@@ -30,25 +30,30 @@ def create_database_if_not_exists():
             connection.close()
 
 
-# step 1: ensure the target database exists
-create_database_if_not_exists()
+def build_app():
+    """Create the Flask application based on environment selection."""
+    flask_env = os.getenv('FLASK_ENV', 'development')
+    config_class = "config.ProductionConfig" if flask_env == 'production' else "config.DevelopmentConfig"
+    return create_app(config_class)
 
-# step 2: initialize the Flask application instance
-# Load appropriate config based on FLASK_ENV
-flask_env = os.getenv('FLASK_ENV', 'development')
-if flask_env == 'production':
-    app = create_app("config.ProductionConfig")
-else:
-    app = create_app()
 
-# step 3: create all database tables with the app context
-with app.app_context():
-    # db.drop_all()
-    db.create_all()
-    print("Tables created.")
+def maybe_prepare_database(app):
+    """
+    For local dev only: optionally create the database and tables.
+    Controlled via HBNB_CREATE_DB_ON_STARTUP=true.
+    """
+    if os.getenv("HBNB_CREATE_DB_ON_STARTUP", "false").lower() != "true":
+        return
+    create_database_if_not_exists()
+    with app.app_context():
+        db.create_all()
 
-print("URI:", os.getenv("SQLALCHEMY_DATABASE_URI"))
+
+def main():
+    app = build_app()
+    maybe_prepare_database(app)
+    app.run(debug=app.config.get("DEBUG", False))
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    main()

@@ -23,14 +23,14 @@ A production-ready two-sided marketplace rental platform demonstrating full-stac
 
 ### Tech Stack
 **Backend:**
-- Python 3.13, Flask, SQLAlchemy
+- Python 3.9+, Flask, SQLAlchemy
 - JWT authentication with bcrypt
 - RESTful API with flask-restx
 - MySQL database with multi-tenant schema
-- Stripe Payment Intents API
+- Stripe Payment Intents API with server-side amount/metadata verification
 
 **Frontend:**
-- React 18 with modern hooks
+- React 19 with modern hooks
 - Vite build system
 - Tailwind CSS for styling
 - React Router for navigation
@@ -41,6 +41,7 @@ A production-ready two-sided marketplace rental platform demonstrating full-stac
 - Terraform for infrastructure as code
 - AWS CloudWatch for monitoring
 - Environment-based configuration (.env files)
+- Pinned Python dependencies via `requirements-constraints.txt` for reproducible deploys
 
 ---
 
@@ -71,9 +72,12 @@ cd backend
 
 # Setup environment variables
 cp .env.example .env
-# Add your Stripe keys to .env:
+# Add required secrets to .env:
+# SECRET_KEY=super-secret-string
+# JWT_SECRET_KEY=jwt-secret-string
 # STRIPE_SECRET_KEY=sk_test_...
 # STRIPE_PUBLISHABLE_KEY=pk_test_...
+# SQLALCHEMY_DATABASE_URI=mysql+pymysql://hbnb_user:1234@localhost:3306/hbnb_db
 
 # Install Python dependencies inside a virtual environment
 python3 -m venv venv
@@ -95,7 +99,7 @@ python3 run.py  # Runs at http://127.0.0.1:5000
    npm install
 
    # Setup environment variables
-   # Create .env.development with:
+   # Create .env.development (or copy from .env.example) with:
    # VITE_API_URL=http://localhost:5000
    # VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
 
@@ -130,6 +134,7 @@ python3 run.py  # Runs at http://127.0.0.1:5000
 - **Password Security:** Bcrypt hashing with strength validation
 - **Role-Based Access:** Host vs guest permission separation
 - **Payment Verification:** Server-side Stripe payment validation before booking creation
+- **Hardening:** HTML sanitization on user content, rate limiting on auth/payments, security headers on all responses
 
 ### User Experience
 - **Responsive Design:** Mobile-first UI with Tailwind CSS
@@ -322,7 +327,7 @@ cd backend
 python3 -m pytest -v              # Run all tests
 python3 -m pytest --cov=app -v    # With coverage report
 ```
-**Coverage**: 8 test suites covering auth, users, places, amenities, reviews, and business rules. Uses in-memory SQLite (no MySQL needed).
+**Coverage**: 10 suites covering auth, users, places, amenities, reviews, booking/payment validation, and business rules. Uses in-memory SQLite (no MySQL needed).
 
 ### Frontend Tests
 ```bash
@@ -330,7 +335,7 @@ cd frontend
 npm test                 # Run all tests
 npm run test:coverage    # With coverage report
 ```
-**Coverage**: 13 tests across AuthContext, BookingForm, and Navigation components using Vitest + React Testing Library.
+**Coverage**: 15 tests across AuthContext, BookingForm, Navigation, and Host dashboard auth/listings flows using Vitest + React Testing Library.
 
 ---
 

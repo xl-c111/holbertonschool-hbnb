@@ -1,9 +1,16 @@
-flask
+-c requirements-constraints.txt
+Flask
 flask-restx
-flask-bcrypt
-flask-sqlalchemy
-flask-jwt-extended
+Flask-Bcrypt
+Flask-SQLAlchemy
+Flask-JWT-Extended
+Flask-Limiter
 flask-cors
+Flask-Login
 python-dotenv
+SQLAlchemy
 mysql-connector-python
+PyMySQL
+stripe
 gunicorn
+bleach
