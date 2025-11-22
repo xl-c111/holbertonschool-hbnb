@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { Star, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { WriteReviewModal } from "@/components/write-review-modal";
+import { useAuth } from "@/contexts/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -15,11 +18,14 @@ interface PropertyReviewsProps {
   placeId: string;
   rating: number;
   reviewCount: number;
+  placeName: string;
 }
 
-export function PropertyReviews({ placeId, rating, reviewCount }: PropertyReviewsProps) {
+export function PropertyReviews({ placeId, rating, reviewCount, placeName }: PropertyReviewsProps) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -41,15 +47,46 @@ export function PropertyReviews({ placeId, rating, reviewCount }: PropertyReview
     fetchReviews();
   }, [placeId]);
 
+  const handleReviewSubmitted = () => {
+    // Refetch reviews
+    setLoading(true);
+    fetch(`${API_URL}/api/v1/places/${placeId}/reviews`)
+      .then((res) => res.json())
+      .then((data) => setReviews(data))
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  };
+
   return (
     <div className="pt-12">
-      <div className="flex items-center gap-3 mb-8">
-        <Star className="w-7 h-7 fill-black stroke-black" />
-        <span className="text-[40px] font-normal leading-none">{rating}</span>
-        <span className="text-[20px] text-gray-900 leading-none">
-          · {reviewCount} {reviewCount === 1 ? "review" : "reviews"}
-        </span>
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <Star className="w-7 h-7 fill-black stroke-black" />
+          <span className="text-[40px] font-normal leading-none">{rating}</span>
+          <span className="text-[20px] text-gray-900 leading-none">
+            · {reviewCount} {reviewCount === 1 ? "review" : "reviews"}
+          </span>
+        </div>
+        {isAuthenticated && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsModalOpen(true)}
+            className="rounded-2xl"
+          >
+            <Star className="w-4 h-4 mr-2" />
+            Write a review
+          </Button>
+        )}
       </div>
+
+      <WriteReviewModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        placeId={placeId}
+        placeName={placeName}
+        onReviewSubmitted={handleReviewSubmitted}
+      />
 
       {loading ? (
         <p className="text-sm text-gray-500">Loading reviews...</p>

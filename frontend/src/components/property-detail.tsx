@@ -132,9 +132,6 @@ export function PropertyDetail({ property }) {
                 </div>
               </div>
             </div>
-            <p className="text-gray-600 text-sm">
-              {property.description.slice(0, 120)}...
-            </p>
           </div>
 
           {/* Price */}
@@ -293,6 +290,7 @@ export function PropertyDetail({ property }) {
             placeId={property.id}
             rating={property.rating}
             reviewCount={property.reviews}
+            placeName={property.name}
           />
         </div>
 
