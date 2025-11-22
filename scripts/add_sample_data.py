@@ -83,7 +83,7 @@ with app.app_context():
         {
             'owner': 'john.doe@example.com',
             'title': 'Mirror House Sud',
-            'description': 'Mirror Houses are two small houses immersed in apple orchards with Dolomites views. Enjoy contemporary architecture and nature at once.',
+            'description': 'Stunning modernist retreat with floor-to-ceiling reflective glass walls nestled among apple orchards with breathtaking Dolomites views. Features minimalist luxury interiors, designer furnishings, spa-like bathrooms, and private terraces. The mirrored facade seamlessly blends architecture with nature, creating an ever-changing canvas of mountain beauty and orchard serenity.',
             'price': 1600.0,
             'latitude': 46.498295,
             'longitude': 11.354758
@@ -91,7 +91,7 @@ with app.app_context():
         {
             'owner': 'john.doe@example.com',
             'title': 'Lake Tahoe Modern Lakehouse',
-            'description': 'Glassy lakefront stay with private dock on Tahoe\'s north shore, blending indoor comfort with alpine air.',
+            'description': 'Architectural gem on Lake Tahoe\'s north shore featuring expansive windows framing crystal-clear waters and Sierra Nevada peaks. Includes private dock, chef\'s kitchen, stone fireplace, and master suite with lake-view soaking tub. Multiple deck spaces perfect for BBQs and stargazing, with direct access to water activities and nearby ski resorts.',
             'price': 1750.0,
             'latitude': 39.096849,
             'longitude': -120.032351
@@ -99,7 +99,7 @@ with app.app_context():
         {
             'owner': 'john.doe@example.com',
             'title': 'Palm Springs Desert Retreat',
-            'description': 'Sculptural desert home with private pool, spa, and mountain vistas—perfect for slow, sun-soaked days.',
+            'description': 'Mid-century modern desert sanctuary showcasing clean lines and floor-to-ceiling glass walls. Features saltwater infinity pool, spa grotto, vintage designer furniture, and three en-suite bedrooms. Professional desert landscaping with native cacti frames dramatic mountain views, while being minutes from downtown Palm Springs dining and shopping.',
             'price': 1450.0,
             'latitude': 33.830296,
             'longitude': -116.545292
@@ -109,7 +109,7 @@ with app.app_context():
         {
             'owner': 'sarah.chen@example.com',
             'title': 'Mountain Villa Aspen',
-            'description': 'Luxurious mountain villa near Aspen peaks with panoramic views and instant access to skiing and alpine adventures.',
+            'description': 'Expansive luxury villa on Aspen\'s slopes combining rustic mountain charm with modern sophistication. Features vaulted ceilings, river-rock fireplace, gourmet kitchen, five bedroom suites, and panoramic peak views. Includes home theater, game room, private hot tub, heated garage, and ski-in access to world-class slopes.',
             'price': 2200.0,
             'latitude': 39.191098,
             'longitude': -106.817539
@@ -117,7 +117,7 @@ with app.app_context():
         {
             'owner': 'sarah.chen@example.com',
             'title': 'Malibu Beach House',
-            'description': 'Beachfront modern hideaway in Malibu featuring ocean deck, salt-air mornings, and sunset silhouettes.',
+            'description': 'Contemporary oceanfront masterpiece with walls of sliding glass opening to private beach access. Features polished concrete floors, chef\'s kitchen, designer furnishings, and three bedrooms including luxurious master suite. Private deck spans the full length with multiple lounging areas, perfect for watching surfers and spectacular Pacific sunsets.',
             'price': 1850.0,
             'latitude': 34.025921,
             'longitude': -118.779757
@@ -127,7 +127,7 @@ with app.app_context():
         {
             'owner': 'mike.johnson@example.com',
             'title': 'Forest Cabin Portland',
-            'description': 'Cozy Douglas-fir cabin just outside Portland with wraparound windows, fireplace, and trail access.',
+            'description': 'Enchanting Douglas-fir cabin in lush Pacific Northwest forest featuring massive windows bringing nature inside. Includes wood-burning fireplace, cozy reading nook, sleeping loft with skylight, and wraparound deck with Adirondack chairs. Direct trail access to old-growth forest and waterfalls, yet only 20 minutes from downtown Portland.',
             'price': 950.0,
             'latitude': 45.5152,
             'longitude': -122.6784
