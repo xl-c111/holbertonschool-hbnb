@@ -47,8 +47,9 @@ def create_app(config_class="config.DevelopmentConfig"):
     bcrypt.init_app(app)
     limiter.init_app(app)
 
-    # Configure CORS - Allow all origins in development
-    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+    # Configure CORS - Allow frontend origin from config
+    frontend_url = app.config.get('FRONTEND_URL', '*')
+    CORS(app, resources={r"/api/*": {"origins": frontend_url}}, supports_credentials=True)
 
     # Configure authorization for Swagger UI
     authorizations = {

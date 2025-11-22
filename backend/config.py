@@ -10,6 +10,7 @@ class Config:
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY') or SECRET_KEY
     DEBUG = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
 
 
 class DevelopmentConfig(Config):
