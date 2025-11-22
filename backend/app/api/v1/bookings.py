@@ -6,6 +6,7 @@ from app.extensions import db
 from app.models.user import User
 import stripe
 import os
+from datetime import datetime, date
 
 # Initialize Stripe
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
@@ -44,6 +45,22 @@ availability_response = api.model('AvailabilityResponse', {
 error_model = api.model('BookingError', {
     'error': fields.String(description='Error message', example='Place is not available for selected dates')
 })
+
+
+def _parse_dates(check_in_str: str, check_out_str: str):
+    """Parse dates from strings and validate order"""
+    check_in = datetime.strptime(check_in_str, "%Y-%m-%d").date()
+    check_out = datetime.strptime(check_out_str, "%Y-%m-%d").date()
+    if check_out <= check_in:
+        raise ValueError("Check-out date must be after check-in date")
+    return check_in, check_out
+
+
+def _calculate_amount_cents(price_per_night: float, check_in: date, check_out: date) -> int:
+    nights = (check_out - check_in).days
+    if nights <= 0:
+        raise ValueError("Booking must be at least 1 night")
+    return int(round(price_per_night * nights * 100))
 
 
 def serialize_booking(booking):
@@ -99,6 +116,34 @@ class BookingList(Resource):
             place = facade.get_place(booking_data['place_id'])
             if not place:
                 return {'error': 'Place not found'}, 404
+
+            try:
+                check_in, check_out = _parse_dates(booking_data['check_in_date'], booking_data['check_out_date'])
+                expected_amount_cents = _calculate_amount_cents(place.price, check_in, check_out)
+            except ValueError as e:
+                return {'error': str(e)}, 400
+
+            metadata = payment_intent.metadata or {}
+            if not metadata:
+                return {'error': 'Payment intent metadata missing'}, 400
+            # Enforce metadata consistency with the booking request
+            if metadata.get('user_id') and metadata.get('user_id') != str(user_id):
+                return {'error': 'Payment intent does not belong to this user'}, 400
+            if metadata.get('place_id') and metadata.get('place_id') != str(booking_data['place_id']):
+                return {'error': 'Payment intent does not match the selected place'}, 400
+            if metadata.get('check_in_date') and metadata.get('check_in_date') != booking_data['check_in_date']:
+                return {'error': 'Payment intent check-in date mismatch'}, 400
+            if metadata.get('check_out_date') and metadata.get('check_out_date') != booking_data['check_out_date']:
+                return {'error': 'Payment intent check-out date mismatch'}, 400
+
+            if payment_intent.amount != expected_amount_cents:
+                return {'error': 'Payment amount does not match booking total'}, 400
+            if metadata.get('expected_amount_cents'):
+                try:
+                    if int(metadata['expected_amount_cents']) != expected_amount_cents:
+                        return {'error': 'Payment metadata amount mismatch'}, 400
+                except (ValueError, TypeError):
+                    return {'error': 'Payment metadata amount invalid'}, 400
 
             # Add guest_id from JWT
             booking_data['guest_id'] = user_id
