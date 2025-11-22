@@ -49,6 +49,10 @@ def maybe_prepare_database(app):
         db.create_all()
 
 
+# Create app instance for gunicorn
+app = build_app()
+
+
 def main():
     app = build_app()
     maybe_prepare_database(app)
