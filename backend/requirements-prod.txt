@@ -4,6 +4,7 @@ flask-restx
 Flask-Bcrypt
 Flask-SQLAlchemy
 Flask-JWT-Extended
+Flask-Limiter
 flask-cors
 Flask-Login
 python-dotenv
