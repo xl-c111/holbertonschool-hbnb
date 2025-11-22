@@ -17,12 +17,29 @@ from flask_cors import CORS
 load_dotenv()
 
 
+def _is_production_config(config_class):
+    if isinstance(config_class, str):
+        return config_class.endswith("ProductionConfig")
+    return getattr(config_class, "__name__", "") == "ProductionConfig"
+
+
+def _validate_production_config(app):
+    required_keys = ['SECRET_KEY', 'JWT_SECRET_KEY', 'SQLALCHEMY_DATABASE_URI']
+    missing = [key for key in required_keys if not app.config.get(key)]
+    if missing:
+        missing_list = ", ".join(missing)
+        raise RuntimeError(f"Missing required production settings: {missing_list}")
+
+
 def create_app(config_class="config.DevelopmentConfig"):
     app = Flask(__name__,
                 static_folder='../base_files',
                 static_url_path=''
                 )
     app.config.from_object(config_class)
+
+    if _is_production_config(config_class):
+        _validate_production_config(app)
 
     # initialize extensions
     db.init_app(app)
