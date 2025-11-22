@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import create_access_token
 from app.services import facade
+from app.extensions import limiter
 
 
 
@@ -33,6 +34,7 @@ class Login(Resource):
     )
     @api.expect(login_model, validate=True)
     @api.marshal_with(login_response, code=200)
+    @limiter.limit("5 per minute")
     def post(self):
         """Authenticate user and return a JWT token"""
         credentials = api.payload

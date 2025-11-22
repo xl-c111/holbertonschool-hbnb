@@ -5,6 +5,7 @@ import os
 from datetime import datetime, date
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
+from app.extensions import limiter
 
 api = Namespace('payments', description='Payment operations')
 
@@ -46,6 +47,7 @@ class CreatePaymentIntent(Resource):
     @api.expect(payment_intent_model)
     @api.marshal_with(payment_intent_response)
     @jwt_required()
+    @limiter.limit("10 per minute")
     def post(self):
         """Create a Stripe payment intent for a booking"""
         user_id = get_jwt_identity()

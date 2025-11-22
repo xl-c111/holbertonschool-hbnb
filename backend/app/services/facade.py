@@ -8,6 +8,7 @@ from app.models.review import Review
 from app.models.amenity import Amenity
 from app.models.booking import Booking
 from app.extensions import db
+import bleach
 from sqlalchemy.orm import selectinload
 from datetime import datetime, date
 
@@ -72,6 +73,13 @@ class HBnBFacade:
             raise ValueError("Owner not found")
         data['owner'] = owner
         data.pop('owner_id')  # Remove owner_id so Place doesn't get it
+        # Sanitize free-form text fields
+        data['title'] = bleach.clean(data['title'] or "", strip=True)
+        data['description'] = bleach.clean(
+            data['description'] or "",
+            tags=['p', 'br', 'strong', 'em', 'ul', 'ol', 'li'],
+            strip=True
+        )
         place = Place(**data)
         self.place_repo.add(place)
         return place
@@ -226,7 +234,11 @@ class HBnBFacade:
             raise ValueError("You have already reviewed this place.")
 
         review = Review(
-            text=review_data['text'],
+            text=bleach.clean(
+                review_data['text'],
+                tags=['p', 'br', 'strong', 'em'],
+                strip=True
+            ),
             rating=review_data['rating'],
             place=place,
             user=user
@@ -249,7 +261,12 @@ class HBnBFacade:
             return None
         if review.user.id != user.id and not getattr(user, 'is_admin', False):
             raise PermissionError("Not allowed to edit this review.")
-        review.text = review_data.get('text', review.text)
+        if 'text' in review_data:
+            review.text = bleach.clean(
+                review_data['text'],
+                tags=['p', 'br', 'strong', 'em'],
+                strip=True
+            )
         review.rating = review_data.get('rating', review.rating)
         db.session.commit()
         return review

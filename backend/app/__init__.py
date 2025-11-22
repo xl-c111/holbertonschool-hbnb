@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restx import Api
 from config import DevelopmentConfig
-from app.extensions import db, bcrypt, jwt
+from app.extensions import db, bcrypt, jwt, limiter
 from app.api.v1.users import api as users_ns
 from app.api.v1.reviews import api as reviews_ns
 from app.api.v1.places import api as places_ns
@@ -45,6 +45,7 @@ def create_app(config_class="config.DevelopmentConfig"):
     db.init_app(app)
     jwt.init_app(app)
     bcrypt.init_app(app)
+    limiter.init_app(app)
 
     # Configure CORS - Allow all origins in development
     CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
@@ -79,5 +80,15 @@ def create_app(config_class="config.DevelopmentConfig"):
     api.add_namespace(auth_ns, path='/api/v1/auth')
     api.add_namespace(bookings_ns, path='/api/v1/bookings')
     api.add_namespace(payments_ns, path='/api/v1/payments')
+
+    @app.after_request
+    def set_security_headers(response):
+        response.headers.setdefault('X-Content-Type-Options', 'nosniff')
+        response.headers.setdefault('X-Frame-Options', 'DENY')
+        response.headers.setdefault('X-XSS-Protection', '1; mode=block')
+        response.headers.setdefault('Referrer-Policy', 'no-referrer-when-downgrade')
+        # Content-Security-Policy kept minimal; adjust if you add inline scripts/styles
+        response.headers.setdefault('Content-Security-Policy', "default-src 'self'")
+        return response
 
     return app
